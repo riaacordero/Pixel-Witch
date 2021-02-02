@@ -15,49 +15,41 @@ pygame.display.set_caption("Pixel Witch")
 # GRID VARIABLES
 tile_size = 25
 game_over = 0
-main_menu = True
 
 # LOAD IMAGES
 bg_img = pygame.image.load('img/bg_img.png')
 restart_img = pygame.image.load('img/restart_button.png')
 start_img = pygame.image.load('img/start_button.png')
 exit_img = pygame.image.load('img/exit.png')
-
+def_start_img = pygame.image.load(r"img/default_start_btn.png")
+hov_start_img = pygame.image.load(r"img/hovered_start_btn.png")
+def_main_menu_exit_img = pygame.image.load(r"img/default_exit_btn.png")
+hov_main_menu_exit_img = pygame.image.load(r"img/hovered_exit_btn.png")
 
 def display_txt(text, font, text_color, x, y):
     img = font.render(text, True, text_color)
     screen.blit(img, (x, y))
 
 
-class Button:
-    def __init__(self, x, y, image):
-        self.image = image
-        self.rect = self.image.get_rect()
+class Button(pygame.sprite.Sprite):
+    def __init__(self, x, y, default_image, hovered_image=None, *groups):
+        super().__init__(*groups)
+        self.default_image = default_image
+        self.hovered_image = default_image if hovered_image is None else hovered_image
+        self.rect = self.default_image.get_rect()
         self.rect.x = x
         self.rect.y = y
         self.clicked = False
 
     def draw(self):
-        mouse_act = False
+        screen.blit(self.hovered_image if self.is_hovered() else self.default_image, self.rect)
 
-        # get mouse position
+    def is_hovered(self):
         mouse_pos = pygame.mouse.get_pos()
+        return self.rect.collidepoint(mouse_pos)
 
-        # mouse over
-        if self.rect.collidepoint(mouse_pos):
-            if pygame.mouse.get_pressed(3)[0] and not self.clicked:  # 0 is for left-click
-                mouse_act = True
-                self.clicked = True
-
-        # mouse click
-        if not pygame.mouse.get_pressed(3)[0]:
-            self.clicked = False
-
-        # draw button
-        screen.blit(self.image, self.rect)
-
-        return mouse_act
-
+    def is_clicked(self):
+        return self.is_hovered() and pygame.mouse.get_pressed(3)[0]
 
 class Player:
     def __init__(self, x, y):
@@ -192,6 +184,13 @@ class Player:
 
 
 class Level:
+
+    MAIN_MENU = 0
+    ONE = 1
+    TWO = 2
+    THREE = 3
+    FOUR = 4
+
     def __init__(self, data):
         self.tile_list = []
 
@@ -274,6 +273,8 @@ class Door(pygame.sprite.Sprite):
 
 
 # LEVEL DATA
+current_level = Level.MAIN_MENU
+
 level_data = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
@@ -306,8 +307,9 @@ door_grp = pygame.sprite.Group()
 level = Level(level_data)
 
 # CREATE BUTTONS
+start_btn = Button(screen_height // 20, screen_height // 1.5, def_start_img, hov_start_img)
+main_menu_exit_btn = Button(screen_height // 20, screen_height // 1.25, def_main_menu_exit_img, hov_main_menu_exit_img)
 restart_btn = Button(screen_width // 2 - 90, screen_height // 2, restart_img)
-start_btn = Button(screen_width // 2 - 75, screen_height // 2, start_img)
 exit_btn = Button(screen_width // 2 + 10, screen_height // 2, exit_img)
 
 # GAME LOOP
@@ -318,11 +320,14 @@ while Running:
     clock.tick(fps)
     screen.blit(bg_img, (0, 0))
 
-    if main_menu:
-        if exit_btn.draw():
+    if current_level == Level.MAIN_MENU:
+        start_btn.draw()
+        main_menu_exit_btn.draw()
+
+        if main_menu_exit_btn.is_clicked():
             Running = False
-        if start_btn.draw():
-            main_menu = False
+        if start_btn.is_clicked():
+            current_level = Level.ONE
 
     else:
         level.draw()
@@ -338,21 +343,27 @@ while Running:
 
         # LOSE
         if game_over == -1:
-            if restart_btn.draw():
+            restart_btn.draw()
+            exit_btn.draw()
+
+            if restart_btn.is_clicked():
                 player.reset(100, screen_height - 130)
                 game_over = 0
-            if exit_btn.draw():
-                main_menu = True
+            if exit_btn.is_clicked():
+                current_level = Level.MAIN_MENU
                 player.reset(100, screen_height - 130)
                 game_over = 0
 
         # WIN
         if game_over == 1:
-            if restart_btn.draw():
+            restart_btn.draw()
+            exit_btn.draw()
+
+            if restart_btn.is_clicked():
                 player.reset(100, screen_height - 130)
                 game_over = 0
-            if exit_btn.draw():
-                main_menu = True
+            if exit_btn.is_clicked():
+                current_level = Level.MAIN_MENU
                 player.reset(100, screen_height - 130)
                 game_over = 0
 
