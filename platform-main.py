@@ -36,13 +36,17 @@ class Button(pygame.sprite.Sprite):
         super().__init__(*groups)
         self.default_image = default_image
         self.hovered_image = default_image if hovered_image is None else hovered_image
+        self.image = default_image
         self.rect = self.default_image.get_rect()
         self.rect.x = x
         self.rect.y = y
         self.clicked = False
 
     def draw(self):
-        screen.blit(self.hovered_image if self.is_hovered() else self.default_image, self.rect)
+        screen.blit(self.image, self.rect)
+
+    def update(self):
+        self.image = self.hovered_image if self.is_hovered() else self.default_image
 
     def is_hovered(self):
         mouse_pos = pygame.mouse.get_pos()
@@ -206,7 +210,7 @@ class Player:
             d_y += self.v_y
 
             # COLLISION
-            for tile in level.tile_list:
+            for tile in level_one.tile_list:
                 # X-DIR. COLLISION
                 if tile[1].colliderect(self.rect.x + d_x, self.rect.y, self.width, self.height):
                     d_x = 0
@@ -269,6 +273,7 @@ class Player:
 
 class Level:
 
+    LIST = -1
     MAIN_MENU = 0
     ONE = 1
     TWO = 2
@@ -359,7 +364,7 @@ class Door(pygame.sprite.Sprite):
 # LEVEL DATA
 current_level = Level.MAIN_MENU
 
-level_data = [
+level_one_data = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
@@ -382,13 +387,19 @@ level_data = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ]
 
-# CREATE GAME MOBS
+# CREATE GAME MOBS AND TYPE GROUPS
 player = Player(100, screen_height - 130)
-
 enemy_grp = pygame.sprite.Group()
 lava_grp = pygame.sprite.Group()
 door_grp = pygame.sprite.Group()
-level = Level(level_data)
+
+# CREATE LEVELS
+level_one = Level(level_one_data)
+
+# CREATE LEVEL GROUPS
+main_menu_grp = pygame.sprite.Group()
+game_over_grp = pygame.sprite.Group()
+level_list_grp = pygame.sprite.Group()
 
 # CREATE BUTTONS
 start_btn = Button(screen_height // 20, screen_height // 1.5, def_start_img, hov_start_img)
@@ -396,25 +407,28 @@ main_menu_exit_btn = Button(screen_height // 20, screen_height // 1.25, def_main
 restart_btn = Button(screen_width // 2 - 90, screen_height // 2, restart_img)
 exit_btn = Button(screen_width // 2 + 10, screen_height // 2, exit_img)
 
+# ADD ITEMS TO LEVEL GROUPS
+main_menu_grp.add(start_btn, main_menu_exit_btn)
+game_over_grp.add(restart_btn, exit_btn)
+
 # GAME LOOP
 Running = True
-
 while Running:
 
     clock.tick(fps)
     screen.blit(bg_img, (0, 0))
 
     if current_level == Level.MAIN_MENU:
-        start_btn.draw()
-        main_menu_exit_btn.draw()
+        main_menu_grp.draw(screen)
 
         if main_menu_exit_btn.is_clicked():
             Running = False
-        if start_btn.is_clicked():
+        elif start_btn.is_clicked():
             current_level = Level.ONE
 
+        main_menu_grp.update()
     else:
-        level.draw()
+        level_one.draw()
 
         if game_over == 0:
             enemy_grp.update()
@@ -427,8 +441,7 @@ while Running:
 
         # LOSE
         if game_over == -1:
-            restart_btn.draw()
-            exit_btn.draw()
+            game_over_grp.draw(screen)
 
             if restart_btn.is_clicked():
                 player.reset(100, screen_height - 130)
@@ -437,11 +450,12 @@ while Running:
                 current_level = Level.MAIN_MENU
                 player.reset(100, screen_height - 130)
                 game_over = 0
+
+            game_over_grp.update()
 
         # WIN
         if game_over == 1:
-            restart_btn.draw()
-            exit_btn.draw()
+            game_over_grp.draw(screen)
 
             if restart_btn.is_clicked():
                 player.reset(100, screen_height - 130)
@@ -450,6 +464,8 @@ while Running:
                 current_level = Level.MAIN_MENU
                 player.reset(100, screen_height - 130)
                 game_over = 0
+
+            game_over_grp.update()
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
