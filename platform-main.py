@@ -15,13 +15,16 @@ pygame.display.set_caption("Pixel Witch")
 # GRID VARIABLES
 tile_size = 25
 game_over = 0
-main_menu = True
 
 # LOAD IMAGES
 bg_img = pygame.image.load('img/bg_img.png')
 restart_img = pygame.image.load('img/restart_button.png')
 start_img = pygame.image.load('img/start_button.png')
 exit_img = pygame.image.load('img/exit.png')
+def_start_img = pygame.image.load(r"img/default_start_btn.png")
+hov_start_img = pygame.image.load(r"img/hovered_start_btn.png")
+def_main_menu_exit_img = pygame.image.load(r"img/default_exit_btn.png")
+hov_main_menu_exit_img = pygame.image.load(r"img/hovered_exit_btn.png")
 
 def display_txt(text, font, text_color, x, y):
     img = font.render(text, True, text_color)
