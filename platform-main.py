@@ -64,7 +64,7 @@ class Player():
         self.counter = 0
         for num in range(1, 4):
             img_right = pygame.image.load(f'img/player-{num}.png')
-            img_right = pygame.transform.scale(img_right, (70, 90))
+            img_right = pygame.transform.scale(img_right, (90, 90))
             img_left = pygame.transform.flip(img_right, True, False)
             self.images_right.append(img_right)
             self.images_left.append(img_left)
