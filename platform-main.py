@@ -32,6 +32,10 @@ def display_txt(text, font, text_color, x, y):
 
 
 class Button(pygame.sprite.Sprite):
+    """
+    Clickable item in screen. Changes image when mouse is hovered on top of it.
+    """
+
     def __init__(self, x, y, default_image, hovered_image=None, *groups):
         super().__init__(*groups)
         self.default_image = default_image
@@ -106,6 +110,17 @@ class Camera(pygame.sprite.LayeredUpdates):
         return dirty
 
 
+class Location:
+    """
+    Current place being shown in screen.
+    """
+
+    MAIN_MENU = -1
+    LEVEL_LIST = 0
+    LEVEL_ONE = 1
+    LEVEL_TWO = 2
+    LEVEL_THREE = 3
+
 class ColorState:
     """
     State of the player based on the ColorSpace they are in. Except the default value BLACK,
@@ -121,12 +136,12 @@ class ColorState:
     """Jump"""
 
     YELLOW = 3
-    """Not sure yet"""
+    """One-time use shield"""
 
 
-class ColorSpace(pygame.sprite.Sprite):
+class Potion(pygame.sprite.Sprite):
     """
-    Spaces in a stage which changes the player's ColorState based on the color of the ColorSpace.
+    One-time use items which changes the player's ColorState based on the color of the ColorSpace.
     """
 
     def __init__(self, color_state, image, x, y, *groups):
@@ -270,13 +285,6 @@ class Player:
 
 class Level:
 
-    LIST = -1
-    MAIN_MENU = 0
-    ONE = 1
-    TWO = 2
-    THREE = 3
-    FOUR = 4
-
     def __init__(self, data):
         self.tile_list = []
 
@@ -359,7 +367,7 @@ class Door(pygame.sprite.Sprite):
 
 
 # LEVEL DATA
-current_level = Level.MAIN_MENU
+current_level = Location.MAIN_MENU
 
 level_one_data = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -415,13 +423,13 @@ while Running:
     clock.tick(fps)
     screen.blit(bg_img, (0, 0))
 
-    if current_level == Level.MAIN_MENU:
+    if current_level == Location.MAIN_MENU:
         main_menu_grp.draw(screen)
 
         if main_menu_exit_btn.is_clicked():
             Running = False
         elif start_btn.is_clicked():
-            current_level = Level.ONE
+            current_level = Location.LEVEL_ONE
 
         main_menu_grp.update()
     else:
@@ -444,7 +452,7 @@ while Running:
                 player.reset(100, screen_height - 130)
                 game_over = 0
             if exit_btn.is_clicked():
-                current_level = Level.MAIN_MENU
+                current_level = Location.MAIN_MENU
                 player.reset(100, screen_height - 130)
                 game_over = 0
 
@@ -458,7 +466,7 @@ while Running:
                 player.reset(100, screen_height - 130)
                 game_over = 0
             if exit_btn.is_clicked():
-                current_level = Level.MAIN_MENU
+                current_level = Location.MAIN_MENU
                 player.reset(100, screen_height - 130)
                 game_over = 0
 
