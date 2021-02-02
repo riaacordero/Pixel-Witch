@@ -56,23 +56,103 @@ class Button(pygame.sprite.Sprite):
     def is_clicked(self):
         return self.is_hovered() and pygame.mouse.get_pressed(3)[0]
 
-        # mouse over
-        if self.rect.collidepoint(mouse_pos):
-            if pygame.mouse.get_pressed()[0] == 1 and self.clicked == False:      # 0 is for left-click
-                mouse_act = True
-                self.clicked = True
+class Camera(pygame.sprite.LayeredUpdates):
+    """
+    Game camera following the player that acts similarly with a pygame.sprite.Group() object.
+    All sprites must be added to a Camera() object to make them adjust to it. There should be
+    one camera per level so that each Camera() object can adjust depending on the level's size
+    and so that the sprites in each level are grouped in only one Camera() object.
+    """
 
-        # mouse click
-        if pygame.mouse.get_pressed()[0] == 0:
-            self.clicked = False
+    def __init__(self, target, level_size):
+        super().__init__()
 
-        # draw button
-        screen.blit(self.image, self.rect)
+        self.target = target
+        """Item to be followed by the camera (player)"""
 
-        return mouse_act
+        self.level_size = level_size
+        """pygame.Rect(), size of the whole level in pixels"""
 
-class Player():
-    def __init__(self, x,y):
+        self.camera = pygame.Vector2(0, 0)
+        """Coordinates of the camera"""
+
+        if self.target:
+            self.add(target)
+
+    def update(self, *args):
+        super().update(*args)
+        if self.target:
+            # Checks how far the target is from the center of the screen
+            x = screen_width / 2 - self.target.rect.center[0]
+            y = screen_height / 2 - self.target.rect.center[1]
+            distance = pygame.Vector2(x, y)
+            # Adjusts camera
+            self.camera += (distance - self.camera) * 0.05
+            # Makes sure camera does not go beyond the level's width and height
+            self.camera.x = max(-(self.level_size.width - screen_width), min(0, self.camera.x))
+            self.camera.y = max(-(self.level_size.height - screen_height), min(0, self.camera.y))
+
+    def draw(self, surface):
+        # Contains some added technicalities in grouping sprites
+        dirty = self.lostsprites
+        self.lostsprites = []
+        for s, old_r in self.spritedict.items():
+            new_r = surface.blit(s.image, s.rect.move(self.camera))
+            if old_r:
+                if new_r.colliderect(old_r):
+                    dirty.append(new_r.union(old_r))
+                else:
+                    dirty.append(new_r)
+                    dirty.append(old_r)
+            else:
+                dirty.append(new_r)
+            self.spritedict[s] = new_r
+        return dirty
+
+
+class Location:
+    """
+    Current place being shown in screen.
+    """
+
+    MAIN_MENU = -1
+    LEVEL_LIST = 0
+    LEVEL_ONE = 1
+    LEVEL_TWO = 2
+    LEVEL_THREE = 3
+
+class ColorState:
+    """
+    State of the player based on the ColorSpace they are in. Except the default value BLACK,
+    each ColorState gives the player a unique ability, accessible by pressing SPACE.
+    """
+
+    BLACK = 0
+
+    RED = 1
+    """Horizontal projectile attack based on what side the player is facing"""
+
+    BLUE = 2
+    """Jump"""
+
+    YELLOW = 3
+    """One-time use shield"""
+
+
+class Potion(pygame.sprite.Sprite):
+    """
+    One-time use items which changes the player's ColorState based on the color of the ColorSpace.
+    """
+
+    def __init__(self, color_state, image, x, y, *groups):
+        super().__init__(*groups)
+        self.color_state = color_state
+        self.image = image
+        self.rect.x, self.rect.y = x, y
+
+
+class Player:
+    def __init__(self, x, y):
         self.images_right = []
         self.images_left = []
         self.index = 0
