@@ -51,6 +51,90 @@ class Button(pygame.sprite.Sprite):
     def is_clicked(self):
         return self.is_hovered() and pygame.mouse.get_pressed(3)[0]
 
+class Camera(pygame.sprite.LayeredUpdates):
+    """
+    Game camera following the player that acts similarly with a pygame.sprite.Group() object.
+    All sprites must be added to a Camera() object to make them adjust to it. There should be
+    one camera per level so that each Camera() object can adjust depending on the level's size
+    and so that the sprites in each level are grouped in only one Camera() object.
+    """
+
+    def __init__(self, target, level_size):
+        super().__init__()
+
+        self.target = target
+        """Item to be followed by the camera (player)"""
+
+        self.level_size = level_size
+        """pygame.Rect(), size of the whole level in pixels"""
+
+        self.camera = pygame.Vector2(0, 0)
+        """Coordinates of the camera"""
+
+        if self.target:
+            self.add(target)
+
+    def update(self, *args):
+        super().update(*args)
+        if self.target:
+            # Checks how far the target is from the center of the screen
+            x = screen_width / 2 - self.target.rect.center[0]
+            y = screen_height / 2 - self.target.rect.center[1]
+            distance = pygame.Vector2(x, y)
+            # Adjusts camera
+            self.camera += (distance - self.camera) * 0.05
+            # Makes sure camera does not go beyond the level's width and height
+            self.camera.x = max(-(self.level_size.width - screen_width), min(0, self.camera.x))
+            self.camera.y = max(-(self.level_size.height - screen_height), min(0, self.camera.y))
+
+    def draw(self, surface):
+        # Contains some added technicalities in grouping sprites
+        dirty = self.lostsprites
+        self.lostsprites = []
+        for s, old_r in self.spritedict.items():
+            new_r = surface.blit(s.image, s.rect.move(self.camera))
+            if old_r:
+                if new_r.colliderect(old_r):
+                    dirty.append(new_r.union(old_r))
+                else:
+                    dirty.append(new_r)
+                    dirty.append(old_r)
+            else:
+                dirty.append(new_r)
+            self.spritedict[s] = new_r
+        return dirty
+
+
+class ColorState:
+    """
+    State of the player based on the ColorSpace they are in. Except the default value BLACK,
+    each ColorState gives the player a unique ability, accessible by pressing SPACE.
+    """
+
+    BLACK = 0
+
+    RED = 1
+    """Horizontal projectile attack based on what side the player is facing"""
+
+    BLUE = 2
+    """Jump"""
+
+    GREEN = 3
+    """Not sure yet"""
+
+
+class ColorSpace(pygame.sprite.Sprite):
+    """
+    Spaces in a stage which changes the player's ColorState based on the color of the ColorSpace.
+    """
+
+    def __init__(self, color_state, image, x, y, *groups):
+        super().__init__(*groups)
+        self.color_state = color_state
+        self.image = image
+        self.rect.x, self.rect.y = x, y
+
+
 class Player:
     def __init__(self, x, y):
         self.images_right = []
