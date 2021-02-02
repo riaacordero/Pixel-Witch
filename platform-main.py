@@ -130,7 +130,7 @@ class Player:
             d_y += self.v_y
 
             # COLLISION
-            for tile in world.tile_list:
+            for tile in level.tile_list:
                 # X-DIR. COLLISION
                 if tile[1].colliderect(self.rect.x + d_x, self.rect.y, self.width, self.height):
                     d_x = 0
@@ -303,7 +303,7 @@ player = Player(100, screen_height - 130)
 enemy_grp = pygame.sprite.Group()
 lava_grp = pygame.sprite.Group()
 door_grp = pygame.sprite.Group()
-world = Level(level_data)
+level = Level(level_data)
 
 # CREATE BUTTONS
 restart_btn = Button(screen_width // 2 - 90, screen_height // 2, restart_img)
@@ -325,7 +325,7 @@ while Running:
             main_menu = False
 
     else:
-        world.draw()
+        level.draw()
 
         if game_over == 0:
             enemy_grp.update()
