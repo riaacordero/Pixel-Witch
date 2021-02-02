@@ -119,7 +119,7 @@ class ColorState:
     BLUE = 2
     """Jump"""
 
-    GREEN = 3
+    YELLOW = 3
     """Not sure yet"""
 
 
