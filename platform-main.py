@@ -42,9 +42,6 @@ class Button(pygame.sprite.Sprite):
         self.rect.y = y
         self.clicked = False
 
-    def draw(self):
-        screen.blit(self.image, self.rect)
-
     def update(self):
         self.image = self.hovered_image if self.is_hovered() else self.default_image
 
