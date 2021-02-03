@@ -9,7 +9,9 @@ fps = 60
 # SET SCREEN
 screen_width = 500
 screen_height = 500
+
 screen = pygame.display.set_mode((screen_width, screen_height))
+
 pygame.display.set_caption("Pixel Witch")
 
 # GRID VARIABLES
@@ -18,13 +20,7 @@ game_over = 0
 
 # LOAD IMAGES
 bg_img = pygame.image.load('img/bg_img.png')
-restart_img = pygame.image.load('img/restart_button.png')
-start_img = pygame.image.load('img/start_button.png')
-exit_img = pygame.image.load('img/exit.png')
-def_start_img = pygame.image.load(r"img/default_start_btn.png")
-hov_start_img = pygame.image.load(r"img/hovered_start_btn.png")
-def_main_menu_exit_img = pygame.image.load(r"img/default_exit_btn.png")
-hov_main_menu_exit_img = pygame.image.load(r"img/hovered_exit_btn.png")
+
 
 def display_txt(text, font, text_color, x, y):
     img = font.render(text, True, text_color)
@@ -290,7 +286,6 @@ class Level:
 
         # img
         floor = pygame.image.load('img/ground.png')
-        floor_2 = pygame.image.load('img/ground-corn.png')
 
         row_count = 0
         for row in data:
@@ -312,13 +307,6 @@ class Level:
                 if tile == 4:
                     door = Door(column_count * tile_size, row_count * tile_size - (tile_size // 2))
                     door_grp.add(door)
-                if tile == 5:
-                    img = pygame.transform.scale(floor_2, (tile_size, tile_size))
-                    img_rect = img.get_rect()
-                    img_rect.x = column_count * tile_size
-                    img_rect.y = row_count * tile_size
-                    tile = (img, img_rect)
-                    self.tile_list.append(tile)
                 column_count += 1
             row_count += 1
 
@@ -432,6 +420,7 @@ while Running:
             current_level = Location.LEVEL_ONE
 
         main_menu_grp.update()
+    
     else:
         level_one.draw()
 
