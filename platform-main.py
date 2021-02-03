@@ -31,6 +31,7 @@ def_return_img = pygame.image.load("img/default_return_btn.png")
 hov_return_img = pygame.image.load("img/hovered_return_btn.png")
 game_over_img = pygame.image.load("img/game_over.png")
 
+
 def display_txt(text, font, text_color, x, y):
     img = font.render(text, True, text_color)
     screen.blit(img, (x, y))
@@ -168,8 +169,9 @@ class Potion(pygame.sprite.Sprite):
         self.rect.x, self.rect.y = x, y
 
 
-class Player:
-    def __init__(self, x, y):
+class Player(pygame.sprite.Sprite):
+    def __init__(self, x, y, *groups):
+        super().__init__(*groups)
         self.images_right = []
         self.images_left = []
         self.index = 0
@@ -180,7 +182,6 @@ class Player:
             img_left = pygame.transform.flip(img_right, True, False)
             self.images_right.append(img_right)
             self.images_left.append(img_left)
-        self.dead = pygame.image.load('img/dead.png')
         self.image = self.images_right[self.index]
         self.rect = self.image.get_rect()
         self.rect.x = x
@@ -200,20 +201,20 @@ class Player:
         if player_state == PlayerState.ALIVE:
             # KEY PRESS CONTROLS
             keypress = pygame.key.get_pressed()
-            if keypress[pygame.K_SPACE] and not self.mid_air:
+            if keypress[K_SPACE] and not self.mid_air:
                 self.mid_air = True
                 self.v_y = -15
-            if keypress[pygame.K_SPACE] == False:
+            if not keypress[K_SPACE]:
                 self.jumped = False
-            if keypress[pygame.K_LEFT]:
+            if keypress[K_LEFT] and not keypress[K_RIGHT]:
                 d_x -= 5
                 self.counter += 1
                 self.direction = -1
-            if keypress[pygame.K_RIGHT]:
+            if keypress[K_RIGHT] and not keypress[K_LEFT]:
                 d_x += 5
                 self.counter += 1
                 self.direction = 1
-            if keypress[pygame.K_LEFT] == False and keypress[pygame.K_RIGHT] == False:
+            if not keypress[K_LEFT] and not keypress[K_RIGHT]:
                 self.counter = 0
                 self.index = 0
                 if self.direction == 1:
@@ -255,24 +256,18 @@ class Player:
                         self.v_y = 0
                         self.mid_air = False
 
-            # ENEMY COLLISION
-            if pygame.sprite.spritecollide(self, enemy_grp, False):
-                player_state = -1
-
-            # LAVA COLLISION
-            if pygame.sprite.spritecollide(self, lava_grp, False):
-                player_state = -1
+            # ENEMY AND LAVA COLLISION
+            if pygame.sprite.spritecollide(self, enemy_grp, False) or \
+                    pygame.sprite.spritecollide(self, lava_grp, False):
+                player_state = PlayerState.LOST
 
             # DOOR COLLISION
             if pygame.sprite.spritecollide(self, door_grp, False):
-                player_state = 1
+                player_state = PlayerState.WON
 
             # COORD UPDATES
             self.rect.x += d_x
             self.rect.y += d_y
-
-        elif player_state == -1:
-            self.image = self.dead
 
         # To draw player into game
         screen.blit(self.image, self.rect)
@@ -284,11 +279,6 @@ class Player:
         self.image = pygame.transform.scale(img, (30, 30))
         self.rect = self.image.get_rect()
 
-        # DEAD
-        dead = pygame.image.load('img/dead.png')
-        self.dead = pygame.transform.scale(dead, (30, 30))
-        self.rect = self.image.get_rect()
-
         # POSITION
         self.rect.x = x
         self.rect.y = y
@@ -296,7 +286,7 @@ class Player:
         self.height = self.image.get_height()
         self.v_y = 0
         self.jumped = False
-        self.direc = 0
+        self.direction = 0
         self.mid_air = True
 
 
