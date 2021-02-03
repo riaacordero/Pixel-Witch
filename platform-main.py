@@ -16,7 +16,6 @@ pygame.display.set_caption("Pixel Witch")
 
 # GRID VARIABLES
 tile_size = 25
-game_over = 0
 
 # LOAD IMAGES
 bg_img = pygame.image.load('img/bg_img.png')
@@ -117,6 +116,16 @@ class Camera(pygame.sprite.LayeredUpdates):
         return dirty
 
 
+class PlayerState:
+    """
+    Current state of the player in the game.
+    """
+
+    ALIVE = 0
+    LOST = -1
+    WON = 1
+
+
 class Location:
     """
     Current place being shown in screen.
@@ -183,12 +192,12 @@ class Player:
         self.direction = 0
         self.mid_air = False
 
-    def update(self, game_over):
+    def update(self, player_state):
         d_x = 0
         d_y = 0
         walk_cooldown = 5
 
-        if game_over == 0:
+        if player_state == PlayerState.ALIVE:
             # KEY PRESS CONTROLS
             keypress = pygame.key.get_pressed()
             if keypress[pygame.K_SPACE] and not self.mid_air:
@@ -248,26 +257,26 @@ class Player:
 
             # ENEMY COLLISION
             if pygame.sprite.spritecollide(self, enemy_grp, False):
-                game_over = -1
+                player_state = -1
 
             # LAVA COLLISION
             if pygame.sprite.spritecollide(self, lava_grp, False):
-                game_over = -1
+                player_state = -1
 
             # DOOR COLLISION
             if pygame.sprite.spritecollide(self, door_grp, False):
-                game_over = 1
+                player_state = 1
 
             # COORD UPDATES
             self.rect.x += d_x
             self.rect.y += d_y
 
-        elif game_over == -1:
+        elif player_state == -1:
             self.image = self.dead
 
         # To draw player into game
         screen.blit(self.image, self.rect)
-        return game_over
+        return player_state
 
     def reset(self, x, y):
         # ALIVE
@@ -416,6 +425,9 @@ return_btn = Button(285, 400, def_return_img, hov_return_img)
 main_menu_grp.add(start_btn, main_menu_exit_btn)
 game_over_grp.add(restart_btn, return_btn)
 
+# PLAYER STATE
+current_player_state = PlayerState.ALIVE
+
 # GAME LOOP
 Running = True
 while Running:
@@ -437,44 +449,44 @@ while Running:
         screen.blit(bg_level_img, (0, 0))
         level_one.draw()
 
-        if game_over == 0:
+        if current_player_state == PlayerState.ALIVE:
             enemy_grp.update()
 
         enemy_grp.draw(screen)
         lava_grp.draw(screen)
         door_grp.draw(screen)
 
-        game_over = player.update(game_over)
+        current_player_state = player.update(current_player_state)
 
         # LOSE
-        if game_over == -1:
+        if current_player_state == PlayerState.LOST:
             screen.blit(bg_game_over_img, (0, 0))
             screen.blit(game_over_img, (100, 325))
             game_over_grp.draw(screen)
 
             if restart_btn.is_clicked():
                 player.reset(100, screen_height - 130)
-                game_over = 0
+                current_player_state = PlayerState.ALIVE
             if return_btn.is_clicked():
                 current_level = Location.MAIN_MENU
                 player.reset(100, screen_height - 130)
-                game_over = 0
+                current_player_state = PlayerState.ALIVE
 
             game_over_grp.update()
 
         # WIN
-        if game_over == 1:
+        if current_player_state == PlayerState.WON:
             screen.blit(bg_game_over_img, (0, 0))
             screen.blit(game_over_img, (100, 325))
             game_over_grp.draw(screen)
 
             if restart_btn.is_clicked():
                 player.reset(100, screen_height - 130)
-                game_over = 0
+                current_player_state = PlayerState.ALIVE
             if return_btn.is_clicked():
                 current_level = Location.MAIN_MENU
+                current_player_state = PlayerState.ALIVE
                 player.reset(100, screen_height - 130)
-                game_over = 0
 
             game_over_grp.update()
 
