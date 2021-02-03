@@ -19,9 +19,6 @@ main_menu = True
 
 # LOAD IMAGES
 bg_img = pygame.image.load('img/bg_img.png')
-restart_img = pygame.image.load('img/restart_button.png')
-start_img = pygame.image.load('img/start_button.png')
-exit_img = pygame.image.load('img/exit.png')
 
 def display_txt(text, font, text_color, x,y):
     img = font.render(text, True, text_color)
@@ -193,7 +190,6 @@ class World():
  
         #img
         floor = pygame.image.load('img/ground.png')
-        floor_2 = pygame.image.load('img/ground-corn.png')
 
         row_count = 0
         for row in data:
@@ -215,13 +211,6 @@ class World():
                 if tile == 4:
                     door = Door(column_count*tile_size, row_count*tile_size - (tile_size // 2))
                     door_grp.add(door)
-                if tile == 5:
-                    img = pygame.transform.scale(floor_2, (tile_size, tile_size))
-                    img_rect = img.get_rect()
-                    img_rect.x = column_count*tile_size
-                    img_rect.y = row_count*tile_size
-                    tile = (img,img_rect)
-                    self.tile_list.append(tile)
                 column_count += 1
             row_count += 1
 
@@ -299,9 +288,6 @@ door_grp = pygame.sprite.Group()
 world = World(world_data)
 
 # CREATE BUTTONS
-restart_btn = Button(screen_width // 2 - 90, screen_height // 2, restart_img)
-start_btn = Button(screen_width // 2 - 75, screen_height // 2, start_img)
-exit_btn = Button(screen_width // 2 + 10, screen_height // 2, exit_img)
 
 # GAME LOOP
 Running = True
@@ -312,10 +298,8 @@ while Running:
     screen.blit(bg_img, (0,0))
 
     if main_menu == True:
-        if exit_btn.draw():
-            Running = False
-        if start_btn.draw():
-            main_menu = False
+        """ Add main menu buttons here. Game will not run without it. """
+        pass
     
     else:
         world.draw()
@@ -331,23 +315,23 @@ while Running:
 
         # LOSE
         if game_over == -1:
-            if restart_btn.draw():
+            """ if restart_btn.draw():
                 player.reset(100, screen_height -130)
                 game_over = 0
             if exit_btn.draw():
                 main_menu = True
                 player.reset(100, screen_height -130)
-                game_over = 0
+                game_over = 0 """
         
         # WIN
         if game_over == 1:
-            if restart_btn.draw():
+            """ if restart_btn.draw():
                 player.reset(100, screen_height -130)
                 game_over = 0 
             if exit_btn.draw():
                 main_menu = True
                 player.reset(100, screen_height -130)
-                game_over = 0
+                game_over = 0 """
     
     for event in pygame.event.get():
         if event.type ==  pygame.QUIT:
