@@ -249,6 +249,24 @@ class YellowPotion(Potion):
         super().__init__(ColorState.YELLOW, potion_yellow_img, x, y, *groups)
 
 
+class Gem(LevelSprite):
+    """
+    Gems that the player collects to gain points.
+    """
+
+    def __init__(self, x, y, *groups):
+        super().__init__(x, y, 20, 20, enemy_img, *groups)  # image is placeholder
+
+
+class Key(LevelSprite):
+    """
+    Key to open door and finish the level.
+    """
+
+    def __init(self, x, y, *groups):
+        super().__init__(x, y, 20, 20, enemy_img, *groups) # image is placeholder
+
+
 class Enemy(LevelSprite):
     def __init__(self, x, y, *groups):
         super().__init__(x, y, 30, 30, enemy_img, *groups)
