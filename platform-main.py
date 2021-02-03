@@ -1,5 +1,4 @@
 import pygame
-from pygame import display
 from pygame.locals import *
 
 pygame.init()
@@ -16,11 +15,13 @@ pygame.display.set_caption("Pixel Witch")
 
 # GRID VARIABLES
 tile_size = 25
+gravity = pygame.Vector2(0, 10)
 
 # LOAD IMAGES
 bg_img = pygame.image.load('img/bg_img.png')
 bg_game_over_img = pygame.image.load("img/bg_img.png")
 bg_level_img = pygame.image.load("img/bg_img.png")
+
 def_start_img = pygame.image.load("img/default_start_btn.png")
 hov_start_img = pygame.image.load("img/hovered_start_btn.png")
 def_exit_img = pygame.image.load("img/default_exit_btn.png")
@@ -31,12 +32,50 @@ def_return_img = pygame.image.load("img/default_return_btn.png")
 hov_return_img = pygame.image.load("img/hovered_return_btn.png")
 game_over_img = pygame.image.load("img/game_over.png")
 
+enemy_img = pygame.image.load("img/fireball.png")
+door_img = pygame.image.load("img/door.png")
+platform_img = pygame.image.load("img/ground.png")
 
-def display_txt(text, font, text_color, x, y):
-    img = font.render(text, True, text_color)
-    screen.blit(img, (x, y))
+potion_blue_img = pygame.image.load("img/potion-blue.png")
+potion_red_img = pygame.image.load("img/potion-red.png")
+potion_yellow_img = pygame.image.load("img/potion-yellow.png")
+
+player_default_left_images = []
+player_default_right_images = []
+player_atk_left_images = []
+player_atk_right_images = []
+player_health_left_images = []
+player_health_right_images = []
+player_jump_left_images = []
+player_jump_right_images = []
+
+for num in range(1, 4):
+    player_img = pygame.image.load(f"img/player-{num}.png")
+    player_right_img = pygame.transform.scale(player_img, (30, 30))
+    player_left_img = pygame.transform.flip(player_right_img, True, False)
+    player_default_right_images.append(player_right_img)
+    player_default_left_images.append(player_left_img)
+
+    player_atk_img = pygame.image.load(f"img/player-state/player-atk-{num}.png")
+    player_atk_right_img = pygame.transform.scale(player_atk_img, (30, 30))
+    player_atk_left_img = pygame.transform.flip(player_atk_right_img, True, False)
+    player_atk_right_images.append(player_atk_right_img)
+    player_atk_left_images.append(player_atk_left_img)
+
+    player_health_img = pygame.image.load(f"img/player-state/player-health-{num}.png")
+    player_health_right_img = pygame.transform.scale(player_health_img, (30, 30))
+    player_health_left_img = pygame.transform.flip(player_health_right_img, True, False)
+    player_health_right_images.append(player_health_right_img)
+    player_health_left_images.append(player_health_left_img)
+
+    player_jump_img = pygame.image.load(f"img/player-state/player-jump-{num}.png")
+    player_jump_right_img = pygame.transform.scale(player_jump_img, (30, 30))
+    player_jump_left_img = pygame.transform.flip(player_jump_right_img, True, False)
+    player_jump_left_images.append(player_jump_left_img)
+    player_jump_right_images.append(player_jump_right_img)
 
 
+# CLASSES
 class Button(pygame.sprite.Sprite):
     """
     Clickable item in screen. Changes image when mouse is hovered on top of it.
@@ -157,183 +196,62 @@ class ColorState:
     """One-time use shield"""
 
 
-class Potion(pygame.sprite.Sprite):
+class LevelSprite(pygame.sprite.Sprite):
+    """
+    All the sprites seen in a single level.
+    """
+
+    def __init__(self, x, y, width, height, image, *groups):
+        super().__init__(*groups)
+        self.image = pygame.transform.scale(image, (width, height))
+        self.rect = self.image.get_rect(topleft=(x, y))
+
+
+class Platform(LevelSprite):
+    def __init__(self, x, y, *groups):
+        super().__init__(x, y, tile_size, tile_size, platform_img, *groups)
+
+
+class Potion(LevelSprite):
     """
     One-time use items which changes the player's ColorState based on the color of the ColorSpace.
     """
 
     def __init__(self, color_state, image, x, y, *groups):
-        super().__init__(*groups)
+        super().__init__(x, y, tile_size, tile_size, image, *groups)
         self.color_state = color_state
-        self.image = image
-        self.rect.x, self.rect.y = x, y
 
 
-class Player(pygame.sprite.Sprite):
+class BluePotion(Potion):
+    """
+    Potion that gives the player the ability to jump.
+    """
+
     def __init__(self, x, y, *groups):
-        super().__init__(*groups)
-        self.images_right = []
-        self.images_left = []
-        self.index = 0
-        self.counter = 0
-        for num in range(1, 4):
-            img_right = pygame.image.load(f'img/player-{num}.png')
-            img_right = pygame.transform.scale(img_right, (30, 30))
-            img_left = pygame.transform.flip(img_right, True, False)
-            self.images_right.append(img_right)
-            self.images_left.append(img_left)
-        self.image = self.images_right[self.index]
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-        self.width = self.image.get_width()
-        self.height = self.image.get_height()
-        self.v_y = 0
-        self.jumped = False
-        self.direction = 0
-        self.mid_air = False
-
-    def update(self, player_state):
-        d_x = 0
-        d_y = 0
-        walk_cooldown = 5
-
-        if player_state == PlayerState.ALIVE:
-            # KEY PRESS CONTROLS
-            keypress = pygame.key.get_pressed()
-            if keypress[K_SPACE] and not self.mid_air:
-                self.mid_air = True
-                self.v_y = -15
-            if not keypress[K_SPACE]:
-                self.jumped = False
-            if keypress[K_LEFT] and not keypress[K_RIGHT]:
-                d_x -= 5
-                self.counter += 1
-                self.direction = -1
-            if keypress[K_RIGHT] and not keypress[K_LEFT]:
-                d_x += 5
-                self.counter += 1
-                self.direction = 1
-            if not keypress[K_LEFT] and not keypress[K_RIGHT]:
-                self.counter = 0
-                self.index = 0
-                if self.direction == 1:
-                    self.image = self.images_right[self.index]
-                if self.direction == -1:
-                    self.image = self.images_left[self.index]
-
-            # ANIMATION
-            if self.counter > walk_cooldown:
-                self.counter = 0
-                self.index += 1
-                if self.index >= len(self.images_right):
-                    self.index = 0
-                if self.direction == 1:
-                    self.image = self.images_right[self.index]
-                if self.direction == -1:
-                    self.image = self.images_left[self.index]
-
-            # GRAVITY
-            self.v_y += 1
-            if self.v_y > 10:
-                self.v_y = 10
-            d_y += self.v_y
-
-            # COLLISION
-            for tile in level_one.tile_list:
-                # X-DIR. COLLISION
-                if tile[1].colliderect(self.rect.x + d_x, self.rect.y, self.width, self.height):
-                    d_x = 0
-                # Y-DIR. COLLISION
-                if tile[1].colliderect(self.rect.x, self.rect.y + d_y, self.width, self.height):
-                    # check if below the ground i.e. jumping
-                    if self.v_y < 0:
-                        d_y = tile[1].bottom - self.rect.top
-                        self.v_y = 0
-                    # check if above the ground i.e. falling
-                    elif self.v_y >= 0:
-                        d_y = tile[1].top - self.rect.bottom
-                        self.v_y = 0
-                        self.mid_air = False
-
-            # ENEMY AND LAVA COLLISION
-            if pygame.sprite.spritecollide(self, enemy_grp, False) or \
-                    pygame.sprite.spritecollide(self, lava_grp, False):
-                player_state = PlayerState.LOST
-
-            # DOOR COLLISION
-            if pygame.sprite.spritecollide(self, door_grp, False):
-                player_state = PlayerState.WON
-
-            # COORD UPDATES
-            self.rect.x += d_x
-            self.rect.y += d_y
-
-        # To draw player into game
-        screen.blit(self.image, self.rect)
-        return player_state
-
-    def reset(self, x, y):
-        # ALIVE
-        img = pygame.image.load('img/player-1.png')
-        self.image = pygame.transform.scale(img, (30, 30))
-        self.rect = self.image.get_rect()
-
-        # POSITION
-        self.rect.x = x
-        self.rect.y = y
-        self.width = self.image.get_width()
-        self.height = self.image.get_height()
-        self.v_y = 0
-        self.jumped = False
-        self.direction = 0
-        self.mid_air = True
+        super().__init__(ColorState.BLUE, potion_blue_img, x, y, *groups)
 
 
-class Level:
+class RedPotion(Potion):
+    """
+    Potion that gives the player the ability to attack.
+    """
 
-    def __init__(self, data):
-        self.tile_list = []
-
-        # img
-        floor = pygame.image.load('img/ground.png')
-
-        row_count = 0
-        for row in data:
-            column_count = 0
-            for tile in row:
-                if tile == 1:
-                    img = pygame.transform.scale(floor, (tile_size, tile_size))
-                    img_rect = img.get_rect()
-                    img_rect.x = column_count * tile_size
-                    img_rect.y = row_count * tile_size
-                    tile = (img, img_rect)
-                    self.tile_list.append(tile)
-                if tile == 2:
-                    fire = Enemy(column_count * tile_size, row_count * tile_size - 30)
-                    enemy_grp.add(fire)
-                if tile == 3:
-                    lava = Lava(column_count * tile_size, row_count * tile_size)
-                    lava_grp.add(lava)
-                if tile == 4:
-                    door = Door(column_count * tile_size, row_count * tile_size - (tile_size // 2))
-                    door_grp.add(door)
-                column_count += 1
-            row_count += 1
-
-    def draw(self):
-        for tile in self.tile_list:
-            screen.blit(tile[0], tile[1])
+    def __init__(self, x, y, *groups):
+        super().__init__(ColorState.RED, potion_red_img, x, y, *groups)
 
 
-class Enemy(pygame.sprite.Sprite):
-    def __init__(self, x, y):
-        pygame.sprite.Sprite.__init__(self)
-        img = pygame.image.load('img/fireball.png')
-        self.image = pygame.transform.scale(img, (30, 30))
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
+class YellowPotion(Potion):
+    """
+    Potion that gives the player a shield.
+    """
+
+    def __init__(self, x, y, *groups):
+        super().__init__(ColorState.YELLOW, potion_yellow_img, x, y, *groups)
+
+
+class Enemy(LevelSprite):
+    def __init__(self, x, y, *groups):
+        super().__init__(x, y, 30, 30, enemy_img, *groups)
         self.move_direction = 1
         self.move_count = 0
 
@@ -345,24 +263,167 @@ class Enemy(pygame.sprite.Sprite):
             self.move_count *= -1
 
 
-class Lava(pygame.sprite.Sprite):
-    def __init__(self, x, y):
-        pygame.sprite.Sprite.__init__(self)
-        img = pygame.image.load('img/lava.png')
-        self.image = pygame.transform.scale(img, (tile_size, tile_size))
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
+class Door(LevelSprite):
+    def __init__(self, x, y, *groups):
+        super().__init__(x, y, tile_size, int(tile_size * 1.5), door_img, *groups)
 
 
-class Door(pygame.sprite.Sprite):
-    def __init__(self, x, y):
-        pygame.sprite.Sprite.__init__(self)
-        img = pygame.image.load('img/door.png')
-        self.image = pygame.transform.scale(img, (tile_size, int(tile_size * 1.5)))
+class Level:
+
+    def __init__(self, data):
+        self.platforms = pygame.sprite.Group()
+
+        row_count = 0
+        for row in data:
+            column_count = 0
+            for tile in row:
+                if tile == 1:
+                    platform = Platform(column_count * tile_size, row_count * tile_size)
+                    self.platforms.add(platform)
+                if tile == 2:
+                    enemy = Enemy(column_count * tile_size, row_count * tile_size - 30)
+                    enemy_grp.add(enemy)
+                if tile == 4:
+                    door = Door(column_count * tile_size, row_count * tile_size - (tile_size // 2))
+                    door_grp.add(door)
+                column_count += 1
+            row_count += 1
+
+    def draw(self):
+        self.platforms.draw(screen)
+
+
+class Player(pygame.sprite.Sprite):
+    def __init__(self, *groups):
+        super().__init__(*groups)
+        self.index = 0
+        self.counter = 0
+        self.image = player_default_right_images[self.index]
+
         self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
+        self.rect.x, self.rect.y = 0, 0
+        self.width, self.height = self.image.get_width(), self.image.get_height()
+        self.y_vel = 0
+        self.direction = 0
+        self.jumped = False
+        self.on_ground = True
+        self.current_level = None
+        self.player_state = PlayerState.ALIVE
+
+    def update(self):
+        if self.player_state == PlayerState.ALIVE:
+            x_movement, y_movement = self._move()
+
+            self._animate()
+
+            y_movement = self._gravitate(y_movement)
+
+            x_movement, y_movement, self.player_state = self._collide(x_movement, y_movement)
+
+            # COORD UPDATES
+            self.rect.x += x_movement
+            self.rect.y += y_movement
+
+        # To draw player into game
+        screen.blit(self.image, self.rect)
+
+    def _move(self):
+        """
+        Moves player based on certain key presses.
+        :return: tuple representing x and y movement
+        """
+        d_x, d_y = 0, 0
+        keypress = pygame.key.get_pressed()
+        if keypress[K_SPACE] and self.on_ground:
+            self.on_ground = False
+            self.y_vel = -15
+        if not keypress[K_SPACE]:
+            self.jumped = False
+        if keypress[K_LEFT] and not keypress[K_RIGHT]:
+            d_x -= 5
+            self.counter += 1
+            self.direction = -1
+        if keypress[K_RIGHT] and not keypress[K_LEFT]:
+            d_x += 5
+            self.counter += 1
+            self.direction = 1
+        if not keypress[K_LEFT] and not keypress[K_RIGHT]:
+            self.counter = 0
+            self.index = 0
+            if self.direction == 1:
+                self.image = player_default_right_images[self.index]
+            if self.direction == -1:
+                self.image = player_default_left_images[self.index]
+
+        return d_x, d_y
+
+    def _animate(self):
+        walk_cooldown = 5
+        if self.counter > walk_cooldown:
+            self.counter = 0
+            self.index += 1
+            if self.index >= len(player_default_right_images):
+                self.index = 0
+            if self.direction == 1:
+                self.image = player_default_right_images[self.index]
+            if self.direction == -1:
+                self.image = player_default_left_images[self.index]
+
+    def _gravitate(self, y_movement):
+        self.y_vel += 1
+        if self.y_vel > 10:
+            self.y_vel = 10
+        y_movement += self.y_vel
+        return y_movement
+
+    def _collide(self, x_movement, y_movement):
+        """
+        Applies collision with player and other level sprites.
+        :return: tuple representing x and y movement and player state
+        """
+        player_state = PlayerState.ALIVE
+
+        for platform in self.current_level.platforms:
+            # X-DIR. COLLISION
+            if platform.rect.colliderect(self.rect.x + x_movement, self.rect.y, self.width, self.height):
+                x_movement = 0
+            # Y-DIR. COLLISION
+            if platform.rect.colliderect(self.rect.x, self.rect.y + y_movement, self.width, self.height):
+                # check if below the ground i.e. jumping
+                if self.y_vel < 0:
+                    y_movement = platform.rect.bottom - self.rect.top
+                    self.y_vel = 0
+                # check if above the ground i.e. falling
+                elif self.y_vel >= 0:
+                    y_movement = platform.rect.top - self.rect.bottom
+                    self.y_vel = 0
+                    self.on_ground = True
+
+        # ENEMY COLLISION
+        if pygame.sprite.spritecollide(self, enemy_grp, False):
+            player_state = PlayerState.LOST
+
+        # DOOR COLLISION
+        if pygame.sprite.spritecollide(self, door_grp, False):
+            player_state = PlayerState.WON
+
+        return x_movement, y_movement, player_state
+
+    def reset(self, x, y, level: Level):
+        # ALIVE
+        self.image = player_default_right_images[0]
+        self.rect = self.image.get_rect()
+
+        # POSITION
+        self.rect.x, self.rect.y = x, y
+        self.width = self.image.get_width()
+        self.height = self.image.get_height()
+        self.y_vel = 0
+        self.jumped = False
+        self.direction = 0
+        self.on_ground = True
+        self.current_level = level
+        self.player_state = PlayerState.ALIVE
 
 
 # LEVEL DATA
@@ -391,10 +452,12 @@ level_one_data = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ]
 
+
+
 # CREATE GAME MOBS AND TYPE GROUPS
-player = Player(100, screen_height - 130)
+player = Player()
+platform_grp = pygame.sprite.Group()
 enemy_grp = pygame.sprite.Group()
-lava_grp = pygame.sprite.Group()
 door_grp = pygame.sprite.Group()
 
 # CREATE LEVELS
@@ -417,6 +480,7 @@ game_over_grp.add(restart_btn, return_btn)
 
 # PLAYER STATE
 current_player_state = PlayerState.ALIVE
+player.reset(100, screen_height - 120, level_one)
 
 # GAME LOOP
 Running = True
@@ -427,26 +491,25 @@ while Running:
     if current_level == Location.MAIN_MENU:
         screen.blit(bg_img, (0, 0))
         main_menu_grp.draw(screen)
+        main_menu_grp.update()
 
         if main_menu_exit_btn.is_clicked():
             Running = False
         elif start_btn.is_clicked():
             current_level = Location.LEVEL_ONE
 
-        main_menu_grp.update()
-
     else:
         screen.blit(bg_level_img, (0, 0))
         level_one.draw()
 
+        enemy_grp.draw(screen)
+        door_grp.draw(screen)
+
         if current_player_state == PlayerState.ALIVE:
             enemy_grp.update()
 
-        enemy_grp.draw(screen)
-        lava_grp.draw(screen)
-        door_grp.draw(screen)
-
-        current_player_state = player.update(current_player_state)
+        player.update()
+        current_player_state = player.player_state
 
         # LOSE
         if current_player_state == PlayerState.LOST:
@@ -455,12 +518,12 @@ while Running:
             game_over_grp.draw(screen)
 
             if restart_btn.is_clicked():
-                player.reset(100, screen_height - 130)
-                current_player_state = PlayerState.ALIVE
+                player.reset(100, screen_height - 130, level_one)
+                current_player_state = player.player_state
             if return_btn.is_clicked():
                 current_level = Location.MAIN_MENU
-                player.reset(100, screen_height - 130)
-                current_player_state = PlayerState.ALIVE
+                player.reset(100, screen_height - 130, level_one)
+                current_player_state = player.player_state
 
             game_over_grp.update()
 
@@ -471,12 +534,12 @@ while Running:
             game_over_grp.draw(screen)
 
             if restart_btn.is_clicked():
-                player.reset(100, screen_height - 130)
-                current_player_state = PlayerState.ALIVE
+                player.reset(100, screen_height - 130, level_one)
+                current_player_state = player.player_state
             if return_btn.is_clicked():
                 current_level = Location.MAIN_MENU
-                current_player_state = PlayerState.ALIVE
-                player.reset(100, screen_height - 130)
+                player.reset(100, screen_height - 130, level_one)
+                current_player_state = player.player_state
 
             game_over_grp.update()
 
