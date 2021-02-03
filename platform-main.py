@@ -20,11 +20,17 @@ game_over = 0
 
 # LOAD IMAGES
 bg_img = pygame.image.load('img/bg_img.png')
+bg_game_over_img = pygame.image.load("img/bg_img.png")
+bg_level_img = pygame.image.load("img/bg_img.png")
 def_start_img = pygame.image.load("img/default_start_btn.png")
 hov_start_img = pygame.image.load("img/hovered_start_btn.png")
 def_exit_img = pygame.image.load("img/default_exit_btn.png")
 hov_exit_img = pygame.image.load("img/hovered_exit_btn.png")
-
+def_restart_img = pygame.image.load("img/default_restart_btn.png")
+hov_restart_img = pygame.image.load("img/hovered_restart_btn.png")
+def_return_img = pygame.image.load("img/default_return_btn.png")
+hov_return_img = pygame.image.load("img/hovered_return_btn.png")
+game_over_img = pygame.image.load("img/game_over.png")
 
 def display_txt(text, font, text_color, x, y):
     img = font.render(text, True, text_color)
@@ -401,23 +407,23 @@ game_over_grp = pygame.sprite.Group()
 level_list_grp = pygame.sprite.Group()
 
 # CREATE BUTTONS
-start_btn = Button(screen_height // 20, screen_height // 1.5, def_start_img, hov_start_img)
-main_menu_exit_btn = Button(screen_height // 20, screen_height // 1.25, def_exit_img, hov_exit_img)
-restart_btn = Button(screen_width // 2 - 90, screen_height // 2, def_start_img)
-exit_btn = Button(screen_width // 2 + 10, screen_height // 2, def_exit_img)
+start_btn = Button(25, 335, def_start_img, hov_start_img)
+main_menu_exit_btn = Button(25, 400, def_exit_img, hov_exit_img)
+restart_btn = Button(80, 400, def_restart_img, hov_restart_img)
+return_btn = Button(285, 400, def_return_img, hov_return_img)
 
 # ADD ITEMS TO LEVEL GROUPS
 main_menu_grp.add(start_btn, main_menu_exit_btn)
-game_over_grp.add(restart_btn, exit_btn)
+game_over_grp.add(restart_btn, return_btn)
 
 # GAME LOOP
 Running = True
 while Running:
 
     clock.tick(fps)
-    screen.blit(bg_img, (0, 0))
 
     if current_level == Location.MAIN_MENU:
+        screen.blit(bg_img, (0, 0))
         main_menu_grp.draw(screen)
 
         if main_menu_exit_btn.is_clicked():
@@ -428,6 +434,7 @@ while Running:
         main_menu_grp.update()
 
     else:
+        screen.blit(bg_level_img, (0, 0))
         level_one.draw()
 
         if game_over == 0:
@@ -441,12 +448,14 @@ while Running:
 
         # LOSE
         if game_over == -1:
+            screen.blit(bg_game_over_img, (0, 0))
+            screen.blit(game_over_img, (100, 325))
             game_over_grp.draw(screen)
 
             if restart_btn.is_clicked():
                 player.reset(100, screen_height - 130)
                 game_over = 0
-            if exit_btn.is_clicked():
+            if return_btn.is_clicked():
                 current_level = Location.MAIN_MENU
                 player.reset(100, screen_height - 130)
                 game_over = 0
@@ -455,12 +464,14 @@ while Running:
 
         # WIN
         if game_over == 1:
+            screen.blit(bg_game_over_img, (0, 0))
+            screen.blit(game_over_img, (100, 325))
             game_over_grp.draw(screen)
 
             if restart_btn.is_clicked():
                 player.reset(100, screen_height - 130)
                 game_over = 0
-            if exit_btn.is_clicked():
+            if return_btn.is_clicked():
                 current_level = Location.MAIN_MENU
                 player.reset(100, screen_height - 130)
                 game_over = 0
