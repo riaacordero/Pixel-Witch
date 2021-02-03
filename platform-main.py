@@ -7,13 +7,13 @@ clock = pygame.time.Clock()
 fps = 60
 
 # SET SCREEN
-screen_width = 700
-screen_height = 700
+screen_width = 500
+screen_height = 500
 screen = pygame.display.set_mode((screen_width,screen_height))
 pygame.display.set_caption("Pixel Witch")
 
 # GRID VARIABLES
-tile_size = 35
+tile_size = 25
 game_over = 0
 main_menu = True
 
@@ -64,7 +64,7 @@ class Player():
         self.counter = 0
         for num in range(1, 4):
             img_right = pygame.image.load(f'img/player-{num}.png')
-            img_right = pygame.transform.scale(img_right, (90, 90))
+            img_right = pygame.transform.scale(img_right, (30, 30))
             img_left = pygame.transform.flip(img_right, True, False)
             self.images_right.append(img_right)
             self.images_left.append(img_left)
@@ -169,7 +169,7 @@ class Player():
     def reset(self,x,y):
         # ALIVE
         img = pygame.image.load('img/player-1.png')
-        self.image = pygame.transform.scale(img, (60,80))
+        self.image = pygame.transform.scale(img, (30,30))
         self.rect = self.image.get_rect()
 
         # DEAD
