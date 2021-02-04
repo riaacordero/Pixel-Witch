@@ -207,6 +207,11 @@ class LevelSprite(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft=(x, y))
 
 
+class Background(LevelSprite):
+    def __init__(self, *groups):
+        super().__init__(bg_level_img, 0, 0, bg_level_img.get_width(), bg_level_img.get_height(), *groups)
+
+
 class Platform(LevelSprite):
     def __init__(self, x, y, *groups):
         super().__init__(platform_img, x, y, tile_size, tile_size, *groups)
