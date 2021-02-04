@@ -14,7 +14,7 @@ screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Pixel Witch")
 
 # GRID VARIABLES
-tile_size = 25
+tile_size = 30
 gravity = pygame.Vector2(0, 10)
 
 # LOAD IMAGES
@@ -49,27 +49,28 @@ player_health_right_images = []
 player_jump_left_images = []
 player_jump_right_images = []
 
+player_size = (40, 40)
 for num in range(1, 4):
     player_img = pygame.image.load(f"img/player-{num}.png")
-    player_right_img = pygame.transform.scale(player_img, (30, 30))
+    player_right_img = pygame.transform.scale(player_img, player_size)
     player_left_img = pygame.transform.flip(player_right_img, True, False)
     player_default_right_images.append(player_right_img)
     player_default_left_images.append(player_left_img)
 
     player_atk_img = pygame.image.load(f"img/player-state/player-atk-{num}.png")
-    player_atk_right_img = pygame.transform.scale(player_atk_img, (30, 30))
+    player_atk_right_img = pygame.transform.scale(player_atk_img, player_size)
     player_atk_left_img = pygame.transform.flip(player_atk_right_img, True, False)
     player_atk_right_images.append(player_atk_right_img)
     player_atk_left_images.append(player_atk_left_img)
 
     player_health_img = pygame.image.load(f"img/player-state/player-health-{num}.png")
-    player_health_right_img = pygame.transform.scale(player_health_img, (30, 30))
+    player_health_right_img = pygame.transform.scale(player_health_img, player_size)
     player_health_left_img = pygame.transform.flip(player_health_right_img, True, False)
     player_health_right_images.append(player_health_right_img)
     player_health_left_images.append(player_health_left_img)
 
     player_jump_img = pygame.image.load(f"img/player-state/player-jump-{num}.png")
-    player_jump_right_img = pygame.transform.scale(player_jump_img, (30, 30))
+    player_jump_right_img = pygame.transform.scale(player_jump_img, player_size)
     player_jump_left_img = pygame.transform.flip(player_jump_right_img, True, False)
     player_jump_left_images.append(player_jump_left_img)
     player_jump_right_images.append(player_jump_right_img)
@@ -122,12 +123,10 @@ class Camera(pygame.sprite.LayeredUpdates):
         self.camera = pygame.Vector2(0, 0)
         """Coordinates of the camera"""
 
-        if self.target:
-            self.add(target)
-
     def update(self, *args):
         super().update(*args)
         if self.target:
+            self.add(self.target)
             # Checks how far the target is from the center of the screen
             x = screen_width / 2 - self.target.rect.center[0]
             y = screen_height / 2 - self.target.rect.center[1]
@@ -208,8 +207,8 @@ class LevelSprite(pygame.sprite.Sprite):
 
 
 class Background(LevelSprite):
-    def __init__(self, *groups):
-        super().__init__(bg_level_img, 0, 0, bg_level_img.get_width(), bg_level_img.get_height(), *groups)
+    def __init__(self, width, height, *groups):
+        super().__init__(bg_level_img, 0, 0, width, height, *groups)
 
 
 class Platform(LevelSprite):
@@ -293,24 +292,31 @@ class Door(LevelSprite):
 
 class Level:
 
-    def __init__(self, data):
+    def __init__(self, data: list, target: pygame.sprite.Sprite):
         self.platforms = pygame.sprite.Group()
-
+        self.width, self.height = len(data[0]) * tile_size, len(data) * tile_size
+        self.rect = pygame.Rect(0, 0, self.width, self.height)
+        self.camera = Camera(target, self.rect)
+        self.background = Background(self.width, self.height)
+        self.camera.add(self.background)
         row_count = 0
         for row in data:
             column_count = 0
             for tile in row:
                 if tile == 1:
-                    Platform(column_count * tile_size, row_count * tile_size, self.platforms)
+                    Platform(column_count * tile_size, row_count * tile_size, self.platforms, self.camera)
                 if tile == 2:
-                    Enemy(column_count * tile_size, row_count * tile_size - 30, enemy_grp)
+                    Enemy(column_count * tile_size, row_count * tile_size - 30, enemy_grp, self.camera)
                 if tile == 4:
-                    Door(column_count * tile_size, row_count * tile_size - (tile_size // 2), door_grp)
+                    Door(column_count * tile_size, row_count * tile_size - (tile_size // 2), door_grp, self.camera)
                 column_count += 1
             row_count += 1
 
     def draw(self):
-        self.platforms.draw(screen)
+        self.camera.draw(screen)
+
+    def update(self):
+        self.camera.update()
 
 
 class Player(pygame.sprite.Sprite):
@@ -472,8 +478,6 @@ level_one_data = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ]
 
-
-
 # CREATE GAME MOBS AND TYPE GROUPS
 player = Player()
 platform_grp = pygame.sprite.Group()
@@ -481,7 +485,7 @@ enemy_grp = pygame.sprite.Group()
 door_grp = pygame.sprite.Group()
 
 # CREATE LEVELS
-level_one = Level(level_one_data)
+level_one = Level(level_one_data, player)
 
 # CREATE LEVEL GROUPS
 main_menu_grp = pygame.sprite.Group()
@@ -502,70 +506,72 @@ game_over_grp.add(restart_btn, return_btn)
 current_player_state = PlayerState.ALIVE
 player.reset(100, screen_height - 120, level_one)
 
-# GAME LOOP
+# GAME STATE
 Running = True
-while Running:
 
-    clock.tick(fps)
+def display_main_menu():
+    global Running, current_level
 
-    if current_level == Location.MAIN_MENU:
-        screen.blit(bg_img, (0, 0))
-        main_menu_grp.draw(screen)
-        main_menu_grp.update()
+    screen.blit(bg_img, (0, 0))
+    main_menu_grp.draw(screen)
+    main_menu_grp.update()
 
-        if main_menu_exit_btn.is_clicked():
-            Running = False
-        elif start_btn.is_clicked():
-            current_level = Location.LEVEL_ONE
+    if main_menu_exit_btn.is_clicked():
+        Running = False
+    elif start_btn.is_clicked():
+        current_level = Location.LEVEL_ONE
 
-    else:
-        screen.blit(bg_level_img, (0, 0))
-        level_one.draw()
 
-        enemy_grp.draw(screen)
-        door_grp.draw(screen)
+# GAME LOOP
+if __name__ == "__main__":
+    while Running:
 
-        if current_player_state == PlayerState.ALIVE:
-            enemy_grp.update()
+        clock.tick(fps)
 
-        player.update()
-        current_player_state = player.player_state
+        if current_level == Location.MAIN_MENU:
+            display_main_menu()
 
-        # LOSE
-        if current_player_state == PlayerState.LOST:
-            screen.blit(bg_game_over_img, (0, 0))
-            screen.blit(game_over_img, (100, 325))
-            game_over_grp.draw(screen)
+        elif current_level == Location.LEVEL_ONE:
+            level_one.update()
+            level_one.draw()
 
-            if restart_btn.is_clicked():
-                player.reset(100, screen_height - 130, level_one)
-                current_player_state = player.player_state
-            if return_btn.is_clicked():
-                current_level = Location.MAIN_MENU
-                player.reset(100, screen_height - 130, level_one)
-                current_player_state = player.player_state
+            current_player_state = player.player_state
 
-            game_over_grp.update()
+            # LOSE
+            if current_player_state == PlayerState.LOST:
+                screen.blit(bg_game_over_img, (0, 0))
+                screen.blit(game_over_img, (100, 325))
+                game_over_grp.draw(screen)
 
-        # WIN
-        if current_player_state == PlayerState.WON:
-            screen.blit(bg_game_over_img, (0, 0))
-            screen.blit(game_over_img, (100, 325))
-            game_over_grp.draw(screen)
+                if restart_btn.is_clicked():
+                    player.reset(100, screen_height - 130, level_one)
+                    current_player_state = player.player_state
+                if return_btn.is_clicked():
+                    current_level = Location.MAIN_MENU
+                    player.reset(100, screen_height - 130, level_one)
+                    current_player_state = player.player_state
 
-            if restart_btn.is_clicked():
-                player.reset(100, screen_height - 130, level_one)
-                current_player_state = player.player_state
-            if return_btn.is_clicked():
-                current_level = Location.MAIN_MENU
-                player.reset(100, screen_height - 130, level_one)
-                current_player_state = player.player_state
+                game_over_grp.update()
 
-            game_over_grp.update()
+            # WIN
+            if current_player_state == PlayerState.WON:
+                screen.blit(bg_game_over_img, (0, 0))
+                screen.blit(game_over_img, (100, 325))
+                game_over_grp.draw(screen)
 
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            Running = False
+                if restart_btn.is_clicked():
+                    player.reset(100, screen_height - 130, level_one)
+                    current_player_state = player.player_state
+                if return_btn.is_clicked():
+                    current_level = Location.MAIN_MENU
+                    player.reset(100, screen_height - 130, level_one)
+                    current_player_state = player.player_state
 
-    pygame.display.update()
-pygame.quit()
+                game_over_grp.update()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                Running = False
+
+        pygame.display.update()
+    pygame.quit()
