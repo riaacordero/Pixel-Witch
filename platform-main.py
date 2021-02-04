@@ -201,7 +201,7 @@ class LevelSprite(pygame.sprite.Sprite):
     All the sprites seen in a single level.
     """
 
-    def __init__(self, x, y, width, height, image, *groups):
+    def __init__(self, image, x, y, width, height, *groups):
         super().__init__(*groups)
         self.image = pygame.transform.scale(image, (width, height))
         self.rect = self.image.get_rect(topleft=(x, y))
@@ -209,7 +209,7 @@ class LevelSprite(pygame.sprite.Sprite):
 
 class Platform(LevelSprite):
     def __init__(self, x, y, *groups):
-        super().__init__(x, y, tile_size, tile_size, platform_img, *groups)
+        super().__init__(platform_img, x, y, tile_size, tile_size, *groups)
 
 
 class Potion(LevelSprite):
@@ -218,7 +218,7 @@ class Potion(LevelSprite):
     """
 
     def __init__(self, color_state, image, x, y, *groups):
-        super().__init__(x, y, tile_size, tile_size, image, *groups)
+        super().__init__(image, x, y, tile_size, tile_size, *groups)
         self.color_state = color_state
 
 
@@ -255,7 +255,7 @@ class Gem(LevelSprite):
     """
 
     def __init__(self, x, y, *groups):
-        super().__init__(x, y, 20, 20, enemy_img, *groups)  # image is placeholder
+        super().__init__(enemy_img, x, y, 20, 20, *groups)  # image is placeholder
 
 
 class Key(LevelSprite):
@@ -264,12 +264,12 @@ class Key(LevelSprite):
     """
 
     def __init(self, x, y, *groups):
-        super().__init__(x, y, 20, 20, enemy_img, *groups) # image is placeholder
+        super().__init__(enemy_img, x, y, 20, 20, *groups)  # image is placeholder
 
 
 class Enemy(LevelSprite):
     def __init__(self, x, y, *groups):
-        super().__init__(x, y, 30, 30, enemy_img, *groups)
+        super().__init__(enemy_img, x, y, 30, 30, *groups)
         self.move_direction = 1
         self.move_count = 0
 
@@ -283,7 +283,7 @@ class Enemy(LevelSprite):
 
 class Door(LevelSprite):
     def __init__(self, x, y, *groups):
-        super().__init__(x, y, tile_size, int(tile_size * 1.5), door_img, *groups)
+        super().__init__(door_img, x, y, tile_size, int(tile_size * 1.5), *groups)
 
 
 class Level:
