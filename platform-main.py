@@ -296,14 +296,11 @@ class Level:
             column_count = 0
             for tile in row:
                 if tile == 1:
-                    platform = Platform(column_count * tile_size, row_count * tile_size)
-                    self.platforms.add(platform)
+                    Platform(column_count * tile_size, row_count * tile_size, self.platforms)
                 if tile == 2:
-                    enemy = Enemy(column_count * tile_size, row_count * tile_size - 30)
-                    enemy_grp.add(enemy)
+                    Enemy(column_count * tile_size, row_count * tile_size - 30, enemy_grp)
                 if tile == 4:
-                    door = Door(column_count * tile_size, row_count * tile_size - (tile_size // 2))
-                    door_grp.add(door)
+                    Door(column_count * tile_size, row_count * tile_size - (tile_size // 2), door_grp)
                 column_count += 1
             row_count += 1
 
