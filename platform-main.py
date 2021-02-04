@@ -6,16 +6,12 @@ clock = pygame.time.Clock()
 fps = 60
 
 # SET SCREEN
-screen_width = 500
-screen_height = 500
-
+screen_width, screen_height = 500, 500
 screen = pygame.display.set_mode((screen_width, screen_height))
-
 pygame.display.set_caption("Pixel Witch")
 
 # GRID VARIABLES
 tile_size = 30
-gravity = pygame.Vector2(0, 10)
 
 # LOAD IMAGES
 bg_img = pygame.image.load('img/bg_img.png')
@@ -139,7 +135,7 @@ class Camera(pygame.sprite.LayeredUpdates):
             self.camera.y = max(-(self.level_size.height - screen_height), min(0, self.camera.y))
 
     def draw(self, surface):
-        # Contains some added technicalities in grouping sprites
+        # Contains some added technicalities for grouping sprites
         dirty = self.lostsprites
         self.lostsprites = []
         for s, old_r in self.spritedict.items():
@@ -208,18 +204,26 @@ class LevelSprite(pygame.sprite.Sprite):
 
 
 class Background(LevelSprite):
+    """
+    Moving background in a single level.
+    """
+
     def __init__(self, width, height, *groups):
         super().__init__(bg_level_img, 0, 0, width, height, *groups)
 
 
 class Platform(LevelSprite):
+    """
+    Wall, floor, or obstacles that are able to collide with the player.
+    """
+
     def __init__(self, x, y, *groups):
         super().__init__(platform_img, x, y, tile_size, tile_size, *groups)
 
 
 class Potion(LevelSprite):
     """
-    One-time use items which changes the player's ColorState based on the color of the ColorSpace.
+    One-time use items which changes the player's ColorState based on its color.
     """
 
     def __init__(self, color_state, image, x, y, *groups):
@@ -273,6 +277,10 @@ class Key(LevelSprite):
 
 
 class Enemy(LevelSprite):
+    """
+    Sprites that results to game over if collided with the player.
+    """
+
     def __init__(self, x, y, *groups):
         super().__init__(enemy_img, x, y, 30, 30, *groups)
         self.move_direction = 1
@@ -287,11 +295,19 @@ class Enemy(LevelSprite):
 
 
 class Door(LevelSprite):
+    """
+    Sprites that finish the level if collided with the player.
+    """
+
     def __init__(self, x, y, *groups):
         super().__init__(door_img, x, y, tile_size, int(tile_size * 1.5), *groups)
 
 
 class Level:
+    """
+    The stage that comprises of the different sprites that can interact with the player.
+    """
+
     def __init__(self, data: list, target: pygame.sprite.Sprite):
         self.platforms = pygame.sprite.Group()
         self.width, self.height = len(data[0]) * tile_size, len(data) * tile_size
@@ -320,6 +336,10 @@ class Level:
 
 
 class Player(pygame.sprite.Sprite):
+    """
+    The sprite being controlled by the user.
+    """
+
     def __init__(self, *groups):
         super().__init__(*groups)
         self.index = 0
@@ -339,11 +359,8 @@ class Player(pygame.sprite.Sprite):
     def update(self):
         if self.player_state == PlayerState.ALIVE:
             x_movement, y_movement = self._move()
-
             self._animate()
-
             y_movement = self._gravitate(y_movement)
-
             x_movement, y_movement, self.player_state = self._collide(x_movement, y_movement)
 
             # COORD UPDATES
