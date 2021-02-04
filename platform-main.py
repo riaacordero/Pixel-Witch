@@ -31,6 +31,7 @@ hov_restart_img = pygame.image.load("img/hovered_restart_btn.png")
 def_return_img = pygame.image.load("img/default_return_btn.png")
 hov_return_img = pygame.image.load("img/hovered_return_btn.png")
 game_over_img = pygame.image.load("img/game_over.png")
+death_img = pygame.image.load("img/dead.png")
 
 enemy_img = pygame.image.load("img/fireball.png")
 door_img = pygame.image.load("img/door.png")
@@ -362,7 +363,7 @@ class Player(pygame.sprite.Sprite):
         keypress = pygame.key.get_pressed()
         if keypress[K_SPACE] and self.on_ground:
             self.on_ground = False
-            self.y_vel = -15
+            self.y_vel = -20
         if not keypress[K_SPACE]:
             self.jumped = False
         if keypress[K_LEFT] and not keypress[K_RIGHT]:
@@ -452,9 +453,6 @@ class Player(pygame.sprite.Sprite):
         self.player_state = PlayerState.ALIVE
 
 
-# LEVEL DATA
-current_level = Location.MAIN_MENU
-
 level_one_data = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
@@ -495,12 +493,12 @@ level_list_grp = pygame.sprite.Group()
 # CREATE BUTTONS
 start_btn = Button(25, 335, def_start_img, hov_start_img)
 main_menu_exit_btn = Button(25, 400, def_exit_img, hov_exit_img)
-restart_btn = Button(80, 400, def_restart_img, hov_restart_img)
-return_btn = Button(285, 400, def_return_img, hov_return_img)
+game_over_restart_btn = Button(80, 400, def_restart_img, hov_restart_img)
+game_over_return_btn = Button(285, 400, def_return_img, hov_return_img)
 
 # ADD ITEMS TO LEVEL GROUPS
 main_menu_grp.add(start_btn, main_menu_exit_btn)
-game_over_grp.add(restart_btn, return_btn)
+game_over_grp.add(game_over_restart_btn, game_over_return_btn)
 
 # PLAYER STATE
 current_player_state = PlayerState.ALIVE
@@ -508,9 +506,10 @@ player.reset(100, screen_height - 120, level_one)
 
 # GAME STATE
 Running = True
+current_location = Location.MAIN_MENU
 
 def display_main_menu():
-    global Running, current_level
+    global Running, current_location
 
     screen.blit(bg_img, (0, 0))
     main_menu_grp.draw(screen)
@@ -519,7 +518,25 @@ def display_main_menu():
     if main_menu_exit_btn.is_clicked():
         Running = False
     elif start_btn.is_clicked():
-        current_level = Location.LEVEL_ONE
+        current_location = Location.LEVEL_ONE
+
+
+def display_game_over(level: Level):
+    global current_player_state, current_location
+
+    screen.blit(bg_game_over_img, (0, 0))
+    screen.blit(pygame.transform.scale(death_img, (200, 200)), (150, 50))
+    screen.blit(game_over_img, (100, 325))
+    game_over_grp.draw(screen)
+
+    if game_over_restart_btn.is_clicked():
+        player.reset(100, screen_height - 130, level)
+        current_player_state = player.player_state
+    elif game_over_return_btn.is_clicked():
+        current_location = Location.MAIN_MENU
+        player.reset(100, screen_height - 130, level)
+        current_player_state = player.player_state
+    game_over_grp.update()
 
 
 # GAME LOOP
@@ -528,10 +545,10 @@ if __name__ == "__main__":
 
         clock.tick(fps)
 
-        if current_level == Location.MAIN_MENU:
+        if current_location == Location.MAIN_MENU:
             display_main_menu()
 
-        elif current_level == Location.LEVEL_ONE:
+        elif current_location == Location.LEVEL_ONE:
             level_one.update()
             level_one.draw()
 
@@ -539,35 +556,11 @@ if __name__ == "__main__":
 
             # LOSE
             if current_player_state == PlayerState.LOST:
-                screen.blit(bg_game_over_img, (0, 0))
-                screen.blit(game_over_img, (100, 325))
-                game_over_grp.draw(screen)
-
-                if restart_btn.is_clicked():
-                    player.reset(100, screen_height - 130, level_one)
-                    current_player_state = player.player_state
-                if return_btn.is_clicked():
-                    current_level = Location.MAIN_MENU
-                    player.reset(100, screen_height - 130, level_one)
-                    current_player_state = player.player_state
-
-                game_over_grp.update()
+                display_game_over(level_one)
 
             # WIN
             if current_player_state == PlayerState.WON:
-                screen.blit(bg_game_over_img, (0, 0))
-                screen.blit(game_over_img, (100, 325))
-                game_over_grp.draw(screen)
-
-                if restart_btn.is_clicked():
-                    player.reset(100, screen_height - 130, level_one)
-                    current_player_state = player.player_state
-                if return_btn.is_clicked():
-                    current_level = Location.MAIN_MENU
-                    player.reset(100, screen_height - 130, level_one)
-                    current_player_state = player.player_state
-
-                game_over_grp.update()
+                display_game_over(level_one)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
