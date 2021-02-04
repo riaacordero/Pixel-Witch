@@ -292,7 +292,6 @@ class Door(LevelSprite):
 
 
 class Level:
-
     def __init__(self, data: list, target: pygame.sprite.Sprite):
         self.platforms = pygame.sprite.Group()
         self.width, self.height = len(data[0]) * tile_size, len(data) * tile_size
@@ -359,7 +358,7 @@ class Player(pygame.sprite.Sprite):
         Moves player based on certain key presses.
         :return: tuple representing x and y movement
         """
-        d_x, d_y = 0, 0
+        x_movement, y_movement = 0, 0
         keypress = pygame.key.get_pressed()
         if keypress[K_SPACE] and self.on_ground:
             self.on_ground = False
@@ -367,11 +366,11 @@ class Player(pygame.sprite.Sprite):
         if not keypress[K_SPACE]:
             self.jumped = False
         if keypress[K_LEFT] and not keypress[K_RIGHT]:
-            d_x -= 5
+            x_movement -= 5
             self.counter += 1
             self.direction = -1
         if keypress[K_RIGHT] and not keypress[K_LEFT]:
-            d_x += 5
+            x_movement += 5
             self.counter += 1
             self.direction = 1
         if not keypress[K_LEFT] and not keypress[K_RIGHT]:
@@ -382,7 +381,7 @@ class Player(pygame.sprite.Sprite):
             if self.direction == -1:
                 self.image = player_default_left_images[self.index]
 
-        return d_x, d_y
+        return x_movement, y_movement
 
     def _animate(self):
         walk_cooldown = 5
