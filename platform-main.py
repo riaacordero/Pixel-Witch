@@ -508,7 +508,7 @@ Running = True
 current_location = Location.MAIN_MENU
 
 def display_main_menu():
-    global Running, current_location
+    global Running, current_location, current_player_state
 
     screen.blit(bg_img, (0, 0))
     main_menu_grp.draw(screen)
@@ -518,6 +518,8 @@ def display_main_menu():
         Running = False
     elif start_btn.is_clicked():
         current_location = Location.LEVEL_ONE
+        player.reset(100, screen_height - 130, level_one)
+        current_player_state = player.player_state
 
 
 def display_game_over(level: Level):
@@ -533,9 +535,20 @@ def display_game_over(level: Level):
         current_player_state = player.player_state
     elif game_over_return_btn.is_clicked():
         current_location = Location.MAIN_MENU
-        player.reset(100, screen_height - 130, level)
-        current_player_state = player.player_state
     game_over_grp.update()
+
+
+def display_level(level: Level):
+    global current_player_state
+
+    level.update()
+    level.draw()
+    current_player_state = player.player_state
+
+    if current_player_state == PlayerState.LOST:
+        display_game_over(level)
+    elif current_player_state == PlayerState.WON:
+        display_game_over(level)
 
 
 # GAME LOOP
@@ -546,20 +559,8 @@ if __name__ == "__main__":
 
         if current_location == Location.MAIN_MENU:
             display_main_menu()
-
         elif current_location == Location.LEVEL_ONE:
-            level_one.update()
-            level_one.draw()
-
-            current_player_state = player.player_state
-
-            # LOSE
-            if current_player_state == PlayerState.LOST:
-                display_game_over(level_one)
-
-            # WIN
-            if current_player_state == PlayerState.WON:
-                display_game_over(level_one)
+            display_level(level_one)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
