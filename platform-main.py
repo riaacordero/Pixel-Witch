@@ -320,16 +320,15 @@ class Level:
         # LEVEL GROUPS
         self.platforms = pygame.sprite.Group()
         self.enemies = pygame.sprite.Group()
-        self.doors = pygame.sprite.Group()
         self.consumables = pygame.sprite.Group()
 
         self.sprites = pygame.sprite.OrderedUpdates()
         """Group that comprises of all sprites in the level"""
 
-        self.camera = Camera(target, self.rect)
+        self.active_sprites = Camera(target, self.rect)
         """Camera group that comprises of all active sprites in the level"""
 
-        self.camera.add(self.background)
+        self.active_sprites.add(self.background)
 
         row_count = 0
         for row in data:
@@ -340,7 +339,7 @@ class Level:
                 elif tile == "E":
                     Enemy(column_count * tile_size, row_count * tile_size - 30, self.enemies, self.sprites)
                 elif tile == "D":
-                    Door(column_count * tile_size, row_count * tile_size - (tile_size // 2), self.doors, self.sprites)
+                    self.door = Door(column_count * tile_size, row_count * tile_size - (tile_size // 2), self.sprites)
                 elif tile == "B":
                     BluePotion(column_count * tile_size, row_count * tile_size, self.consumables, self.sprites)
                 elif tile == "R":
@@ -355,20 +354,20 @@ class Level:
             row_count += 1
 
     def draw(self):
-        self.camera.draw(screen)
+        self.active_sprites.draw(screen)
 
     def update(self):
-        self.camera.update()
+        self.active_sprites.update()
 
     def reset(self):
         """
         Resets all the sprites in the level, making previously removed consumables and enemies show up again
         """
         self.score = 0
-        self.camera.empty()
-        self.camera.add(self.background)
+        self.active_sprites.empty()
+        self.active_sprites.add(self.background)
         for sprite in self.sprites:
-            self.camera.add(sprite)
+            self.active_sprites.add(sprite)
 
 
 class Player(pygame.sprite.Sprite):
@@ -396,7 +395,7 @@ class Player(pygame.sprite.Sprite):
 
         # STATE
         self.current_level = None
-        self.with_key = False
+        self.has_key = False
         self.color_state = ColorState.WHITE
         self.player_state = PlayerState.ALIVE
 
@@ -438,10 +437,7 @@ class Player(pygame.sprite.Sprite):
         if not keypress[K_LEFT] and not keypress[K_RIGHT]:
             self.counter = 0
             self.index = 0
-            if self.direction == 1:
-                self.image = player_default_right_images[self.index]
-            if self.direction == -1:
-                self.image = player_default_left_images[self.index]
+            self._display_frame()
 
         return x_movement, y_movement
 
@@ -452,10 +448,7 @@ class Player(pygame.sprite.Sprite):
             self.index += 1
             if self.index >= len(player_default_right_images):
                 self.index = 0
-            if self.direction == 1:
-                self.image = player_default_right_images[self.index]
-            if self.direction == -1:
-                self.image = player_default_left_images[self.index]
+            self._display_frame()
 
     def _gravitate(self, y_movement):
         self.y_vel += 1
@@ -488,29 +481,53 @@ class Player(pygame.sprite.Sprite):
                     self.on_ground = True
 
         # ENEMY COLLISION
-        if pygame.sprite.spritecollide(self, self.current_level.enemies, False):
-            player_state = PlayerState.LOST
+        for enemy in self.current_level.enemies:
+            if enemy.rect.colliderect(self.rect) and enemy in self.current_level.active_sprites:
+                player_state = PlayerState.LOST
 
         # DOOR COLLISION
-        if pygame.sprite.spritecollide(self, self.current_level.doors, False):
+        if self.current_level.door.rect.colliderect(self.rect) and self.has_key:
             player_state = PlayerState.WON
 
         # CONSUMABLE COLLISION
         for consumable in self.current_level.consumables:
-            if consumable.rect.colliderect(self.rect):
+            if consumable.rect.colliderect(self.rect) and consumable in self.current_level.active_sprites:
                 if isinstance(consumable, BluePotion):
+                    print("BLUE")
                     player.color_state = ColorState.BLUE
-                elif isinstance(consumable, RedPotion):
+                if isinstance(consumable, RedPotion):
+                    print("RED")
                     player.color_state = ColorState.RED
-                elif isinstance(consumable, YellowPotion):
+                if isinstance(consumable, YellowPotion):
+                    print("YELLOW")
                     player.color_state = ColorState.YELLOW
-                elif isinstance(consumable, Gem):
+                if isinstance(consumable, Gem):
                     self.current_level.score += 5
-                elif isinstance(consumable, Key):
-                    self.with_key = True
-                self.current_level.camera.remove(consumable)
+                if isinstance(consumable, Key):
+                    self.has_key = True
+                self.current_level.active_sprites.remove(consumable)
 
         return x_movement, y_movement, player_state
+
+    def _display_frame(self):
+        if self.direction == 1:
+            if self.color_state == ColorState.WHITE:
+                self.image = player_default_right_images[self.index]
+            elif self.color_state == ColorState.BLUE:
+                self.image = player_jump_right_images[self.index]
+            elif self.color_state == ColorState.RED:
+                self.image = player_health_right_images[self.index]
+            elif self.color_state == ColorState.YELLOW:
+                self.image = player_atk_right_images[self.index]
+        if self.direction == -1:
+            if self.color_state == ColorState.WHITE:
+                self.image = player_default_left_images[self.index]
+            elif self.color_state == ColorState.BLUE:
+                self.image = player_jump_left_images[self.index]
+            elif self.color_state == ColorState.RED:
+                self.image = player_health_left_images[self.index]
+            elif self.color_state == ColorState.YELLOW:
+                self.image = player_atk_left_images[self.index]
 
     def reset(self, x, y, level: Level):
         # ANIMATION AND DISPLAY
@@ -528,7 +545,7 @@ class Player(pygame.sprite.Sprite):
 
         # STATE
         self.current_level = level
-        self.with_key = False
+        self.has_key = False
         self.color_state = ColorState.WHITE
         self.player_state = PlayerState.ALIVE
 
@@ -538,7 +555,7 @@ level_one_data = [
     "P------------------P",
     "P------------------P",
     "P------------------P",
-    "P-----D--YRB-------P",
+    "P-----D------------P",
     "P----PPPPPPP-------P",
     "P------------------P",
     "P------------PP----P",
@@ -551,7 +568,7 @@ level_one_data = [
     "P-----------------PP",
     "P---------------PPPP",
     "P-------------PPPPPP",
-    "P------------------P",
+    "P-----BRY----------P",
     "PPPPPPPPPPPPPPPPPPPP",
     "PPPPPPPPPPPPPPPPPPPP"
 ]
