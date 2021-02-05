@@ -319,11 +319,11 @@ class Level:
         for row in data:
             column_count = 0
             for tile in row:
-                if tile == 1:
+                if tile == "P":
                     Platform(column_count * tile_size, row_count * tile_size, self.platforms, self.camera)
-                if tile == 2:
+                if tile == "E":
                     Enemy(column_count * tile_size, row_count * tile_size - 30, enemy_grp, self.camera)
-                if tile == 4:
+                if tile == "D":
                     Door(column_count * tile_size, row_count * tile_size - (tile_size // 2), door_grp, self.camera)
                 column_count += 1
             row_count += 1
@@ -470,26 +470,26 @@ class Player(pygame.sprite.Sprite):
 
 
 level_one_data = [
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 5, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 1, 1, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1],
-    [1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    "PPPPPPPPPPPPPPPPPPPP",
+    "P------------------P",
+    "P------------------P",
+    "P------------------P",
+    "P-----D------------P",
+    "P----PPPPPPP-------P",
+    "P------------------P",
+    "P------------PP----P",
+    "P---------E--------P",
+    "P------------------P",
+    "P------------------P",
+    "P------E---------P-P",
+    "P--PPPPPPPPPP------P",
+    "P------------------P",
+    "P-----------------PP",
+    "P---------------PPPP",
+    "P-------------PPPPPP",
+    "P------------------P",
+    "PPPPPPPPPPPPPPPPPPPP",
+    "PPPPPPPPPPPPPPPPPPPP"
 ]
 
 # CREATE GAME MOBS AND TYPE GROUPS
@@ -523,6 +523,7 @@ player.reset(100, screen_height - 120, level_one)
 # GAME STATE
 Running = True
 current_location = Location.MAIN_MENU
+
 
 def display_main_menu():
     global Running, current_location, current_player_state
