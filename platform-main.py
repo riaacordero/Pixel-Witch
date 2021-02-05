@@ -1,5 +1,6 @@
 import pygame
 from pygame.locals import *
+from pygame import mixer
 
 pygame.init()
 clock = pygame.time.Clock()
@@ -18,6 +19,10 @@ bg_img = pygame.image.load('img/bg_img.png')
 bg_game_over_img = pygame.image.load("img/bg_img.png")
 bg_level_img = pygame.image.load("img/bg_img.png")
 
+# LOAD MUSIC
+bgm = mixer.music.load('music/bgm.wav')
+bgm = mixer.music.play(-1)
+
 def_start_img = pygame.image.load("img/default_start_btn.png")
 hov_start_img = pygame.image.load("img/hovered_start_btn.png")
 def_exit_img = pygame.image.load("img/default_exit_btn.png")
@@ -29,7 +34,9 @@ hov_return_img = pygame.image.load("img/hovered_return_btn.png")
 game_over_img = pygame.image.load("img/game_over.png")
 death_img = pygame.image.load("img/dead.png")
 
-enemy_img = pygame.image.load("img/fireball.png")
+enemy_img = pygame.image.load("img/enemy.png")
+gem_img = pygame.image.load("img/gem.png")
+key_img = pygame.image.load("img/key.png")
 door_img = pygame.image.load("img/door.png")
 platform_img = pygame.image.load("img/ground.png")
 
@@ -262,7 +269,7 @@ class Gem(LevelSprite):
     """
 
     def __init__(self, x, y, *groups):
-        super().__init__(enemy_img, x, y, 20, 20, *groups)  # image is placeholder
+        super().__init__(gem_img, x, y, 20, 20, *groups)  # image is placeholder
 
 
 class Key(LevelSprite):
@@ -271,7 +278,7 @@ class Key(LevelSprite):
     """
 
     def __init__(self, x, y, *groups):
-        super().__init__(enemy_img, x, y, 20, 20, *groups)  # image is placeholder
+        super().__init__(key_img, x, y, 20, 20, *groups)  # image is placeholder
 
 
 class Enemy(LevelSprite):
@@ -280,12 +287,12 @@ class Enemy(LevelSprite):
     """
 
     def __init__(self, x, y, *groups):
-        super().__init__(enemy_img, x, y, 30, 30, *groups)
+        super().__init__(enemy_img, x, y, 65, 65, *groups)
         self.move_direction = 1
         self.move_count = 0
 
     def update(self):
-        self.rect.y += self.move_direction
+        self.rect.x += self.move_direction
         self.move_count += 1
         if self.move_count > 20:
             self.move_direction *= -1
@@ -297,7 +304,7 @@ class Door(LevelSprite):
     """
 
     def __init__(self, x, y, *groups):
-        super().__init__(door_img, x, y, tile_size, int(tile_size * 1.5), *groups)
+        super().__init__(door_img, x, y, 48,48, *groups)
 
 
 class Level:
@@ -603,7 +610,7 @@ current_location = Location.MAIN_MENU
 
 def display_main_menu():
     global Running, current_location, current_player_state
-
+    
     screen.blit(bg_img, (0, 0))
     main_menu_grp.draw(screen)
     main_menu_grp.update()
@@ -621,7 +628,7 @@ def display_game_over(level: Level):
     global current_player_state, current_location
 
     screen.blit(bg_game_over_img, (0, 0))
-    screen.blit(pygame.transform.scale(death_img, (200, 200)), (150, 50))
+    screen.blit(pygame.transform.scale(death_img, (200, 200)), (150, 75))
     screen.blit(game_over_img, (100, 325))
     game_over_grp.draw(screen)
 
