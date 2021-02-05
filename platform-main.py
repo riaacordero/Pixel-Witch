@@ -1,5 +1,6 @@
 import pygame
 from pygame.locals import *
+from pygame import mixer
 
 pygame.init()
 clock = pygame.time.Clock()
@@ -12,6 +13,10 @@ pygame.display.set_caption("Pixel Witch")
 
 # GRID VARIABLES
 tile_size = 30
+
+# LOAD MUSIC
+bgm = mixer.music.load('music/bgm.wav')
+bgm = mixer.music.play(-1)
 
 # LOAD IMAGES
 bg_img = pygame.image.load('img/bg_img.png')
@@ -29,7 +34,9 @@ hov_return_img = pygame.image.load("img/hovered_return_btn.png")
 game_over_img = pygame.image.load("img/game_over.png")
 death_img = pygame.image.load("img/dead.png")
 
-enemy_img = pygame.image.load("img/fireball.png")
+enemy_img = pygame.image.load("img/enemy.png")
+gem_img = pygame.image.load("img/gem.png")
+key_img = pygame.image.load("img/key.png")
 door_img = pygame.image.load("img/door.png")
 platform_img = pygame.image.load("img/ground.png")
 
@@ -71,6 +78,7 @@ for num in range(1, 4):
     player_jump_left_img = pygame.transform.flip(player_jump_right_img, True, False)
     player_jump_left_images.append(player_jump_left_img)
     player_jump_right_images.append(player_jump_right_img)
+
 
 class Button(pygame.sprite.Sprite):
     """
@@ -116,7 +124,7 @@ class Camera(pygame.sprite.LayeredUpdates):
 
         self.camera = pygame.Vector2(0, 0)
         """Coordinates of the camera"""
-        
+
     def update(self, *args):
         super().update(*args)
         if self.target:
@@ -163,7 +171,7 @@ class Location:
     """
     Current place being shown in screen.
     """
-
+    
     MAIN_MENU = -1
     LEVEL_LIST = 0
     LEVEL_ONE = 1
@@ -261,7 +269,7 @@ class Gem(LevelSprite):
     """
 
     def __init__(self, x, y, *groups):
-        super().__init__(enemy_img, x, y, 20, 20, *groups)  # image is placeholder
+        super().__init__(gem_img, x, y, 20, 20, *groups)  # image is placeholder
 
 
 class Key(LevelSprite):
@@ -270,7 +278,7 @@ class Key(LevelSprite):
     """
 
     def __init__(self, x, y, *groups):
-        super().__init__(enemy_img, x, y, 20, 20, *groups)  # image is placeholder
+        super().__init__(key_img, x, y, 20, 20, *groups)  # image is placeholder
 
 
 class Enemy(LevelSprite):
@@ -279,17 +287,16 @@ class Enemy(LevelSprite):
     """
 
     def __init__(self, x, y, *groups):
-        super().__init__(enemy_img, x, y, 30, 30, *groups)
+        super().__init__(enemy_img, x, y, 65, 65, *groups)
         self.move_direction = 1
         self.move_count = 0
 
     def update(self):
-        self.rect.y += self.move_direction
+        self.rect.x += self.move_direction
         self.move_count += 1
         if self.move_count > 20:
             self.move_direction *= -1
             self.move_count *= -1
-
 
 class Door(LevelSprite):
     """
@@ -297,7 +304,7 @@ class Door(LevelSprite):
     """
 
     def __init__(self, x, y, *groups):
-        super().__init__(door_img, x, y, tile_size, int(tile_size * 1.5), *groups)
+        super().__init__(door_img, x, y, 48,48, *groups)
 
 
 class Level:
@@ -621,7 +628,7 @@ def display_game_over(level: Level):
     global current_player_state, current_location
 
     screen.blit(bg_game_over_img, (0, 0))
-    screen.blit(pygame.transform.scale(death_img, (200, 200)), (150, 50))
+    screen.blit(pygame.transform.scale(death_img, (200, 200)), (150, 75))
     screen.blit(game_over_img, (100, 325))
     game_over_grp.draw(screen)
 
