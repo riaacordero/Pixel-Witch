@@ -309,32 +309,49 @@ class Level:
     """
 
     def __init__(self, data: list, target: pygame.sprite.Sprite):
-        self.platforms = pygame.sprite.Group()
+        self.target = target
         self.width, self.height = len(data[0]) * tile_size, len(data) * tile_size
         self.rect = pygame.Rect(0, 0, self.width, self.height)
-        self.camera = Camera(target, self.rect)
         self.background = Background(self.width, self.height)
+
+        # LEVEL GROUPS
+        self.platforms = pygame.sprite.Group()
+        self.enemies = pygame.sprite.Group()
+        self.doors = pygame.sprite.Group()
+        self.blue_potions = pygame.sprite.Group()
+        self.red_potions = pygame.sprite.Group()
+        self.yellow_potions = pygame.sprite.Group()
+        self.gems = pygame.sprite.Group()
+        self.keys = pygame.sprite.Group()
+
+        self.sprites = pygame.sprite.OrderedUpdates()
+        """Group that comprises of all sprites in the level"""
+
+        self.camera = Camera(target, self.rect)
+        """Camera group that comprises of all active sprites in the level"""
+
         self.camera.add(self.background)
+
         row_count = 0
         for row in data:
             column_count = 0
             for tile in row:
                 if tile == "P":
-                    Platform(column_count * tile_size, row_count * tile_size, self.platforms, self.camera)
+                    Platform(column_count * tile_size, row_count * tile_size, self.platforms, self.sprites)
                 elif tile == "E":
-                    Enemy(column_count * tile_size, row_count * tile_size - 30, enemy_grp, self.camera)
+                    Enemy(column_count * tile_size, row_count * tile_size - 30, self.enemies, self.sprites)
                 elif tile == "D":
-                    Door(column_count * tile_size, row_count * tile_size - (tile_size // 2), door_grp, self.camera)
+                    Door(column_count * tile_size, row_count * tile_size - (tile_size // 2), self.doors, self.sprites)
                 elif tile == "B":
-                    BluePotion(column_count * tile_size, row_count * tile_size, self.camera)
+                    BluePotion(column_count * tile_size, row_count * tile_size, self.blue_potions, self.sprites)
                 elif tile == "R":
-                    RedPotion(column_count * tile_size, row_count * tile_size, self.camera)
+                    RedPotion(column_count * tile_size, row_count * tile_size, self.red_potions, self.sprites)
                 elif tile == "Y":
-                    YellowPotion(column_count * tile_size, row_count * tile_size, self.camera)
+                    YellowPotion(column_count * tile_size, row_count * tile_size, self.yellow_potions, self.sprites)
                 elif tile == "G":
-                    Gem(column_count * tile_size, row_count * tile_size, self.camera)
+                    Gem(column_count * tile_size, row_count * tile_size, self.gems, self.sprites)
                 elif tile == "K":
-                    Key(column_count * tile_size, row_count * tile_size, self.camera)
+                    Key(column_count * tile_size, row_count * tile_size, self.keys, self.sprites)
                 column_count += 1
             row_count += 1
 
@@ -343,6 +360,15 @@ class Level:
 
     def update(self):
         self.camera.update()
+
+    def reset(self):
+        """
+        Resets all the sprites in the level, making previously removed consumables and enemies show up again
+        """
+        self.camera.empty()
+        self.camera.add(self.background)
+        for sprite in self.sprites:
+            self.camera.add(sprite)
 
 
 class Player(pygame.sprite.Sprite):
@@ -396,7 +422,7 @@ class Player(pygame.sprite.Sprite):
         if self.on_ground and self.jump_cooldown > 0:
             self.jump_cooldown -= 1
         if keypress[K_SPACE] and self.on_ground and self.jump_cooldown == 0:
-            self.jump_cooldown = fps // 2  # 0.50 second cooldown
+            self.jump_cooldown = fps // 5  # 0.20 second cooldown
             self.on_ground = False
             self.y_vel = -20
         if keypress[K_LEFT] and not keypress[K_RIGHT]:
@@ -460,11 +486,11 @@ class Player(pygame.sprite.Sprite):
                     self.on_ground = True
 
         # ENEMY COLLISION
-        if pygame.sprite.spritecollide(self, enemy_grp, False):
+        if pygame.sprite.spritecollide(self, self.current_level.enemies, False):
             player_state = PlayerState.LOST
 
         # DOOR COLLISION
-        if pygame.sprite.spritecollide(self, door_grp, False):
+        if pygame.sprite.spritecollide(self, self.current_level.doors, False):
             player_state = PlayerState.WON
 
         return x_movement, y_movement, player_state
@@ -511,11 +537,8 @@ level_one_data = [
     "PPPPPPPPPPPPPPPPPPPP"
 ]
 
-# CREATE GAME MOBS AND TYPE GROUPS
+# CREATE PLAYER
 player = Player()
-platform_grp = pygame.sprite.Group()
-enemy_grp = pygame.sprite.Group()
-door_grp = pygame.sprite.Group()
 
 # CREATE LEVELS
 level_one = Level(level_one_data, player)
@@ -555,6 +578,7 @@ def display_main_menu():
         Running = False
     elif start_btn.is_clicked():
         current_location = Location.LEVEL_ONE
+        level_one.reset()
         player.reset(100, screen_height - 130, level_one)
         current_player_state = player.player_state
 
@@ -568,6 +592,7 @@ def display_game_over(level: Level):
     game_over_grp.draw(screen)
 
     if game_over_restart_btn.is_clicked():
+        level.reset()
         player.reset(100, screen_height - 130, level)
         current_player_state = player.player_state
     elif game_over_return_btn.is_clicked():
@@ -577,7 +602,6 @@ def display_game_over(level: Level):
 
 def display_level(level: Level):
     global current_player_state
-
     level.update()
     level.draw()
     current_player_state = player.player_state
