@@ -176,11 +176,11 @@ class Location:
 
 class ColorState:
     """
-    State of the player based on the ColorSpace they are in. Except the default value BLACK,
+    State of the player based on the ColorSpace they are in. Except the default value WHITE,
     each ColorState gives the player a unique ability, accessible by pressing SPACE.
     """
 
-    BLACK = 0
+    WHITE = 0
 
     RED = 1
     """Horizontal projectile attack based on what side the player is facing"""
@@ -314,15 +314,14 @@ class Level:
         self.rect = pygame.Rect(0, 0, self.width, self.height)
         self.background = Background(self.width, self.height)
 
+        self.score = 0
+        """Score gained by the player by getting gems"""
+
         # LEVEL GROUPS
         self.platforms = pygame.sprite.Group()
         self.enemies = pygame.sprite.Group()
         self.doors = pygame.sprite.Group()
-        self.blue_potions = pygame.sprite.Group()
-        self.red_potions = pygame.sprite.Group()
-        self.yellow_potions = pygame.sprite.Group()
-        self.gems = pygame.sprite.Group()
-        self.keys = pygame.sprite.Group()
+        self.consumables = pygame.sprite.Group()
 
         self.sprites = pygame.sprite.OrderedUpdates()
         """Group that comprises of all sprites in the level"""
@@ -343,15 +342,15 @@ class Level:
                 elif tile == "D":
                     Door(column_count * tile_size, row_count * tile_size - (tile_size // 2), self.doors, self.sprites)
                 elif tile == "B":
-                    BluePotion(column_count * tile_size, row_count * tile_size, self.blue_potions, self.sprites)
+                    BluePotion(column_count * tile_size, row_count * tile_size, self.consumables, self.sprites)
                 elif tile == "R":
-                    RedPotion(column_count * tile_size, row_count * tile_size, self.red_potions, self.sprites)
+                    RedPotion(column_count * tile_size, row_count * tile_size, self.consumables, self.sprites)
                 elif tile == "Y":
-                    YellowPotion(column_count * tile_size, row_count * tile_size, self.yellow_potions, self.sprites)
+                    YellowPotion(column_count * tile_size, row_count * tile_size, self.consumables, self.sprites)
                 elif tile == "G":
-                    Gem(column_count * tile_size, row_count * tile_size, self.gems, self.sprites)
+                    Gem(column_count * tile_size, row_count * tile_size, self.consumables, self.sprites)
                 elif tile == "K":
-                    Key(column_count * tile_size, row_count * tile_size, self.keys, self.sprites)
+                    Key(column_count * tile_size, row_count * tile_size, self.consumables, self.sprites)
                 column_count += 1
             row_count += 1
 
@@ -365,6 +364,7 @@ class Level:
         """
         Resets all the sprites in the level, making previously removed consumables and enemies show up again
         """
+        self.score = 0
         self.camera.empty()
         self.camera.add(self.background)
         for sprite in self.sprites:
@@ -396,6 +396,8 @@ class Player(pygame.sprite.Sprite):
 
         # STATE
         self.current_level = None
+        self.with_key = False
+        self.color_state = ColorState.WHITE
         self.player_state = PlayerState.ALIVE
 
     def update(self):
@@ -493,6 +495,21 @@ class Player(pygame.sprite.Sprite):
         if pygame.sprite.spritecollide(self, self.current_level.doors, False):
             player_state = PlayerState.WON
 
+        # CONSUMABLE COLLISION
+        for consumable in self.current_level.consumables:
+            if consumable.rect.colliderect(self.rect):
+                if isinstance(consumable, BluePotion):
+                    player.color_state = ColorState.BLUE
+                elif isinstance(consumable, RedPotion):
+                    player.color_state = ColorState.RED
+                elif isinstance(consumable, YellowPotion):
+                    player.color_state = ColorState.YELLOW
+                elif isinstance(consumable, Gem):
+                    self.current_level.score += 5
+                elif isinstance(consumable, Key):
+                    self.with_key = True
+                self.current_level.camera.remove(consumable)
+
         return x_movement, y_movement, player_state
 
     def reset(self, x, y, level: Level):
@@ -511,6 +528,8 @@ class Player(pygame.sprite.Sprite):
 
         # STATE
         self.current_level = level
+        self.with_key = False
+        self.color_state = ColorState.WHITE
         self.player_state = PlayerState.ALIVE
 
 
