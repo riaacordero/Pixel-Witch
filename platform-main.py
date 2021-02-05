@@ -352,17 +352,23 @@ class Player(pygame.sprite.Sprite):
 
     def __init__(self, *groups):
         super().__init__(*groups)
+        # ANIMATION
         self.index = 0
         self.counter = 0
         self.image = player_default_right_images[self.index]
 
+        # DISPLAY
         self.rect = self.image.get_rect()
         self.rect.x, self.rect.y = 0, 0
         self.width, self.height = self.image.get_width(), self.image.get_height()
+
+        # MOVEMENT
         self.y_vel = 0
+        self.jump_cooldown = 0
         self.direction = 0
-        self.jumped = False
         self.on_ground = True
+
+        # STATE
         self.current_level = None
         self.player_state = PlayerState.ALIVE
 
@@ -387,11 +393,12 @@ class Player(pygame.sprite.Sprite):
         """
         x_movement, y_movement = 0, 0
         keypress = pygame.key.get_pressed()
-        if keypress[K_SPACE] and self.on_ground:
+        if self.on_ground and self.jump_cooldown > 0:
+            self.jump_cooldown -= 1
+        if keypress[K_SPACE] and self.on_ground and self.jump_cooldown == 0:
+            self.jump_cooldown = fps // 2  # 0.50 second cooldown
             self.on_ground = False
             self.y_vel = -20
-        if not keypress[K_SPACE]:
-            self.jumped = False
         if keypress[K_LEFT] and not keypress[K_RIGHT]:
             x_movement -= 5
             self.counter += 1
@@ -463,18 +470,20 @@ class Player(pygame.sprite.Sprite):
         return x_movement, y_movement, player_state
 
     def reset(self, x, y, level: Level):
-        # ALIVE
+        # ANIMATION AND DISPLAY
         self.image = player_default_right_images[0]
         self.rect = self.image.get_rect()
-
-        # POSITION
         self.rect.x, self.rect.y = x, y
         self.width = self.image.get_width()
         self.height = self.image.get_height()
+
+        # MOVEMENT
         self.y_vel = 0
-        self.jumped = False
         self.direction = 0
         self.on_ground = True
+        self.jump_cooldown = 0
+
+        # STATE
         self.current_level = level
         self.player_state = PlayerState.ALIVE
 
