@@ -272,7 +272,7 @@ class Key(LevelSprite):
     Key to open door and finish the level.
     """
 
-    def __init(self, x, y, *groups):
+    def __init__(self, x, y, *groups):
         super().__init__(enemy_img, x, y, 20, 20, *groups)  # image is placeholder
 
 
@@ -321,10 +321,20 @@ class Level:
             for tile in row:
                 if tile == "P":
                     Platform(column_count * tile_size, row_count * tile_size, self.platforms, self.camera)
-                if tile == "E":
+                elif tile == "E":
                     Enemy(column_count * tile_size, row_count * tile_size - 30, enemy_grp, self.camera)
-                if tile == "D":
+                elif tile == "D":
                     Door(column_count * tile_size, row_count * tile_size - (tile_size // 2), door_grp, self.camera)
+                elif tile == "B":
+                    BluePotion(column_count * tile_size, row_count * tile_size, self.camera)
+                elif tile == "R":
+                    RedPotion(column_count * tile_size, row_count * tile_size, self.camera)
+                elif tile == "Y":
+                    YellowPotion(column_count * tile_size, row_count * tile_size, self.camera)
+                elif tile == "G":
+                    Gem(column_count * tile_size, row_count * tile_size, self.camera)
+                elif tile == "K":
+                    Key(column_count * tile_size, row_count * tile_size, self.camera)
                 column_count += 1
             row_count += 1
 
@@ -474,14 +484,14 @@ level_one_data = [
     "P------------------P",
     "P------------------P",
     "P------------------P",
-    "P-----D------------P",
+    "P-----D--YRB-------P",
     "P----PPPPPPP-------P",
     "P------------------P",
     "P------------PP----P",
     "P---------E--------P",
     "P------------------P",
     "P------------------P",
-    "P------E---------P-P",
+    "P------E-KG------P-P",
     "P--PPPPPPPPPP------P",
     "P------------------P",
     "P-----------------PP",
