@@ -73,7 +73,6 @@ for num in range(1, 4):
     player_jump_right_images.append(player_jump_right_img)
 
 
-# CLASSES
 class Button(pygame.sprite.Sprite):
     """
     Clickable item in screen. Changes image when mouse is hovered on top of it.
@@ -98,7 +97,6 @@ class Button(pygame.sprite.Sprite):
 
     def is_clicked(self):
         return self.is_hovered() and pygame.mouse.get_pressed(3)[0]
-
 
 class Camera(pygame.sprite.LayeredUpdates):
     """
@@ -166,7 +164,7 @@ class Location:
     """
     Current place being shown in screen.
     """
-
+    
     MAIN_MENU = -1
     LEVEL_LIST = 0
     LEVEL_ONE = 1
@@ -292,7 +290,6 @@ class Enemy(LevelSprite):
         if self.move_count > 20:
             self.move_direction *= -1
             self.move_count *= -1
-
 
 class Door(LevelSprite):
     """
@@ -589,6 +586,7 @@ start_btn = Button(25, 335, def_start_img, hov_start_img)
 main_menu_exit_btn = Button(25, 400, def_exit_img, hov_exit_img)
 game_over_restart_btn = Button(80, 400, def_restart_img, hov_restart_img)
 game_over_return_btn = Button(285, 400, def_return_img, hov_return_img)
+
 
 # ADD ITEMS TO LEVEL GROUPS
 main_menu_grp.add(start_btn, main_menu_exit_btn)
