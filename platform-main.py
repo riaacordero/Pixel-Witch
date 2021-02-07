@@ -438,6 +438,10 @@ class Player(pygame.sprite.Sprite):
             self.jump_cooldown = fps // 5  # 0.20 second cooldown
             self.on_ground = False
             self.y_vel = -20
+<<<<<<< Updated upstream
+=======
+            jump_sfx.play()
+>>>>>>> Stashed changes
         if keypress[K_LEFT] and not keypress[K_RIGHT]:
             x_movement -= 5
             self.counter += 1
@@ -632,13 +636,6 @@ def display_main_menu():
         level_one.reset()
         player.reset(100, screen_height - 130, level_one)
         current_player_state = player.player_state
-
-
-def display_pause():
-    global paused, pause_cooldown
-
-    screen.blit(overlay_img, (0, 0))
-    pygame.draw.rect(screen, (128, 128, 128), (125, 125, 250, 250))
 
 
 def display_game_over(level: Level):
