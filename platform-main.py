@@ -15,10 +15,11 @@ pygame.display.set_caption("Pixel Witch")
 tile_size = 30
 
 # LOAD MUSIC
-bgm = mixer.music.load('music/bgm.wav')
+mixer.music.load('music/bgm.wav')
 bgm = mixer.music.play(-1)
 
 # LOAD IMAGES
+overlay_img = pygame.image.load("img/overlay_img.png").convert_alpha()
 bg_img = pygame.image.load('img/bg_img.png')
 bg_game_over_img = pygame.image.load("img/bg_img.png")
 bg_level_img = pygame.image.load("img/bg_img.png")
@@ -27,6 +28,8 @@ def_start_img = pygame.image.load("img/default_start_btn.png")
 hov_start_img = pygame.image.load("img/hovered_start_btn.png")
 def_exit_img = pygame.image.load("img/default_exit_btn.png")
 hov_exit_img = pygame.image.load("img/hovered_exit_btn.png")
+def_pause_img = pygame.image.load("img/default_start_btn.png")
+hov_pause_img = pygame.image.load("img/hovered_start_btn.png")
 def_restart_img = pygame.image.load("img/default_restart_btn.png")
 hov_restart_img = pygame.image.load("img/hovered_restart_btn.png")
 def_return_img = pygame.image.load("img/default_return_btn.png")
@@ -95,6 +98,9 @@ class Button(pygame.sprite.Sprite):
         self.rect.y = y
         self.clicked = False
 
+    def draw(self):
+        screen.blit(self.image, self.rect)
+
     def update(self):
         self.image = self.hovered_image if self.is_hovered() else self.default_image
 
@@ -104,6 +110,7 @@ class Button(pygame.sprite.Sprite):
 
     def is_clicked(self):
         return self.is_hovered() and pygame.mouse.get_pressed(3)[0]
+
 
 class Camera(pygame.sprite.LayeredUpdates):
     """
@@ -171,7 +178,7 @@ class Location:
     """
     Current place being shown in screen.
     """
-    
+
     MAIN_MENU = -1
     LEVEL_LIST = 0
     LEVEL_ONE = 1
@@ -298,13 +305,14 @@ class Enemy(LevelSprite):
             self.move_direction *= -1
             self.move_count *= -1
 
+
 class Door(LevelSprite):
     """
     Sprites that finish the level if collided with the player.
     """
 
     def __init__(self, x, y, *groups):
-        super().__init__(door_img, x, y, 48,48, *groups)
+        super().__init__(door_img, x, y, 48, 48, *groups)
 
 
 class Level:
@@ -593,7 +601,7 @@ start_btn = Button(25, 335, def_start_img, hov_start_img)
 main_menu_exit_btn = Button(25, 400, def_exit_img, hov_exit_img)
 game_over_restart_btn = Button(80, 400, def_restart_img, hov_restart_img)
 game_over_return_btn = Button(285, 400, def_return_img, hov_return_img)
-
+pause_btn = Button(0, 0, def_pause_img, hov_pause_img)
 
 # ADD ITEMS TO LEVEL GROUPS
 main_menu_grp.add(start_btn, main_menu_exit_btn)
@@ -605,6 +613,8 @@ player.reset(100, screen_height - 120, level_one)
 
 # GAME STATE
 Running = True
+paused = False
+pause_cooldown = 0
 current_location = Location.MAIN_MENU
 
 
@@ -622,6 +632,13 @@ def display_main_menu():
         level_one.reset()
         player.reset(100, screen_height - 130, level_one)
         current_player_state = player.player_state
+
+
+def display_pause():
+    global paused, pause_cooldown
+
+    screen.blit(overlay_img, (0, 0))
+    pygame.draw.rect(screen, (128, 128, 128), (125, 125, 250, 250))
 
 
 def display_game_over(level: Level):
@@ -642,10 +659,19 @@ def display_game_over(level: Level):
 
 
 def display_level(level: Level):
-    global current_player_state
-    level.update()
+    global current_player_state, paused
+
+    if not paused:
+        level.update()
+        current_player_state = player.player_state
     level.draw()
-    current_player_state = player.player_state
+
+    pause_btn.update()
+    pause_btn.draw()
+    if pause_btn.is_clicked() and not paused:
+        paused = True
+    if paused:
+        display_pause()
 
     if current_player_state == PlayerState.LOST:
         display_game_over(level)
@@ -659,14 +685,14 @@ if __name__ == "__main__":
 
         clock.tick(fps)
 
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                Running = False
+
         if current_location == Location.MAIN_MENU:
             display_main_menu()
         elif current_location == Location.LEVEL_ONE:
             display_level(level_one)
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                Running = False
 
         pygame.display.update()
     pygame.quit()
