@@ -14,6 +14,10 @@ pygame.display.set_caption("Pixel Witch")
 # GRID VARIABLES
 tile_size = 30
 
+# FONT LOCATIONS
+fff_forward_font_location = "font/FFF Forward.ttf"
+retro_gaming_font_location = "font/Retro Gaming.ttf"
+
 # LOAD AUDIO
 mixer.music.load('music/bgm.wav')
 bgm = mixer.music.play(-1)
@@ -107,9 +111,7 @@ class Button(pygame.sprite.Sprite):
         self.hovered_image = default_image if hovered_image is None else hovered_image
         self.image = default_image
         self.rect = self.default_image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-        self.clicked = False
+        self.rect.x, self.rect.y = x, y
 
     def draw(self):
         screen.blit(self.image, self.rect)
@@ -123,6 +125,80 @@ class Button(pygame.sprite.Sprite):
 
     def is_clicked(self):
         return self.is_hovered() and pygame.mouse.get_pressed(3)[0]
+
+
+class Text:
+    """
+    Text shown in screen. Has ability to detect hovers and clicks.
+    """
+
+    def __init__(self, x, y, text, font_location, font_size, default_text_color):
+        self.text = text
+        self.font = pygame.font.Font(font_location, font_size)
+        self.default_text_color = default_text_color
+        self.default_text = self.font.render(text, True, default_text_color)
+        self.rect = self.default_text.get_rect()
+        self.rect.x, self.rect.y = x, y
+        self.width, self.height = self.default_text.get_width(), self.default_text.get_height()
+        self.hovered = False
+
+    def draw(self):
+        screen.blit(self.default_text, self.rect)
+
+    def update(self, new_text=""):
+        self.hovered = self.is_hovered()
+
+        if not new_text == "":
+            self.default_text = self.font.render(new_text, True, self.default_text_color)
+            self.rect = self.default_text.get_rect()
+            self.width, self.height = self.default_text.get_width(), self.default_text.get_height()
+
+    def is_hovered(self):
+        mouse_pos = pygame.mouse.get_pos()
+        return self.rect.collidepoint(mouse_pos)
+
+    def is_clicked(self):
+        return self.is_hovered() and pygame.mouse.get_pressed(3)[0]
+
+
+class HoverableText(Text):
+    """
+    Text that changes appearance when mouse is hovered on it.
+    """
+
+    def __init__(self, x, y, text, font_location, font_size, default_text_color, hovered_text_color, hovered_bg_color):
+        super().__init__(x, y, text, font_location, font_size, default_text_color)
+        self.hovered_text_color = hovered_text_color
+        self.hovered_text = self.font.render(text, True, hovered_text_color)
+        self.hovered_bg_color = hovered_bg_color
+
+    def draw(self):
+        if self.hovered:
+            pygame.draw.rect(screen, self.hovered_bg_color, self.rect)
+            screen.blit(self.hovered_text, self.rect)
+        else:
+            screen.blit(self.default_text, self.rect)
+
+    def update(self, new_text=""):
+        super().update(new_text)
+        if not new_text == "":
+            self.hovered_text = self.font.render(new_text, True, self.hovered_text_color)
+
+
+class TextGroup:
+    """
+    Container for Text and HoverableText objects.
+    """
+    def __init__(self, *texts: Text):
+        self.texts = list(texts)
+
+    def draw(self):
+        for text in self.texts:
+            text.draw()
+
+    def update(self):
+        for text in self.texts:
+            text.update()
 
 
 class Camera(pygame.sprite.LayeredUpdates):
@@ -192,8 +268,9 @@ class Location:
     Current place being shown in screen.
     """
 
-    MAIN_MENU = -1
-    LEVEL_LIST = 0
+    PAUSE = -2
+    LEVEL_SELECTION = -1
+    MAIN_MENU = 0
     LEVEL_ONE = 1
     LEVEL_TWO = 2
     LEVEL_THREE = 3
@@ -607,6 +684,7 @@ level_one_data = [
     "PPPPPPPPPPPPPPPPPPPP"
 ]
 
+
 # CREATE PLAYER
 player = Player()
 
@@ -640,6 +718,11 @@ pause_cooldown = 0
 current_location = Location.MAIN_MENU
 
 
+def display_text(text, font, text_color, x, y):
+    img = font.render(text, True, text_color)
+    screen.blit(img, (x, y))
+
+
 def display_main_menu():
     global Running, current_location, current_player_state
 
@@ -660,8 +743,7 @@ def display_main_menu():
 def display_pause():
     global paused, pause_cooldown
 
-    screen.blit(overlay_img, (0, 0))
-    pygame.draw.rect(screen, (128, 128, 128), (125, 125, 250, 250))
+    screen.blit(bg_img, (0, 0))
 
 
 def display_game_over(level: Level):
@@ -671,7 +753,6 @@ def display_game_over(level: Level):
     screen.blit(pygame.transform.scale(death_img, (200, 200)), (150, 75))
     screen.blit(game_over_img, (100, 325))
     game_over_grp.draw(screen)
-
 
     if game_over_restart_btn.is_clicked():
         level.reset()
