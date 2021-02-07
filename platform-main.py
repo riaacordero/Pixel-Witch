@@ -16,9 +16,9 @@ tile_size = 30
 
 # COLORS
 black = (0, 0, 0)
-default_text_color = (65, 64, 66)
-hovered_text_color = (209, 211, 212)
-hovered_text_bg_color = (109, 110, 113)
+dark_gray = (65, 64, 66)
+light_gray = (209, 211, 212)
+gray = (109, 110, 113)
 
 # FONT LOCATIONS
 fff_forward_font = "font/FFF Forward.ttf"
@@ -680,34 +680,33 @@ level_one_data = [
     "PPPPPPPPPPPPPPPPPPPP"
 ]
 
+# CREATE BUTTONS
+pause_btn = Button(400, 0, potion_blue_img, potion_red_img)
+
 # CREATE TEXTS
-start_text = HoverableText(25, 335, "start", retro_gaming_font, 40, default_text_color, hovered_text_color,
-                           hovered_text_bg_color)
-exit_text = HoverableText(25, 400, "exit", retro_gaming_font, 40, default_text_color, hovered_text_color,
-                          hovered_text_bg_color)
-game_over_text = Text(100, 325, "GAME OVER", fff_forward_font, 40, black)
-restart_text = HoverableText(80, 400, "restart", retro_gaming_font, 32, default_text_color, hovered_text_color,
-                             hovered_text_bg_color)
-return_text = HoverableText(285, 400, "return", retro_gaming_font, 32, default_text_color, hovered_text_color,
-                            hovered_text_bg_color)
+main_menu_start_text = HoverableText(25, 335, "start", retro_gaming_font, 40, dark_gray, light_gray,
+                                     gray)
+main_menu_exit_text = HoverableText(25, 400, "exit", retro_gaming_font, 40, dark_gray, light_gray,
+                                    gray)
+game_over_text = Text(125, 300, "GAME OVER", fff_forward_font, 32, black)
+game_over_restart_text = HoverableText(180, 385, "restart", retro_gaming_font, 24, dark_gray, light_gray,
+                                       gray)
+game_over_go_to_main_menu_text = HoverableText(125, 420, "go to main menu", retro_gaming_font, 24, dark_gray,
+                                               light_gray, gray)
+pause_resume_text = HoverableText(175, 225, "resume", retro_gaming_font, 32, dark_gray, light_gray, gray)
+pause_go_to_main_menu_text = HoverableText(100, 275, "go to main menu", retro_gaming_font, 32, dark_gray, light_gray,
+                                           gray)
 
 # CREATE TEXT GROUPS
-main_menu_texts = TextGroup(start_text, exit_text)
-game_over_texts = TextGroup(game_over_text, restart_text, return_text)
+main_menu_texts = TextGroup(main_menu_start_text, main_menu_exit_text)
+game_over_texts = TextGroup(game_over_text, game_over_restart_text, game_over_go_to_main_menu_text)
+pause_texts = TextGroup(pause_resume_text, pause_go_to_main_menu_text)
 
 # CREATE PLAYER
 player = Player()
 
 # CREATE LEVELS
 level_one = Level(level_one_data, player)
-
-# CREATE LEVEL GROUPS
-main_menu_grp = pygame.sprite.Group()
-game_over_grp = pygame.sprite.Group()
-level_list_grp = pygame.sprite.Group()
-
-# CREATE BUTTONS
-pause_btn = Button(400, 0, potion_blue_img, potion_red_img)
 
 # PLAYER STATE
 current_player_state = PlayerState.ALIVE
@@ -726,9 +725,9 @@ def display_main_menu():
     main_menu_texts.draw()
     main_menu_texts.update()
 
-    if exit_text.is_clicked():
+    if main_menu_exit_text.is_clicked():
         Running = False
-    elif start_text.is_clicked():
+    elif main_menu_start_text.is_clicked():
         current_location = Location.LEVEL_ONE
         level_one.reset()
         player.reset(100, screen_height - 130, level_one)
@@ -737,24 +736,32 @@ def display_main_menu():
 
 
 def display_pause():
-    global paused, pause_cooldown
+    global paused, pause_cooldown, current_location
 
     screen.blit(bg_img, (0, 0))
+    pause_texts.update()
+    pause_texts.draw()
+
+    if pause_resume_text.is_clicked():
+        paused = False
+    if pause_go_to_main_menu_text.is_clicked():
+        paused = False
+        current_location = Location.MAIN_MENU
 
 
 def display_game_over(level: Level):
     global current_player_state, current_location
 
     screen.blit(bg_game_over_img, (0, 0))
-    screen.blit(pygame.transform.scale(death_img, (200, 200)), (150, 75))
+    screen.blit(pygame.transform.scale(death_img, (200, 200)), (150, 50))
     game_over_texts.update()
     game_over_texts.draw()
 
-    if restart_text.is_clicked():
+    if game_over_restart_text.is_clicked():
         level.reset()
         player.reset(100, screen_height - 130, level)
         current_player_state = player.player_state
-    elif return_text.is_clicked():
+    elif game_over_go_to_main_menu_text.is_clicked():
         current_location = Location.MAIN_MENU
 
 
