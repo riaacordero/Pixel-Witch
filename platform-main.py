@@ -14,9 +14,15 @@ pygame.display.set_caption("Pixel Witch")
 # GRID VARIABLES
 tile_size = 30
 
+# COLORS
+black = (0, 0, 0)
+default_text_color = (65, 64, 66)
+hovered_text_color = (209, 211, 212)
+hovered_text_bg_color = (109, 110, 113)
+
 # FONT LOCATIONS
-fff_forward_font_location = "font/FFF Forward.ttf"
-retro_gaming_font_location = "font/Retro Gaming.ttf"
+fff_forward_font = "font/FFF Forward.ttf"
+retro_gaming_font = "font/Retro Gaming.ttf"
 
 # LOAD AUDIO
 mixer.music.load('music/bgm.wav')
@@ -41,16 +47,6 @@ bg_img = pygame.image.load('img/bg_img.png')
 bg_game_over_img = pygame.image.load("img/bg_img.png")
 bg_level_img = pygame.image.load("img/bg_img.png")
 
-def_start_img = pygame.image.load("img/default_start_btn.png")
-hov_start_img = pygame.image.load("img/hovered_start_btn.png")
-def_exit_img = pygame.image.load("img/default_exit_btn.png")
-hov_exit_img = pygame.image.load("img/hovered_exit_btn.png")
-def_pause_img = pygame.image.load("img/default_start_btn.png")
-hov_pause_img = pygame.image.load("img/hovered_start_btn.png")
-def_restart_img = pygame.image.load("img/default_restart_btn.png")
-hov_restart_img = pygame.image.load("img/hovered_restart_btn.png")
-def_return_img = pygame.image.load("img/default_return_btn.png")
-hov_return_img = pygame.image.load("img/hovered_return_btn.png")
 game_over_img = pygame.image.load("img/game_over.png")
 death_img = pygame.image.load("img/dead.png")
 
@@ -684,6 +680,20 @@ level_one_data = [
     "PPPPPPPPPPPPPPPPPPPP"
 ]
 
+# CREATE TEXTS
+start_text = HoverableText(25, 335, "start", retro_gaming_font, 40, default_text_color, hovered_text_color,
+                           hovered_text_bg_color)
+exit_text = HoverableText(25, 400, "exit", retro_gaming_font, 40, default_text_color, hovered_text_color,
+                          hovered_text_bg_color)
+game_over_text = Text(100, 325, "GAME OVER", fff_forward_font, 40, black)
+restart_text = HoverableText(80, 400, "restart", retro_gaming_font, 32, default_text_color, hovered_text_color,
+                             hovered_text_bg_color)
+return_text = HoverableText(285, 400, "return", retro_gaming_font, 32, default_text_color, hovered_text_color,
+                            hovered_text_bg_color)
+
+# CREATE TEXT GROUPS
+main_menu_texts = TextGroup(start_text, exit_text)
+game_over_texts = TextGroup(game_over_text, restart_text, return_text)
 
 # CREATE PLAYER
 player = Player()
@@ -697,15 +707,7 @@ game_over_grp = pygame.sprite.Group()
 level_list_grp = pygame.sprite.Group()
 
 # CREATE BUTTONS
-start_btn = Button(25, 335, def_start_img, hov_start_img)
-main_menu_exit_btn = Button(25, 400, def_exit_img, hov_exit_img)
-game_over_restart_btn = Button(80, 400, def_restart_img, hov_restart_img)
-game_over_return_btn = Button(285, 400, def_return_img, hov_return_img)
-pause_btn = Button(335, 0, def_pause_img, hov_pause_img)
-
-# ADD ITEMS TO LEVEL GROUPS
-main_menu_grp.add(start_btn, main_menu_exit_btn)
-game_over_grp.add(game_over_restart_btn, game_over_return_btn)
+pause_btn = Button(400, 0, potion_blue_img, potion_red_img)
 
 # PLAYER STATE
 current_player_state = PlayerState.ALIVE
@@ -717,22 +719,16 @@ paused = False
 pause_cooldown = 0
 current_location = Location.MAIN_MENU
 
-
-def display_text(text, font, text_color, x, y):
-    img = font.render(text, True, text_color)
-    screen.blit(img, (x, y))
-
-
 def display_main_menu():
     global Running, current_location, current_player_state
 
     screen.blit(bg_img, (0, 0))
-    main_menu_grp.draw(screen)
-    main_menu_grp.update()
+    main_menu_texts.draw()
+    main_menu_texts.update()
 
-    if main_menu_exit_btn.is_clicked():
+    if exit_text.is_clicked():
         Running = False
-    elif start_btn.is_clicked():
+    elif start_text.is_clicked():
         current_location = Location.LEVEL_ONE
         level_one.reset()
         player.reset(100, screen_height - 130, level_one)
@@ -751,16 +747,15 @@ def display_game_over(level: Level):
 
     screen.blit(bg_game_over_img, (0, 0))
     screen.blit(pygame.transform.scale(death_img, (200, 200)), (150, 75))
-    screen.blit(game_over_img, (100, 325))
-    game_over_grp.draw(screen)
+    game_over_texts.update()
+    game_over_texts.draw()
 
-    if game_over_restart_btn.is_clicked():
+    if restart_text.is_clicked():
         level.reset()
         player.reset(100, screen_height - 130, level)
         current_player_state = player.player_state
-    elif game_over_return_btn.is_clicked():
+    elif return_text.is_clicked():
         current_location = Location.MAIN_MENU
-    game_over_grp.update()
 
 
 def display_level(level: Level):
