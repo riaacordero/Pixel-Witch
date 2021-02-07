@@ -14,9 +14,22 @@ pygame.display.set_caption("Pixel Witch")
 # GRID VARIABLES
 tile_size = 30
 
-# LOAD MUSIC
+# LOAD AUDIO
 mixer.music.load('music/bgm.wav')
 bgm = mixer.music.play(-1)
+
+# Menu sound effects
+select_sfx = pygame.mixer.Sound('music/select1.wav')
+cancel_sfx = pygame.mixer.Sound('music/select2.wav')
+game_over_sfx = pygame.mixer.Sound('music/gameover.wav')
+win_sfx = pygame.mixer.Sound('music/win.wav')
+
+# In-game sound effects
+jump_sfx = pygame.mixer.Sound('music/jump.wav')
+potion_collect_sfx = pygame.mixer.Sound('music/collect1.wav')
+gem_collect_sfx = pygame.mixer.Sound('music/collect2.wav')
+key_collect_sfx = pygame.mixer.Sound('music/collect3.wav')
+player_atk_sfx = pygame.mixer.Sound('music/attack.wav')
 
 # LOAD IMAGES
 overlay_img = pygame.image.load("img/overlay_img.png").convert_alpha()
@@ -438,6 +451,7 @@ class Player(pygame.sprite.Sprite):
             self.jump_cooldown = fps // 5  # 0.20 second cooldown
             self.on_ground = False
             self.y_vel = -20
+            jump_sfx.play() 
         if keypress[K_LEFT] and not keypress[K_RIGHT]:
             x_movement -= 5
             self.counter += 1
@@ -496,10 +510,12 @@ class Player(pygame.sprite.Sprite):
         for enemy in self.current_level.enemies:
             if enemy.rect.colliderect(self.rect) and enemy in self.current_level.active_sprites:
                 player_state = PlayerState.LOST
+                game_over_sfx.play()
 
         # DOOR COLLISION
         if self.current_level.door.rect.colliderect(self.rect) and self.has_key:
             player_state = PlayerState.WON
+            win_sfx.play()
 
         # CONSUMABLE COLLISION
         for consumable in self.current_level.consumables:
@@ -507,16 +523,21 @@ class Player(pygame.sprite.Sprite):
                 if isinstance(consumable, BluePotion):
                     print("BLUE")
                     player.color_state = ColorState.BLUE
+                    potion_collect_sfx.play()
                 if isinstance(consumable, RedPotion):
                     print("RED")
                     player.color_state = ColorState.RED
+                    potion_collect_sfx.play()
                 if isinstance(consumable, YellowPotion):
                     print("YELLOW")
                     player.color_state = ColorState.YELLOW
+                    potion_collect_sfx.play()
                 if isinstance(consumable, Gem):
                     self.current_level.score += 5
+                    gem_collect_sfx.play()
                 if isinstance(consumable, Key):
                     self.has_key = True
+                    key_collect_sfx.play()
                 self.current_level.active_sprites.remove(consumable)
 
         return x_movement, y_movement, player_state
@@ -601,7 +622,7 @@ start_btn = Button(25, 335, def_start_img, hov_start_img)
 main_menu_exit_btn = Button(25, 400, def_exit_img, hov_exit_img)
 game_over_restart_btn = Button(80, 400, def_restart_img, hov_restart_img)
 game_over_return_btn = Button(285, 400, def_return_img, hov_return_img)
-pause_btn = Button(0, 0, def_pause_img, hov_pause_img)
+pause_btn = Button(335, 0, def_pause_img, hov_pause_img)
 
 # ADD ITEMS TO LEVEL GROUPS
 main_menu_grp.add(start_btn, main_menu_exit_btn)
@@ -632,6 +653,14 @@ def display_main_menu():
         level_one.reset()
         player.reset(100, screen_height - 130, level_one)
         current_player_state = player.player_state
+        select_sfx.play()
+
+
+def display_pause():
+    global paused, pause_cooldown
+
+    screen.blit(overlay_img, (0, 0))
+    pygame.draw.rect(screen, (128, 128, 128), (125, 125, 250, 250))
 
 
 def display_pause():
@@ -648,6 +677,7 @@ def display_game_over(level: Level):
     screen.blit(pygame.transform.scale(death_img, (200, 200)), (150, 75))
     screen.blit(game_over_img, (100, 325))
     game_over_grp.draw(screen)
+
 
     if game_over_restart_btn.is_clicked():
         level.reset()
@@ -670,6 +700,7 @@ def display_level(level: Level):
     pause_btn.draw()
     if pause_btn.is_clicked() and not paused:
         paused = True
+        cancel_sfx.play()
     if paused:
         display_pause()
 
