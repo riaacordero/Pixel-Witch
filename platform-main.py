@@ -19,6 +19,7 @@ black = (0, 0, 0)
 dark_gray = (65, 64, 66)
 light_gray = (209, 211, 212)
 gray = (109, 110, 113)
+purple = (179, 136, 255)
 
 # FONT LOCATIONS
 fff_forward_font = "font/FFF Forward.ttf"
@@ -51,8 +52,8 @@ game_over_img = pygame.image.load("img/game_over.png")
 death_img = pygame.image.load("img/dead.png")
 
 enemy_img = pygame.image.load("img/enemy.png")
-gem_img = pygame.image.load("img/gem.png")
-key_img = pygame.image.load("img/key.png")
+gem_img = pygame.transform.scale(pygame.image.load("img/gem.png"), (35, 35))
+key_img = pygame.transform.scale(pygame.image.load("img/key.png"), (35, 35))
 door_img = pygame.image.load("img/door.png")
 platform_img = pygame.image.load("img/ground.png")
 
@@ -134,6 +135,7 @@ class Text:
         self.default_text_color = default_text_color
         self.default_text = self.font.render(text, True, default_text_color)
         self.rect = self.default_text.get_rect()
+        self.x, self.y = x, y
         self.rect.x, self.rect.y = x, y
         self.width, self.height = self.default_text.get_width(), self.default_text.get_height()
         self.hovered = False
@@ -148,6 +150,7 @@ class Text:
             self.default_text = self.font.render(new_text, True, self.default_text_color)
             self.rect = self.default_text.get_rect()
             self.width, self.height = self.default_text.get_width(), self.default_text.get_height()
+            self.rect.x, self.rect.y = self.x, self.y
 
     def is_hovered(self):
         mouse_pos = pygame.mouse.get_pos()
@@ -696,6 +699,7 @@ game_over_go_to_main_menu_text = HoverableText(125, 420, "go to main menu", retr
 pause_resume_text = HoverableText(175, 225, "resume", retro_gaming_font, 32, dark_gray, light_gray, gray)
 pause_go_to_main_menu_text = HoverableText(100, 275, "go to main menu", retro_gaming_font, 32, dark_gray, light_gray,
                                            gray)
+score_text = Text(100, 10, "0", retro_gaming_font, 28, purple)
 
 # CREATE TEXT GROUPS
 main_menu_texts = TextGroup(main_menu_start_text, main_menu_exit_text)
@@ -771,7 +775,11 @@ def display_level(level: Level):
     if not paused:
         level.update()
         current_player_state = player.player_state
-    level.draw()
+        level.draw()
+        screen.blit(key_img if player.has_key else key_img, (10, 10))
+        screen.blit(gem_img, (55, 10))
+        score_text.draw()
+        score_text.update(str(level.score))
 
     pause_btn.update()
     pause_btn.draw()
