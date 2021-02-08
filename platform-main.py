@@ -223,7 +223,6 @@ class Camera(pygame.sprite.LayeredUpdates):
     def update(self, *args):
         super().update(*args)
         if self.target:
-            self.add(self.target.fireball)
             self.add(self.target)
             # Checks how far the target is from the center of the screen
             x = screen_width / 2 - self.target.rect.center[0]
@@ -484,7 +483,7 @@ class Fireball(LevelSprite):
         self.direction = 0
 
     def attack(self, level):
-        print("booya")
+        print("self.attacking:", self.attacking)
         x_movement = self.direction * self.move_speed
         self.rect.x += x_movement
 
@@ -558,9 +557,10 @@ class Player(pygame.sprite.Sprite):
 
     def _update_fireball(self):
         if self.fireball.attacking:
-            print("woohoooo")
+            self.current_level.active_sprites.add(self.fireball)
             self.fireball.attack(self.current_level)
         else:
+            self.current_level.active_sprites.remove(self.fireball)
             self.fireball.rect.x, self.fireball.rect.y = self.rect.x + 15, self.rect.y + 10
 
     def _move(self):
@@ -589,7 +589,9 @@ class Player(pygame.sprite.Sprite):
                 self.on_ground = False
                 self.y_vel = -20
                 jump_sfx.play()
-            elif self.color_state == ColorState.YELLOW and self.atk_cooldown == 0 and not self.fireball.attacking:
+            elif self.color_state == ColorState.YELLOW and self.atk_cooldown == 0 and not self.fireball.attacking \
+                    and self.fireball.rect.x == self.rect.x + 15 and self.fireball.rect.y == self.rect.y + 10:
+                self.atk_cooldown = fps  # 1 second cooldown
                 self.fireball.attacking = True
                 self.fireball.direction = self.direction
                 pass
