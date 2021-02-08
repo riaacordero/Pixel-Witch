@@ -1,6 +1,5 @@
 import pygame
 from pygame.locals import *
-from pygame import mixer
 
 pygame.init()
 clock = pygame.time.Clock()
@@ -26,8 +25,8 @@ fff_forward_font = "font/FFF Forward.ttf"
 retro_gaming_font = "font/Retro Gaming.ttf"
 
 # LOAD AUDIO
-mixer.music.load('music/bgm.wav')
-bgm = mixer.music.play(-1)
+pygame.mixer.music.load('music/bgm.wav')
+bgm = pygame.mixer.music.play(-1, fade_ms=3000)
 
 # Menu SFX
 select_sfx = pygame.mixer.Sound('music/select1.wav')
@@ -43,7 +42,6 @@ key_collect_sfx = pygame.mixer.Sound('music/collect3.wav')
 player_atk_sfx = pygame.mixer.Sound('music/attack.wav')
 
 # LOAD IMAGES
-overlay_img = pygame.image.load("img/overlay_img.png").convert_alpha()
 bg_img = pygame.image.load('img/bg_img.png')
 bg_game_over_img = pygame.image.load("img/bg_img.png")
 bg_level_img = pygame.image.load("img/bg_img.png")
@@ -56,6 +54,7 @@ gem_img = pygame.transform.scale(pygame.image.load("img/gem.png"), (35, 35))
 key_img = pygame.transform.scale(pygame.image.load("img/key.png"), (35, 35))
 door_img = pygame.image.load("img/door.png")
 platform_img = pygame.image.load("img/ground.png")
+fireball_img = pygame.image.load("img/ball-atk.png")
 
 potion_blue_img = pygame.image.load("img/potion-blue.png")
 potion_red_img = pygame.image.load("img/potion-red.png")
@@ -188,6 +187,7 @@ class TextGroup:
     """
     Container for Text and HoverableText objects.
     """
+
     def __init__(self, *texts: Text):
         self.texts = list(texts)
 
@@ -223,6 +223,7 @@ class Camera(pygame.sprite.LayeredUpdates):
     def update(self, *args):
         super().update(*args)
         if self.target:
+            self.add(self.target.fireball)
             self.add(self.target)
             # Checks how far the target is from the center of the screen
             x = screen_width / 2 - self.target.rect.center[0]
@@ -471,6 +472,36 @@ class Level:
             self.active_sprites.add(sprite)
 
 
+class Fireball(LevelSprite):
+    """
+    A fireball attack casted by a player when pressing SPACE while in yellow color state.
+    """
+
+    def __init__(self, *groups):
+        super().__init__(fireball_img, 0, 0, 10, 10, *groups)
+        self.attacking = False
+        self.move_speed = 5
+        self.direction = 0
+
+    def attack(self, level):
+        print("booya")
+        x_movement = self.direction * self.move_speed
+        self.rect.x += x_movement
+
+        # Platform collision
+        for platform in level.platforms:
+            if platform.rect.colliderect(self.rect) and platform in level.active_sprites:
+                self.attacking = False
+                return
+
+        # Enemy collision
+        for enemy in level.enemies:
+            if enemy.rect.colliderect(self.rect) and enemy in level.active_sprites:
+                self.attacking = False
+                level.active_sprites.remove(enemy)
+                return
+
+
 class Player(pygame.sprite.Sprite):
     """
     The sprite being controlled by the user.
@@ -488,20 +519,28 @@ class Player(pygame.sprite.Sprite):
         self.rect.x, self.rect.y = 0, 0
         self.width, self.height = self.image.get_width(), self.image.get_height()
 
-        # MOVEMENT
-        self.y_vel = 0
-        self.jump_cooldown = 0
-        self.direction = 0
-        self.on_ground = True
-
         # STATE
         self.current_level = None
         self.has_key = False
         self.color_state = ColorState.WHITE
         self.player_state = PlayerState.ALIVE
 
+        # MOVEMENT
+        self.y_vel = 0
+        self.jump_cooldown = 0
+        self.direction = 1
+        self.on_ground = True
+
+        # ABILITY
+        self.jump_cooldown = 0
+        self.atk_cooldown = 0
+        self.fireball = Fireball()
+        self.has_shield = False
+
     def update(self):
         if self.player_state == PlayerState.ALIVE:
+            self._refresh_cooldown()
+            self._update_fireball()
             x_movement, y_movement = self._move()
             self._animate()
             y_movement = self._gravitate(y_movement)
@@ -511,8 +550,18 @@ class Player(pygame.sprite.Sprite):
             self.rect.x += x_movement
             self.rect.y += y_movement
 
-        # To draw player into game
-        screen.blit(self.image, self.rect)
+    def _refresh_cooldown(self):
+        if self.on_ground and self.jump_cooldown > 0:
+            self.jump_cooldown -= 1
+        if self.atk_cooldown > 0:
+            self.atk_cooldown -= 1
+
+    def _update_fireball(self):
+        if self.fireball.attacking:
+            print("woohoooo")
+            self.fireball.attack(self.current_level)
+        else:
+            self.fireball.rect.x, self.fireball.rect.y = self.rect.x + 15, self.rect.y + 10
 
     def _move(self):
         """
@@ -522,13 +571,6 @@ class Player(pygame.sprite.Sprite):
 
         x_movement, y_movement = 0, 0
         keypress = pygame.key.get_pressed()
-        if self.on_ground and self.jump_cooldown > 0:
-            self.jump_cooldown -= 1
-        if keypress[K_SPACE] and self.on_ground and self.jump_cooldown == 0:
-            self.jump_cooldown = fps // 5  # 0.20 second cooldown
-            self.on_ground = False
-            self.y_vel = -20
-            jump_sfx.play()
         if keypress[K_LEFT] and not keypress[K_RIGHT]:
             x_movement -= 5
             self.counter += 1
@@ -541,6 +583,16 @@ class Player(pygame.sprite.Sprite):
             self.counter = 0
             self.index = 0
             self._display_frame()
+        if keypress[K_SPACE]:
+            if self.color_state == ColorState.BLUE and self.on_ground and self.jump_cooldown == 0:
+                self.jump_cooldown = fps // 5  # 0.20 second cooldown
+                self.on_ground = False
+                self.y_vel = -20
+                jump_sfx.play()
+            elif self.color_state == ColorState.YELLOW and self.atk_cooldown == 0 and not self.fireball.attacking:
+                self.fireball.attacking = True
+                self.fireball.direction = self.direction
+                pass
 
         return x_movement, y_movement
 
@@ -647,17 +699,21 @@ class Player(pygame.sprite.Sprite):
         self.width = self.image.get_width()
         self.height = self.image.get_height()
 
-        # MOVEMENT
-        self.y_vel = 0
-        self.direction = 0
-        self.on_ground = True
-        self.jump_cooldown = 0
-
         # STATE
         self.current_level = level
         self.has_key = False
         self.color_state = ColorState.WHITE
         self.player_state = PlayerState.ALIVE
+
+        # MOVEMENT
+        self.y_vel = 0
+        self.direction = 1
+        self.on_ground = True
+
+        # ABILITY
+        self.jump_cooldown = 0
+        self.atk_cooldown = 0
+        self.has_shield = False
 
 
 level_one_data = [
@@ -678,7 +734,7 @@ level_one_data = [
     "P-----------------PP",
     "P---------------PPPP",
     "P-------------PPPPPP",
-    "P-----BRY----------P",
+    "P----YBRY--E-------P",
     "PPPPPPPPPPPPPPPPPPPP",
     "PPPPPPPPPPPPPPPPPPPP"
 ]
@@ -687,13 +743,10 @@ level_one_data = [
 pause_btn = Button(400, 0, potion_blue_img, potion_red_img)
 
 # CREATE TEXTS
-main_menu_start_text = HoverableText(25, 335, "start", retro_gaming_font, 40, dark_gray, light_gray,
-                                     gray)
-main_menu_exit_text = HoverableText(25, 400, "exit", retro_gaming_font, 40, dark_gray, light_gray,
-                                    gray)
+main_menu_start_text = HoverableText(25, 335, "start", retro_gaming_font, 40, dark_gray, light_gray, gray)
+main_menu_exit_text = HoverableText(25, 400, "exit", retro_gaming_font, 40, dark_gray, light_gray, gray)
 game_over_text = Text(125, 300, "GAME OVER", fff_forward_font, 32, black)
-game_over_restart_text = HoverableText(180, 385, "restart", retro_gaming_font, 24, dark_gray, light_gray,
-                                       gray)
+game_over_restart_text = HoverableText(180, 385, "restart", retro_gaming_font, 24, dark_gray, light_gray, gray)
 game_over_go_to_main_menu_text = HoverableText(125, 420, "go to main menu", retro_gaming_font, 24, dark_gray,
                                                light_gray, gray)
 pause_resume_text = HoverableText(175, 225, "resume", retro_gaming_font, 32, dark_gray, light_gray, gray)
@@ -721,6 +774,7 @@ Running = True
 paused = False
 pause_cooldown = 0
 current_location = Location.MAIN_MENU
+
 
 def display_main_menu():
     global Running, current_location, current_player_state
