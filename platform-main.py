@@ -26,7 +26,7 @@ retro_gaming_font = "font/Retro Gaming.ttf"
 
 # LOAD AUDIO
 pygame.mixer.music.load('music/bgm.wav')
-bgm = pygame.mixer.music.play(-1, fade_ms=3000)
+bgm = pygame.mixer.music.play(loops=-1, fade_ms=3000)
 
 # Menu SFX
 select_sfx = pygame.mixer.Sound('music/select1.wav')
@@ -44,6 +44,7 @@ player_atk_sfx = pygame.mixer.Sound('music/attack.wav')
 # LOAD IMAGES
 bg_img = pygame.image.load('img/bg_img.png')
 bg_game_over_img = pygame.image.load("img/bg_img.png")
+bg_game_clear_img = pygame.image.load("img/bg_img.png")
 bg_level_img = pygame.image.load("img/bg_img.png")
 
 game_over_img = pygame.image.load("img/game_over.png")
@@ -128,21 +129,24 @@ class Text:
     Text shown in screen. Has ability to detect hovers and clicks.
     """
 
-    def __init__(self, x, y, text, font_location, font_size, default_text_color):
+    def __init__(self, x, y, text, font_location, font_size, default_text_color, pos="topleft"):
         self.text = text
         self.font = pygame.font.Font(font_location, font_size)
         self.default_text_color = default_text_color
         self.default_text = self.font.render(text, True, default_text_color)
         self.rect = self.default_text.get_rect()
         self.x, self.y = x, y
-        self.rect.x, self.rect.y = x, y
+        if pos == "topleft":
+            self.rect.x, self.rect.y = x, y
+        elif pos == "center":
+            self.rect.center = x, y
         self.width, self.height = self.default_text.get_width(), self.default_text.get_height()
         self.hovered = False
 
     def draw(self):
         screen.blit(self.default_text, self.rect)
 
-    def update(self, new_text=""):
+    def update(self, new_text="", pos="", new_x=0, new_y=0):
         self.hovered = self.is_hovered()
 
         if not new_text == "":
@@ -150,6 +154,11 @@ class Text:
             self.rect = self.default_text.get_rect()
             self.width, self.height = self.default_text.get_width(), self.default_text.get_height()
             self.rect.x, self.rect.y = self.x, self.y
+
+            if pos == "" or pos == "topleft":
+                self.rect.x, self.rect.y = self.x, self.y
+            elif pos == "center":
+                self.rect.center = new_x, new_y
 
     def is_hovered(self):
         mouse_pos = pygame.mouse.get_pos()
@@ -164,8 +173,9 @@ class HoverableText(Text):
     Text that changes appearance when mouse is hovered on it.
     """
 
-    def __init__(self, x, y, text, font_location, font_size, default_text_color, hovered_text_color, hovered_bg_color):
-        super().__init__(x, y, text, font_location, font_size, default_text_color)
+    def __init__(self, x, y, text, font_location, font_size, default_text_color, hovered_text_color, hovered_bg_color,
+                 pos="topleft"):
+        super().__init__(x, y, text, font_location, font_size, default_text_color, pos)
         self.hovered_text_color = hovered_text_color
         self.hovered_text = self.font.render(text, True, hovered_text_color)
         self.hovered_bg_color = hovered_bg_color
@@ -177,7 +187,7 @@ class HoverableText(Text):
         else:
             screen.blit(self.default_text, self.rect)
 
-    def update(self, new_text=""):
+    def update(self, new_text="", pos="", new_x=0, new_y=0):
         super().update(new_text)
         if not new_text == "":
             self.hovered_text = self.font.render(new_text, True, self.hovered_text_color)
@@ -191,13 +201,25 @@ class TextGroup:
     def __init__(self, *texts: Text):
         self.texts = list(texts)
 
-    def draw(self):
+    def draw(self, *, excluded=()):
         for text in self.texts:
-            text.draw()
+            if text not in excluded:
+                text.draw()
 
     def update(self):
         for text in self.texts:
             text.update()
+
+    def one_is_clicked(self):
+        """Returns true if one interactive text is clicked"""
+        return any(isinstance(text, HoverableText) and text.is_clicked() for text in self.texts)
+
+    def add(self, *texts):
+        self.texts.extend(list(texts))
+
+    def remove(self, *texts):
+        for text in texts:
+            self.texts.remove(text)
 
 
 class Camera(pygame.sprite.LayeredUpdates):
@@ -483,7 +505,6 @@ class Fireball(LevelSprite):
         self.direction = 0
 
     def attack(self, level):
-        print("self.attacking:", self.attacking)
         x_movement = self.direction * self.move_speed
         self.rect.x += x_movement
 
@@ -727,16 +748,16 @@ level_one_data = [
     "P----PPPPPPP-------P",
     "P------------------P",
     "P------------PP----P",
-    "P---------E--------P",
+    "PP--------E--------P",
     "P------------------P",
     "P------------------P",
-    "P------E-KG------P-P",
+    "P--GKB-E-KG------P-P",
     "P--PPPPPPPPPP------P",
     "P------------------P",
     "P-----------------PP",
     "P---------------PPPP",
     "P-------------PPPPPP",
-    "P----YBRY--E-------P",
+    "P----YRB---E-------P",
     "PPPPPPPPPPPPPPPPPPPP",
     "PPPPPPPPPPPPPPPPPPPP"
 ]
@@ -745,21 +766,31 @@ level_one_data = [
 pause_btn = Button(400, 0, potion_blue_img, potion_red_img)
 
 # CREATE TEXTS
-main_menu_start_text = HoverableText(25, 335, "start", retro_gaming_font, 40, dark_gray, light_gray, gray)
-main_menu_exit_text = HoverableText(25, 400, "exit", retro_gaming_font, 40, dark_gray, light_gray, gray)
-game_over_text = Text(125, 300, "GAME OVER", fff_forward_font, 32, black)
-game_over_restart_text = HoverableText(180, 385, "restart", retro_gaming_font, 24, dark_gray, light_gray, gray)
-game_over_go_to_main_menu_text = HoverableText(125, 420, "go to main menu", retro_gaming_font, 24, dark_gray,
-                                               light_gray, gray)
-pause_resume_text = HoverableText(175, 225, "resume", retro_gaming_font, 32, dark_gray, light_gray, gray)
-pause_go_to_main_menu_text = HoverableText(100, 275, "go to main menu", retro_gaming_font, 32, dark_gray, light_gray,
-                                           gray)
+main_start_text = HoverableText(25, 335, "start", retro_gaming_font, 40, dark_gray, light_gray, gray)
+main_exit_text = HoverableText(25, 400, "exit", retro_gaming_font, 40, dark_gray, light_gray, gray)
+
+level_selection_text = Text(150, 150, "LEVEL SELECTION", fff_forward_font, 40, black)
+
+over_text = Text(125, 300, "GAME OVER", fff_forward_font, 32, black)
+over_restart_text = HoverableText(190, 385, "restart", retro_gaming_font, 24, dark_gray, light_gray, gray)
+over_main_text = HoverableText(175, 420, "main menu", retro_gaming_font, 24, dark_gray, light_gray, gray)
+
+clear_score_text = Text(250, 125, "0", fff_forward_font, 80, black, pos="center")
+clear_text = Text(250, 210, "GAME CLEARED", fff_forward_font, 24, black, pos="center")
+clear_next_text = HoverableText(250, 320, "next", retro_gaming_font, 32, dark_gray, light_gray, gray, pos="center")
+clear_retry_text = HoverableText(250, 360, "retry", retro_gaming_font, 32, dark_gray, light_gray, gray, pos="center")
+clear_main_text = HoverableText(250, 400, "main menu", retro_gaming_font, 32, dark_gray, light_gray, gray, pos="center")
+
+pause_resume_text = HoverableText(250, 225, "resume", retro_gaming_font, 32, dark_gray, light_gray, gray, pos="center")
+pause_main_text = HoverableText(250, 275, "main menu", retro_gaming_font, 32, dark_gray, light_gray, gray, pos="center")
+
 score_text = Text(100, 10, "0", retro_gaming_font, 28, purple)
 
 # CREATE TEXT GROUPS
-main_menu_texts = TextGroup(main_menu_start_text, main_menu_exit_text)
-game_over_texts = TextGroup(game_over_text, game_over_restart_text, game_over_go_to_main_menu_text)
-pause_texts = TextGroup(pause_resume_text, pause_go_to_main_menu_text)
+main_menu_texts = TextGroup(main_start_text, main_exit_text)
+game_over_texts = TextGroup(over_text, over_restart_text, over_main_text)
+game_clear_texts = TextGroup(clear_text, clear_next_text, clear_retry_text, clear_main_text, clear_score_text)
+pause_texts = TextGroup(pause_resume_text, pause_main_text)
 
 # CREATE PLAYER
 player = Player()
@@ -775,6 +806,14 @@ player.reset(100, screen_height - 120, level_one)
 Running = True
 paused = False
 pause_cooldown = 0
+
+score_display = 0
+"""score to be displayed, which starts at 0 and ends with the total score"""
+score_display_cooldown = fps // 2
+"""waits for score_display_cooldown to be zero before score_display is shown"""
+score_display_speed = fps // 10
+"""changes score_display for every 1/score_display_speed seconds"""
+
 current_location = Location.MAIN_MENU
 
 
@@ -782,12 +821,12 @@ def display_main_menu():
     global Running, current_location, current_player_state
 
     screen.blit(bg_img, (0, 0))
-    main_menu_texts.draw()
     main_menu_texts.update()
+    main_menu_texts.draw()
 
-    if main_menu_exit_text.is_clicked():
+    if main_exit_text.is_clicked():
         Running = False
-    elif main_menu_start_text.is_clicked():
+    elif main_start_text.is_clicked():
         current_location = Location.LEVEL_ONE
         level_one.reset()
         player.reset(100, screen_height - 130, level_one)
@@ -804,7 +843,7 @@ def display_pause():
 
     if pause_resume_text.is_clicked():
         paused = False
-    if pause_go_to_main_menu_text.is_clicked():
+    if pause_main_text.is_clicked():
         paused = False
         current_location = Location.MAIN_MENU
 
@@ -817,16 +856,47 @@ def display_game_over(level: Level):
     game_over_texts.update()
     game_over_texts.draw()
 
-    if game_over_restart_text.is_clicked():
+    if over_restart_text.is_clicked():
         level.reset()
         player.reset(100, screen_height - 130, level)
         current_player_state = player.player_state
-    elif game_over_go_to_main_menu_text.is_clicked():
+    elif over_main_text.is_clicked():
+        current_location = Location.MAIN_MENU
+
+
+def display_game_clear(level: Level):
+    global current_player_state, current_location, score_display, score_display_cooldown, score_display_speed
+
+    screen.blit(bg_game_clear_img, (0, 0))
+    if score_display_cooldown > 0:
+        score_display_cooldown -= 1
+    if score_display_speed > 0:
+        score_display_speed -= 1
+    if score_display_cooldown == 0 and score_display_speed == 0 and score_display != level.score:
+        score_display_speed = fps // 10
+        score_display += 1
+    game_clear_texts.update()
+    clear_score_text.update(str(score_display), pos="center", new_x=250, new_y=125)
+    game_clear_texts.draw(excluded=() if score_display == level.score else (clear_text,))
+
+    if game_clear_texts.one_is_clicked():
+        print(game_clear_texts.texts)
+        score_display = 0
+        score_display_cooldown = fps // 2
+        score_display_speed = fps // 10
+
+    if clear_next_text.is_clicked():
+        pass
+    elif clear_retry_text.is_clicked():
+        level.reset()
+        player.reset(100, screen_height - 130, level)
+        current_player_state = player.player_state
+    elif clear_main_text.is_clicked():
         current_location = Location.MAIN_MENU
 
 
 def display_level(level: Level):
-    global current_player_state, paused
+    global current_player_state, paused, score_display
 
     if not paused:
         level.update()
@@ -848,7 +918,7 @@ def display_level(level: Level):
     if current_player_state == PlayerState.LOST:
         display_game_over(level)
     elif current_player_state == PlayerState.WON:
-        display_game_over(level)
+        display_game_clear(level)
 
 
 # GAME LOOP
