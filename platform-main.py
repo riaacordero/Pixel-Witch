@@ -34,6 +34,7 @@ select_sfx = pygame.mixer.Sound('music/select1.wav')
 cancel_sfx = pygame.mixer.Sound('music/select2.wav')
 game_over_sfx = pygame.mixer.Sound('music/gameover.wav')
 win_sfx = pygame.mixer.Sound('music/win.wav')
+scroll_sfx = pygame.mixer.Sound('music/scroll.wav')
 
 # In-game audio
 jump_sfx = pygame.mixer.Sound('music/jump.wav')
