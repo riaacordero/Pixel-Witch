@@ -34,7 +34,6 @@ select_sfx = pygame.mixer.Sound('music/select1.wav')
 cancel_sfx = pygame.mixer.Sound('music/select2.wav')
 game_over_sfx = pygame.mixer.Sound('music/gameover.wav')
 win_sfx = pygame.mixer.Sound('music/win.wav')
-scroll_sfx = pygame.mixer.Sound('music/scroll.wav')
 
 # In-game audio
 jump_sfx = pygame.mixer.Sound('music/jump.wav')
@@ -42,6 +41,7 @@ potion_collect_sfx = pygame.mixer.Sound('music/collect1.wav')
 gem_collect_sfx = pygame.mixer.Sound('music/collect2.wav')
 key_collect_sfx = pygame.mixer.Sound('music/collect3.wav')
 player_atk_sfx = pygame.mixer.Sound('music/attack.wav')
+enemy_hit_sfx = pygame.mixer.Sound('music/hit.wav')
 
 # LOAD IMAGES
 bg_img = pygame.image.load('img/bg_img.png')
@@ -51,10 +51,13 @@ bg_level_img = pygame.image.load("img/bg_img.png")
 
 game_over_img = pygame.image.load("img/game_over.png")
 death_img = pygame.image.load("img/dead.png")
+pause_img = pygame.transform.scale(pygame.image.load("img/pause.png"), (35,35))
+pause_hov_img = pygame.transform.scale(pygame.image.load("img/pause_hov.png"), (35,35))
 
 enemy_img = pygame.image.load("img/enemy.png")
 gem_img = pygame.transform.scale(pygame.image.load("img/gem.png"), (35, 35))
 key_img = pygame.transform.scale(pygame.image.load("img/key.png"), (35, 35))
+key_inactive = pygame.transform.scale(pygame.image.load("img/key_mono.png"), (35, 35))
 door_img = pygame.image.load("img/door.png")
 platform_img = pygame.image.load("img/ground.png")
 fireball_img = pygame.image.load("img/ball-atk.png")
@@ -537,18 +540,21 @@ class Fireball(LevelSprite):
     def attack(self, level):
         x_movement = self.direction * self.move_speed
         self.rect.x += x_movement
+        player_atk_sfx.play()
 
         # Platform collision
         for platform in level.platforms:
             if platform.rect.colliderect(self.rect) and platform in level.active_sprites:
+                enemy_hit_sfx.play()
                 self.attacking = False
                 return
 
         # Enemy collision
         for enemy in level.enemies:
             if enemy.rect.colliderect(self.rect) and enemy in level.active_sprites:
-                self.attacking = False
                 level.active_sprites.remove(enemy)
+                self.attacking = False
+                enemy_hit_sfx.play()
                 return
 
 
@@ -781,7 +787,7 @@ level_one_data = [
     "PP--------E--------P",
     "P------------------P",
     "P------------------P",
-    "P--GKB-E-KG------P-P",
+    "P--G-B-E-KG------P-P",
     "P--PPPPPPPPPP------P",
     "P------------------P",
     "P-----------------PP",
@@ -793,7 +799,7 @@ level_one_data = [
 ]
 
 # CREATE BUTTONS
-pause_btn = Button(400, 0, potion_blue_img, potion_red_img)
+pause_btn = Button(450, 10, pause_img, pause_hov_img)
 
 # CREATE TEXTS
 main_start_text = HoverableText(25, 335, "start", retro_gaming_font, 40, dark_gray, light_gray, gray)
@@ -912,6 +918,7 @@ def display_game_clear(level: Level):
     if score_display_cooldown == 0 and score_display_speed == 0 and score_display != level.score:
         score_display_speed = fps // 10
         score_display += 1
+        select_sfx.play()
     game_clear_texts.update()
     clear_score_text.update(str(score_display), pos="center", new_x=250, new_y=125)
     game_clear_texts.draw(excluded=() if score_display == level.score else (clear_text,))
@@ -940,7 +947,7 @@ def display_level(level: Level):
         level.update()
         current_player_state = player.player_state
         level.draw()
-        screen.blit(key_img if player.has_key else key_img, (10, 10))
+        screen.blit(key_img if player.has_key else key_inactive, (10, 10))
         screen.blit(gem_img, (55, 10))
         score_text.draw()
         score_text.update(str(level.score))
