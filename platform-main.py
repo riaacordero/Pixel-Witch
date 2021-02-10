@@ -23,49 +23,49 @@ gray = (109, 110, 113)
 purple = (179, 136, 255)
 
 # FONT LOCATIONS
-fff_forward_font = "font/FFF Forward.ttf"
-retro_gaming_font = "font/Retro Gaming.ttf"
+fff_forward_font = "assets/font/FFF Forward.ttf"
+retro_gaming_font = "assets/font/Retro Gaming.ttf"
 
 # BGM LOCATIONS
-bgm_main_location = "sound/bgm_main.wav"
-bgm_level_location = "sound/bgm_level.wav"
+bgm_main_location = "assets/sound/bgm_main.wav"
+bgm_level_location = "assets/sound/bgm_level.wav"
 
 # Menu SFX
-select_sfx = pygame.mixer.Sound('sound/select1.wav')
-cancel_sfx = pygame.mixer.Sound('sound/select2.wav')
-game_over_sfx = pygame.mixer.Sound('sound/gameover.wav')
-win_sfx = pygame.mixer.Sound('sound/win.wav')
+select_sfx = pygame.mixer.Sound('assets/sound/select1.wav')
+cancel_sfx = pygame.mixer.Sound('assets/sound/select2.wav')
+game_over_sfx = pygame.mixer.Sound('assets/sound/gameover.wav')
+win_sfx = pygame.mixer.Sound('assets/sound/win.wav')
 
 # In-game audio
-jump_sfx = pygame.mixer.Sound('sound/jump.wav')
-potion_collect_sfx = pygame.mixer.Sound('sound/collect1.wav')
-gem_collect_sfx = pygame.mixer.Sound('sound/collect2.wav')
-key_collect_sfx = pygame.mixer.Sound('sound/collect3.wav')
-player_atk_sfx = pygame.mixer.Sound('sound/attack.wav')
-enemy_hit_sfx = pygame.mixer.Sound('sound/hit.wav')
+jump_sfx = pygame.mixer.Sound('assets/sound/jump.wav')
+potion_collect_sfx = pygame.mixer.Sound('assets/sound/collect1.wav')
+gem_collect_sfx = pygame.mixer.Sound('assets/sound/collect2.wav')
+key_collect_sfx = pygame.mixer.Sound('assets/sound/collect3.wav')
+player_atk_sfx = pygame.mixer.Sound('assets/sound/attack.wav')
+enemy_hit_sfx = pygame.mixer.Sound('assets/sound/hit.wav')
 
 # LOAD IMAGES
-bg_img = pygame.image.load('img/bg_img.png')
-bg_game_over_img = pygame.image.load("img/bg_img.png")
-bg_game_clear_img = pygame.image.load("img/bg_img.png")
-bg_level_img = pygame.image.load("img/bg_img.png")
+bg_img = pygame.image.load('assets/img/bg_img.png')
+bg_game_over_img = pygame.image.load("assets/img/bg_img.png")
+bg_game_clear_img = pygame.image.load("assets/img/bg_img.png")
+bg_level_img = pygame.image.load("assets/img/bg_img.png")
 
-game_over_img = pygame.image.load("img/game_over.png")
-death_img = pygame.image.load("img/dead.png")
-pause_img = pygame.transform.scale(pygame.image.load("img/pause.png"), (35,35))
-pause_hov_img = pygame.transform.scale(pygame.image.load("img/pause_hov.png"), (35,35))
+game_over_img = pygame.image.load("assets/img/game_over.png")
+death_img = pygame.image.load("assets/img/dead.png")
+pause_img = pygame.transform.scale(pygame.image.load("assets/img/pause.png"), (35, 35))
+pause_hov_img = pygame.transform.scale(pygame.image.load("assets/img/pause_hov.png"), (35, 35))
 
-enemy_img = pygame.image.load("img/enemy.png")
-gem_img = pygame.transform.scale(pygame.image.load("img/gem.png"), (35, 35))
-key_img = pygame.transform.scale(pygame.image.load("img/key.png"), (35, 35))
-key_inactive = pygame.transform.scale(pygame.image.load("img/key_mono.png"), (35, 35))
-door_img = pygame.image.load("img/door.png")
-platform_img = pygame.image.load("img/ground.png")
-fireball_img = pygame.image.load("img/ball-atk.png")
+enemy_img = pygame.image.load("assets/img/enemy.png")
+gem_img = pygame.transform.scale(pygame.image.load("assets/img/gem.png"), (35, 35))
+key_img = pygame.transform.scale(pygame.image.load("assets/img/key.png"), (35, 35))
+key_inactive = pygame.transform.scale(pygame.image.load("assets/img/key_mono.png"), (35, 35))
+door_img = pygame.image.load("assets/img/door.png")
+platform_img = pygame.image.load("assets/img/ground.png")
+fireball_img = pygame.image.load("assets/img/ball-atk.png")
 
-potion_blue_img = pygame.image.load("img/potion-blue.png")
-potion_red_img = pygame.image.load("img/potion-red.png")
-potion_yellow_img = pygame.image.load("img/potion-yellow.png")
+potion_blue_img = pygame.image.load("assets/img/potion-blue.png")
+potion_red_img = pygame.image.load("assets/img/potion-red.png")
+potion_yellow_img = pygame.image.load("assets/img/potion-yellow.png")
 
 player_default_left_images = []
 player_default_right_images = []
@@ -78,25 +78,25 @@ player_jump_right_images = []
 
 player_size = (40, 40)
 for num in range(1, 4):
-    player_img = pygame.image.load(f"img/player-{num}.png")
+    player_img = pygame.image.load(f"assets/img/player-{num}.png")
     player_right_img = pygame.transform.scale(player_img, player_size)
     player_left_img = pygame.transform.flip(player_right_img, True, False)
     player_default_right_images.append(player_right_img)
     player_default_left_images.append(player_left_img)
 
-    player_atk_img = pygame.image.load(f"img/player-state/player-atk-{num}.png")
+    player_atk_img = pygame.image.load(f"assets/img/player-state/player-atk-{num}.png")
     player_atk_right_img = pygame.transform.scale(player_atk_img, player_size)
     player_atk_left_img = pygame.transform.flip(player_atk_right_img, True, False)
     player_atk_right_images.append(player_atk_right_img)
     player_atk_left_images.append(player_atk_left_img)
 
-    player_health_img = pygame.image.load(f"img/player-state/player-health-{num}.png")
+    player_health_img = pygame.image.load(f"assets/img/player-state/player-health-{num}.png")
     player_health_right_img = pygame.transform.scale(player_health_img, player_size)
     player_health_left_img = pygame.transform.flip(player_health_right_img, True, False)
     player_health_right_images.append(player_health_right_img)
     player_health_left_images.append(player_health_left_img)
 
-    player_jump_img = pygame.image.load(f"img/player-state/player-jump-{num}.png")
+    player_jump_img = pygame.image.load(f"assets/img/player-state/player-jump-{num}.png")
     player_jump_right_img = pygame.transform.scale(player_jump_img, player_size)
     player_jump_left_img = pygame.transform.flip(player_jump_right_img, True, False)
     player_jump_left_images.append(player_jump_left_img)
