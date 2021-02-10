@@ -2,6 +2,7 @@ import pygame
 from pygame.locals import *
 
 pygame.init()
+pygame.mixer.init()
 clock = pygame.time.Clock()
 fps = 60
 
@@ -24,9 +25,9 @@ purple = (179, 136, 255)
 fff_forward_font = "font/FFF Forward.ttf"
 retro_gaming_font = "font/Retro Gaming.ttf"
 
-# LOAD AUDIO
-pygame.mixer.music.load('music/bgm.wav')
-bgm = pygame.mixer.music.play(loops=-1, fade_ms=3000)
+# BGM LOCATIONS
+bgm_main_location = "music/bgm_main.wav"
+bgm_level_location = "music/bgm_level.wav"
 
 # Menu SFX
 select_sfx = pygame.mixer.Sound('music/select1.wav')
@@ -95,6 +96,34 @@ for num in range(1, 4):
     player_jump_left_img = pygame.transform.flip(player_jump_right_img, True, False)
     player_jump_left_images.append(player_jump_left_img)
     player_jump_right_images.append(player_jump_right_img)
+
+
+class MusicPlayer:
+    """
+    Class for handling music in runtime.
+    """
+    def __init__(self):
+        self.running = False
+        self.paused = False
+
+    def load_and_play(self, music_location, loops, fade_ms=0):
+        if not self.running and not self.paused:
+            pygame.mixer.music.load(music_location)
+            pygame.mixer.music.play(loops=loops, fade_ms=fade_ms)
+            self.running = True
+
+    def pause(self):
+        pygame.mixer.music.pause()
+        self.paused = True
+
+    def unpause(self):
+        pygame.mixer.music.unpause()
+        self.paused = False
+
+    def stop_and_unload(self):
+        pygame.mixer.music.stop()
+        pygame.mixer.music.unload()
+        self.running = False
 
 
 class Button(pygame.sprite.Sprite):
@@ -803,6 +832,7 @@ current_player_state = PlayerState.ALIVE
 player.reset(100, screen_height - 120, level_one)
 
 # GAME STATE
+music_player = MusicPlayer()
 Running = True
 paused = False
 pause_cooldown = 0
@@ -820,6 +850,7 @@ current_location = Location.MAIN_MENU
 def display_main_menu():
     global Running, current_location, current_player_state
 
+    music_player.load_and_play(bgm_main_location, loops=-1, fade_ms=3000)
     screen.blit(bg_img, (0, 0))
     main_menu_texts.update()
     main_menu_texts.draw()
@@ -827,6 +858,7 @@ def display_main_menu():
     if main_exit_text.is_clicked():
         Running = False
     elif main_start_text.is_clicked():
+        music_player.stop_and_unload()
         current_location = Location.LEVEL_ONE
         level_one.reset()
         player.reset(100, screen_height - 130, level_one)
@@ -841,9 +873,13 @@ def display_pause():
     pause_texts.update()
     pause_texts.draw()
 
+    if pause_texts.one_is_clicked():
+        music_player.unpause()
+
     if pause_resume_text.is_clicked():
         paused = False
     if pause_main_text.is_clicked():
+        music_player.stop_and_unload()
         paused = False
         current_location = Location.MAIN_MENU
 
@@ -898,6 +934,7 @@ def display_game_clear(level: Level):
 def display_level(level: Level):
     global current_player_state, paused, score_display
 
+    music_player.load_and_play(bgm_level_location, loops=-1, fade_ms=3000)
     if not paused:
         level.update()
         current_player_state = player.player_state
@@ -910,14 +947,17 @@ def display_level(level: Level):
     pause_btn.update()
     pause_btn.draw()
     if pause_btn.is_clicked() and not paused:
+        music_player.pause()
         paused = True
         cancel_sfx.play()
     if paused:
         display_pause()
 
     if current_player_state == PlayerState.LOST:
+        music_player.stop_and_unload()
         display_game_over(level)
     elif current_player_state == PlayerState.WON:
+        music_player.stop_and_unload()
         display_game_clear(level)
 
 
