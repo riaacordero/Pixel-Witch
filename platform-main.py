@@ -1,8 +1,8 @@
 import pygame
 from pygame.locals import *
-from pygame import mixer
 
 pygame.init()
+pygame.mixer.init()
 clock = pygame.time.Clock()
 fps = 60
 
@@ -14,48 +14,49 @@ pygame.display.set_caption("Pixel Witch")
 # GRID VARIABLES
 tile_size = 30
 
-# LOAD AUDIO
-mixer.music.load('music/bgm.wav')
-bgm = mixer.music.play(-1)
+# COLORS
+black = (0, 0, 0)
+dark_gray = (65, 64, 66)
+light_gray = (209, 211, 212)
+gray = (109, 110, 113)
+purple = (179, 136, 255)
 
-''' Menu sound effects '''
+# FONT LOCATIONS
+fff_forward_font = "font/FFF Forward.ttf"
+retro_gaming_font = "font/Retro Gaming.ttf"
+
+# BGM LOCATIONS
+bgm_main_location = "music/bgm_main.wav"
+bgm_level_location = "music/bgm_level.wav"
+
+# Menu SFX
 select_sfx = pygame.mixer.Sound('music/select1.wav')
 cancel_sfx = pygame.mixer.Sound('music/select2.wav')
 game_over_sfx = pygame.mixer.Sound('music/gameover.wav')
 win_sfx = pygame.mixer.Sound('music/win.wav')
 
-''' In-game audio '''
+# In-game audio
 jump_sfx = pygame.mixer.Sound('music/jump.wav')
 potion_collect_sfx = pygame.mixer.Sound('music/collect1.wav')
 gem_collect_sfx = pygame.mixer.Sound('music/collect2.wav')
 key_collect_sfx = pygame.mixer.Sound('music/collect3.wav')
 player_atk_sfx = pygame.mixer.Sound('music/attack.wav')
 
-
 # LOAD IMAGES
-overlay_img = pygame.image.load("img/overlay_img.png").convert_alpha()
 bg_img = pygame.image.load('img/bg_img.png')
 bg_game_over_img = pygame.image.load("img/bg_img.png")
+bg_game_clear_img = pygame.image.load("img/bg_img.png")
 bg_level_img = pygame.image.load("img/bg_img.png")
 
-def_start_img = pygame.image.load("img/default_start_btn.png")
-hov_start_img = pygame.image.load("img/hovered_start_btn.png")
-def_exit_img = pygame.image.load("img/default_exit_btn.png")
-hov_exit_img = pygame.image.load("img/hovered_exit_btn.png")
-def_pause_img = pygame.image.load("img/default_start_btn.png")
-hov_pause_img = pygame.image.load("img/hovered_start_btn.png")
-def_restart_img = pygame.image.load("img/default_restart_btn.png")
-hov_restart_img = pygame.image.load("img/hovered_restart_btn.png")
-def_return_img = pygame.image.load("img/default_return_btn.png")
-hov_return_img = pygame.image.load("img/hovered_return_btn.png")
 game_over_img = pygame.image.load("img/game_over.png")
 death_img = pygame.image.load("img/dead.png")
 
 enemy_img = pygame.image.load("img/enemy.png")
-gem_img = pygame.image.load("img/gem.png")
-key_img = pygame.image.load("img/key.png")
+gem_img = pygame.transform.scale(pygame.image.load("img/gem.png"), (35, 35))
+key_img = pygame.transform.scale(pygame.image.load("img/key.png"), (35, 35))
 door_img = pygame.image.load("img/door.png")
 platform_img = pygame.image.load("img/ground.png")
+fireball_img = pygame.image.load("img/ball-atk.png")
 
 potion_blue_img = pygame.image.load("img/potion-blue.png")
 potion_red_img = pygame.image.load("img/potion-red.png")
@@ -97,6 +98,34 @@ for num in range(1, 4):
     player_jump_right_images.append(player_jump_right_img)
 
 
+class MusicPlayer:
+    """
+    Class for handling music in runtime.
+    """
+    def __init__(self):
+        self.running = False
+        self.paused = False
+
+    def load_and_play(self, music_location, loops, fade_ms=0):
+        if not self.running and not self.paused:
+            pygame.mixer.music.load(music_location)
+            pygame.mixer.music.play(loops=loops, fade_ms=fade_ms)
+            self.running = True
+
+    def pause(self):
+        pygame.mixer.music.pause()
+        self.paused = True
+
+    def unpause(self):
+        pygame.mixer.music.unpause()
+        self.paused = False
+
+    def stop_and_unload(self):
+        pygame.mixer.music.stop()
+        pygame.mixer.music.unload()
+        self.running = False
+
+
 class Button(pygame.sprite.Sprite):
     """
     Clickable item in screen. Changes image when mouse is hovered on top of it.
@@ -108,9 +137,7 @@ class Button(pygame.sprite.Sprite):
         self.hovered_image = default_image if hovered_image is None else hovered_image
         self.image = default_image
         self.rect = self.default_image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-        self.clicked = False
+        self.rect.x, self.rect.y = x, y
 
     def draw(self):
         screen.blit(self.image, self.rect)
@@ -124,6 +151,105 @@ class Button(pygame.sprite.Sprite):
 
     def is_clicked(self):
         return self.is_hovered() and pygame.mouse.get_pressed(3)[0]
+
+
+class Text:
+    """
+    Text shown in screen. Has ability to detect hovers and clicks.
+    """
+
+    def __init__(self, x, y, text, font_location, font_size, default_text_color, pos="topleft"):
+        self.text = text
+        self.font = pygame.font.Font(font_location, font_size)
+        self.default_text_color = default_text_color
+        self.default_text = self.font.render(text, True, default_text_color)
+        self.rect = self.default_text.get_rect()
+        self.x, self.y = x, y
+        if pos == "topleft":
+            self.rect.x, self.rect.y = x, y
+        elif pos == "center":
+            self.rect.center = x, y
+        self.width, self.height = self.default_text.get_width(), self.default_text.get_height()
+        self.hovered = False
+
+    def draw(self):
+        screen.blit(self.default_text, self.rect)
+
+    def update(self, new_text="", pos="", new_x=0, new_y=0):
+        self.hovered = self.is_hovered()
+
+        if not new_text == "":
+            self.default_text = self.font.render(new_text, True, self.default_text_color)
+            self.rect = self.default_text.get_rect()
+            self.width, self.height = self.default_text.get_width(), self.default_text.get_height()
+            self.rect.x, self.rect.y = self.x, self.y
+
+            if pos == "" or pos == "topleft":
+                self.rect.x, self.rect.y = self.x, self.y
+            elif pos == "center":
+                self.rect.center = new_x, new_y
+
+    def is_hovered(self):
+        mouse_pos = pygame.mouse.get_pos()
+        return self.rect.collidepoint(mouse_pos)
+
+    def is_clicked(self):
+        return self.is_hovered() and pygame.mouse.get_pressed(3)[0]
+
+
+class HoverableText(Text):
+    """
+    Text that changes appearance when mouse is hovered on it.
+    """
+
+    def __init__(self, x, y, text, font_location, font_size, default_text_color, hovered_text_color, hovered_bg_color,
+                 pos="topleft"):
+        super().__init__(x, y, text, font_location, font_size, default_text_color, pos)
+        self.hovered_text_color = hovered_text_color
+        self.hovered_text = self.font.render(text, True, hovered_text_color)
+        self.hovered_bg_color = hovered_bg_color
+
+    def draw(self):
+        if self.hovered:
+            pygame.draw.rect(screen, self.hovered_bg_color, self.rect)
+            screen.blit(self.hovered_text, self.rect)
+        else:
+            screen.blit(self.default_text, self.rect)
+
+    def update(self, new_text="", pos="", new_x=0, new_y=0):
+        super().update(new_text)
+        if not new_text == "":
+            self.hovered_text = self.font.render(new_text, True, self.hovered_text_color)
+
+
+class TextGroup:
+    """
+    Container for Text and HoverableText objects.
+    """
+
+    def __init__(self, *texts: Text):
+        self.texts = list(texts)
+
+    def draw(self, *, excluded=()):
+        for text in self.texts:
+            if text not in excluded:
+                text.draw()
+
+    def update(self):
+        for text in self.texts:
+            text.update()
+
+    def one_is_clicked(self):
+        """Returns true if one interactive text is clicked"""
+        return any(isinstance(text, HoverableText) and text.is_clicked() for text in self.texts)
+
+    def add(self, *texts):
+        self.texts.extend(list(texts))
+
+    def remove(self, *texts):
+        for text in texts:
+            self.texts.remove(text)
+
 
 class Camera(pygame.sprite.LayeredUpdates):
     """
@@ -192,8 +318,9 @@ class Location:
     Current place being shown in screen.
     """
 
-    MAIN_MENU = -1
-    LEVEL_LIST = 0
+    PAUSE = -2
+    LEVEL_SELECTION = -1
+    MAIN_MENU = 0
     LEVEL_ONE = 1
     LEVEL_TWO = 2
     LEVEL_THREE = 3
@@ -395,6 +522,35 @@ class Level:
             self.active_sprites.add(sprite)
 
 
+class Fireball(LevelSprite):
+    """
+    A fireball attack casted by a player when pressing SPACE while in yellow color state.
+    """
+
+    def __init__(self, *groups):
+        super().__init__(fireball_img, 0, 0, 10, 10, *groups)
+        self.attacking = False
+        self.move_speed = 5
+        self.direction = 0
+
+    def attack(self, level):
+        x_movement = self.direction * self.move_speed
+        self.rect.x += x_movement
+
+        # Platform collision
+        for platform in level.platforms:
+            if platform.rect.colliderect(self.rect) and platform in level.active_sprites:
+                self.attacking = False
+                return
+
+        # Enemy collision
+        for enemy in level.enemies:
+            if enemy.rect.colliderect(self.rect) and enemy in level.active_sprites:
+                self.attacking = False
+                level.active_sprites.remove(enemy)
+                return
+
+
 class Player(pygame.sprite.Sprite):
     """
     The sprite being controlled by the user.
@@ -412,20 +568,28 @@ class Player(pygame.sprite.Sprite):
         self.rect.x, self.rect.y = 0, 0
         self.width, self.height = self.image.get_width(), self.image.get_height()
 
-        # MOVEMENT
-        self.y_vel = 0
-        self.jump_cooldown = 0
-        self.direction = 0
-        self.on_ground = True
-
         # STATE
         self.current_level = None
         self.has_key = False
         self.color_state = ColorState.WHITE
         self.player_state = PlayerState.ALIVE
 
+        # MOVEMENT
+        self.y_vel = 0
+        self.jump_cooldown = 0
+        self.direction = 1
+        self.on_ground = True
+
+        # ABILITY
+        self.jump_cooldown = 0
+        self.atk_cooldown = 0
+        self.fireball = Fireball()
+        self.has_shield = False
+
     def update(self):
         if self.player_state == PlayerState.ALIVE:
+            self._refresh_cooldown()
+            self._update_fireball()
             x_movement, y_movement = self._move()
             self._animate()
             y_movement = self._gravitate(y_movement)
@@ -435,24 +599,28 @@ class Player(pygame.sprite.Sprite):
             self.rect.x += x_movement
             self.rect.y += y_movement
 
-        # To draw player into game
-        screen.blit(self.image, self.rect)
+    def _refresh_cooldown(self):
+        if self.on_ground and self.jump_cooldown > 0:
+            self.jump_cooldown -= 1
+        if self.atk_cooldown > 0:
+            self.atk_cooldown -= 1
+
+    def _update_fireball(self):
+        if self.fireball.attacking:
+            self.current_level.active_sprites.add(self.fireball)
+            self.fireball.attack(self.current_level)
+        else:
+            self.current_level.active_sprites.remove(self.fireball)
+            self.fireball.rect.x, self.fireball.rect.y = self.rect.x + 15, self.rect.y + 10
 
     def _move(self):
         """
         Moves player based on certain key presses.
         :return: tuple representing x and y movement
         """
+
         x_movement, y_movement = 0, 0
         keypress = pygame.key.get_pressed()
-        if self.on_ground and self.jump_cooldown > 0:
-            self.jump_cooldown -= 1
-        if keypress[K_SPACE] and self.on_ground and self.jump_cooldown == 0:
-            self.jump_cooldown = fps // 5  # 0.20 second cooldown
-            self.on_ground = False
-            self.y_vel = -20
-            jump_sfx = pygame.mixer.Sound('music/jump.wav')
-            jump_sfx.play() 
         if keypress[K_LEFT] and not keypress[K_RIGHT]:
             x_movement -= 5
             self.counter += 1
@@ -465,6 +633,18 @@ class Player(pygame.sprite.Sprite):
             self.counter = 0
             self.index = 0
             self._display_frame()
+        if keypress[K_SPACE]:
+            if self.color_state == ColorState.BLUE and self.on_ground and self.jump_cooldown == 0:
+                self.jump_cooldown = fps // 5  # 0.20 second cooldown
+                self.on_ground = False
+                self.y_vel = -20
+                jump_sfx.play()
+            elif self.color_state == ColorState.YELLOW and self.atk_cooldown == 0 and not self.fireball.attacking \
+                    and self.fireball.rect.x == self.rect.x + 15 and self.fireball.rect.y == self.rect.y + 10:
+                self.atk_cooldown = fps  # 1 second cooldown
+                self.fireball.attacking = True
+                self.fireball.direction = self.direction
+                pass
 
         return x_movement, y_movement
 
@@ -571,17 +751,21 @@ class Player(pygame.sprite.Sprite):
         self.width = self.image.get_width()
         self.height = self.image.get_height()
 
-        # MOVEMENT
-        self.y_vel = 0
-        self.direction = 0
-        self.on_ground = True
-        self.jump_cooldown = 0
-
         # STATE
         self.current_level = level
         self.has_key = False
         self.color_state = ColorState.WHITE
         self.player_state = PlayerState.ALIVE
+
+        # MOVEMENT
+        self.y_vel = 0
+        self.direction = 1
+        self.on_ground = True
+
+        # ABILITY
+        self.jump_cooldown = 0
+        self.atk_cooldown = 0
+        self.has_shield = False
 
 
 level_one_data = [
@@ -593,19 +777,49 @@ level_one_data = [
     "P----PPPPPPP-------P",
     "P------------------P",
     "P------------PP----P",
-    "P---------E--------P",
+    "PP--------E--------P",
     "P------------------P",
     "P------------------P",
-    "P------E-KG------P-P",
+    "P--GKB-E-KG------P-P",
     "P--PPPPPPPPPP------P",
     "P------------------P",
     "P-----------------PP",
     "P---------------PPPP",
     "P-------------PPPPPP",
-    "P-----BRY----------P",
+    "P----YRB---E-------P",
     "PPPPPPPPPPPPPPPPPPPP",
     "PPPPPPPPPPPPPPPPPPPP"
 ]
+
+# CREATE BUTTONS
+pause_btn = Button(400, 0, potion_blue_img, potion_red_img)
+
+# CREATE TEXTS
+main_start_text = HoverableText(25, 335, "start", retro_gaming_font, 40, dark_gray, light_gray, gray)
+main_exit_text = HoverableText(25, 400, "exit", retro_gaming_font, 40, dark_gray, light_gray, gray)
+
+level_selection_text = Text(150, 150, "LEVEL SELECTION", fff_forward_font, 40, black)
+
+over_text = Text(125, 300, "GAME OVER", fff_forward_font, 32, black)
+over_restart_text = HoverableText(190, 385, "restart", retro_gaming_font, 24, dark_gray, light_gray, gray)
+over_main_text = HoverableText(175, 420, "main menu", retro_gaming_font, 24, dark_gray, light_gray, gray)
+
+clear_score_text = Text(250, 125, "0", fff_forward_font, 80, black, pos="center")
+clear_text = Text(250, 210, "GAME CLEARED", fff_forward_font, 24, black, pos="center")
+clear_next_text = HoverableText(250, 320, "next", retro_gaming_font, 32, dark_gray, light_gray, gray, pos="center")
+clear_retry_text = HoverableText(250, 360, "retry", retro_gaming_font, 32, dark_gray, light_gray, gray, pos="center")
+clear_main_text = HoverableText(250, 400, "main menu", retro_gaming_font, 32, dark_gray, light_gray, gray, pos="center")
+
+pause_resume_text = HoverableText(250, 225, "resume", retro_gaming_font, 32, dark_gray, light_gray, gray, pos="center")
+pause_main_text = HoverableText(250, 275, "main menu", retro_gaming_font, 32, dark_gray, light_gray, gray, pos="center")
+
+score_text = Text(100, 10, "0", retro_gaming_font, 28, purple)
+
+# CREATE TEXT GROUPS
+main_menu_texts = TextGroup(main_start_text, main_exit_text)
+game_over_texts = TextGroup(over_text, over_restart_text, over_main_text)
+game_clear_texts = TextGroup(clear_text, clear_next_text, clear_retry_text, clear_main_text, clear_score_text)
+pause_texts = TextGroup(pause_resume_text, pause_main_text)
 
 # CREATE PLAYER
 player = Player()
@@ -613,43 +827,38 @@ player = Player()
 # CREATE LEVELS
 level_one = Level(level_one_data, player)
 
-# CREATE LEVEL GROUPS
-main_menu_grp = pygame.sprite.Group()
-game_over_grp = pygame.sprite.Group()
-level_list_grp = pygame.sprite.Group()
-
-# CREATE BUTTONS
-start_btn = Button(25, 335, def_start_img, hov_start_img)
-main_menu_exit_btn = Button(25, 400, def_exit_img, hov_exit_img)
-game_over_restart_btn = Button(80, 400, def_restart_img, hov_restart_img)
-game_over_return_btn = Button(285, 400, def_return_img, hov_return_img)
-pause_btn = Button(335, 0, def_pause_img, hov_pause_img)
-
-# ADD ITEMS TO LEVEL GROUPS
-main_menu_grp.add(start_btn, main_menu_exit_btn)
-game_over_grp.add(game_over_restart_btn, game_over_return_btn)
-
 # PLAYER STATE
 current_player_state = PlayerState.ALIVE
 player.reset(100, screen_height - 120, level_one)
 
 # GAME STATE
+music_player = MusicPlayer()
 Running = True
 paused = False
 pause_cooldown = 0
+
+score_display = 0
+"""score to be displayed, which starts at 0 and ends with the total score"""
+score_display_cooldown = fps // 2
+"""waits for score_display_cooldown to be zero before score_display is shown"""
+score_display_speed = fps // 10
+"""changes score_display for every 1/score_display_speed seconds"""
+
 current_location = Location.MAIN_MENU
 
 
 def display_main_menu():
     global Running, current_location, current_player_state
 
+    music_player.load_and_play(bgm_main_location, loops=-1, fade_ms=3000)
     screen.blit(bg_img, (0, 0))
-    main_menu_grp.draw(screen)
-    main_menu_grp.update()
+    main_menu_texts.update()
+    main_menu_texts.draw()
 
-    if main_menu_exit_btn.is_clicked():
+    if main_exit_text.is_clicked():
         Running = False
-    elif start_btn.is_clicked():
+    elif main_start_text.is_clicked():
+        music_player.stop_and_unload()
         current_location = Location.LEVEL_ONE
         level_one.reset()
         player.reset(100, screen_height - 130, level_one)
@@ -658,50 +867,98 @@ def display_main_menu():
 
 
 def display_pause():
-    global paused, pause_cooldown
+    global paused, pause_cooldown, current_location
 
-    screen.blit(overlay_img, (0, 0))
-    pygame.draw.rect(screen, (128, 128, 128), (125, 125, 250, 250))
+    screen.blit(bg_img, (0, 0))
+    pause_texts.update()
+    pause_texts.draw()
+
+    if pause_texts.one_is_clicked():
+        music_player.unpause()
+
+    if pause_resume_text.is_clicked():
+        paused = False
+    if pause_main_text.is_clicked():
+        music_player.stop_and_unload()
+        paused = False
+        current_location = Location.MAIN_MENU
 
 
 def display_game_over(level: Level):
     global current_player_state, current_location
 
     screen.blit(bg_game_over_img, (0, 0))
-    screen.blit(pygame.transform.scale(death_img, (200, 200)), (150, 75))
-    screen.blit(game_over_img, (100, 325))
-    game_over_grp.draw(screen)
+    screen.blit(pygame.transform.scale(death_img, (200, 200)), (150, 50))
+    game_over_texts.update()
+    game_over_texts.draw()
 
-
-    if game_over_restart_btn.is_clicked():
+    if over_restart_text.is_clicked():
         level.reset()
         player.reset(100, screen_height - 130, level)
         current_player_state = player.player_state
-    elif game_over_return_btn.is_clicked():
+    elif over_main_text.is_clicked():
         current_location = Location.MAIN_MENU
-    game_over_grp.update()
+
+
+def display_game_clear(level: Level):
+    global current_player_state, current_location, score_display, score_display_cooldown, score_display_speed
+
+    screen.blit(bg_game_clear_img, (0, 0))
+    if score_display_cooldown > 0:
+        score_display_cooldown -= 1
+    if score_display_speed > 0:
+        score_display_speed -= 1
+    if score_display_cooldown == 0 and score_display_speed == 0 and score_display != level.score:
+        score_display_speed = fps // 10
+        score_display += 1
+    game_clear_texts.update()
+    clear_score_text.update(str(score_display), pos="center", new_x=250, new_y=125)
+    game_clear_texts.draw(excluded=() if score_display == level.score else (clear_text,))
+
+    if game_clear_texts.one_is_clicked():
+        print(game_clear_texts.texts)
+        score_display = 0
+        score_display_cooldown = fps // 2
+        score_display_speed = fps // 10
+
+    if clear_next_text.is_clicked():
+        pass
+    elif clear_retry_text.is_clicked():
+        level.reset()
+        player.reset(100, screen_height - 130, level)
+        current_player_state = player.player_state
+    elif clear_main_text.is_clicked():
+        current_location = Location.MAIN_MENU
 
 
 def display_level(level: Level):
-    global current_player_state, paused
+    global current_player_state, paused, score_display
 
+    music_player.load_and_play(bgm_level_location, loops=-1, fade_ms=3000)
     if not paused:
         level.update()
         current_player_state = player.player_state
-    level.draw()
+        level.draw()
+        screen.blit(key_img if player.has_key else key_img, (10, 10))
+        screen.blit(gem_img, (55, 10))
+        score_text.draw()
+        score_text.update(str(level.score))
 
     pause_btn.update()
     pause_btn.draw()
     if pause_btn.is_clicked() and not paused:
+        music_player.pause()
         paused = True
         cancel_sfx.play()
     if paused:
         display_pause()
 
     if current_player_state == PlayerState.LOST:
+        music_player.stop_and_unload()
         display_game_over(level)
     elif current_player_state == PlayerState.WON:
-        display_game_over(level)
+        music_player.stop_and_unload()
+        display_game_clear(level)
 
 
 # GAME LOOP
