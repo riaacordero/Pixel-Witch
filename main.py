@@ -1,6 +1,7 @@
 """
-This module contains the game loop, and initializes, displays, and makes use of objects from the classes of
-other modules. It contains additional functions to display each separate location of the game.
+This module contains the game loop. It initializes, displays, and makes use of objects from the classes of
+other modules. It contains functions that display each of the separate locations of the game, and a few variables that
+help the functions and/or identify the current game state.
 """
 
 from pygame.locals import *
