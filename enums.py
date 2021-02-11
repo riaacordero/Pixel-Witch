@@ -4,6 +4,7 @@ This module contains enum classes used to make the code easier to understand.
 
 from enum import Enum
 
+
 class PlayerState(Enum):
     """
     Current player state of the game
