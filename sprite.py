@@ -147,6 +147,8 @@ class Fireball(LevelSprite):
         for enemy in level.enemies:
             if enemy.rect.colliderect(self.rect) and enemy in level.active_sprites:
                 level.active_sprites.remove(enemy)
+                # Replace enemy with gem
+                Gem(enemy.rect.centerx, enemy.rect.centery, level.consumables, level.active_sprites)
                 self.attacking = False
                 enemy_hit_sfx.play()
                 return
