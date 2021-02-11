@@ -245,7 +245,7 @@ class TextGroup:
             text.update()
 
     def one_is_clicked(self):
-        """Returns true if one interactive text is clicked"""
+        """Returns true if one interactive font is clicked"""
         return any(isinstance(text, HoverableText) and text.is_clicked() for text in self.texts)
 
     def add(self, *texts):
