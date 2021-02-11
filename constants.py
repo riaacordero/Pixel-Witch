@@ -3,7 +3,9 @@ Contains constant variables
 """
 
 tile_size = 30
+"""Size of each block of tile in pixels."""
 fps = 60
+"""The number of times the game loop will run in each second."""
 screen_width, screen_height = 500, 500
 
 # COLORS

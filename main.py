@@ -55,7 +55,7 @@ current_player_state = PlayerState.ALIVE
 player.reset(100, screen_height - 120, level_one)
 
 # Game state
-Running = True
+running = True
 paused = False
 pause_cooldown = 0
 
@@ -72,7 +72,7 @@ current_location = Location.MAIN_MENU
 
 
 def display_main_menu():
-    global Running, current_location, current_player_state
+    global running, current_location, current_player_state
 
     music_player.load_and_play(bgm_main_location, loops=-1, fade_ms=3000)
     screen.blit(bg_img, (0, 0))
@@ -80,7 +80,7 @@ def display_main_menu():
     main_menu_texts.draw(screen)
 
     if main_exit_text.is_clicked():
-        Running = False
+        running = False
     elif main_start_text.is_clicked():
         music_player.stop_and_unload()
         current_location = Location.LEVEL_ONE
@@ -188,13 +188,13 @@ def display_level(level: Level):
 
 # GAME LOOP
 if __name__ == "__main__":
-    while Running:
+    while running:
 
         clock.tick(fps)
 
         for event in pygame.event.get():
             if event.type == QUIT:
-                Running = False
+                running = False
 
         if current_location == Location.MAIN_MENU:
             display_main_menu()
