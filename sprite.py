@@ -128,7 +128,7 @@ class Fireball(LevelSprite):
     def __init__(self, *groups):
         super().__init__(fireball_img, 0, 0, 10, 10, *groups)
         self.attacking = False
-        self.move_speed = 5
+        self.move_speed = 8
         self.direction = 0
 
     def attack(self, level):
