@@ -303,15 +303,12 @@ class Player(pygame.sprite.Sprite):
         for consumable in self.current_level.consumables:
             if consumable.rect.colliderect(self.rect) and consumable in self.current_level.active_sprites:
                 if isinstance(consumable, BluePotion):
-                    print("BLUE")
                     self.color_state = ColorState.BLUE
                     potion_collect_sfx.play()
                 if isinstance(consumable, RedPotion):
-                    print("RED")
                     self.color_state = ColorState.RED
                     potion_collect_sfx.play()
                 if isinstance(consumable, YellowPotion):
-                    print("YELLOW")
                     self.color_state = ColorState.YELLOW
                     potion_collect_sfx.play()
                 if isinstance(consumable, Gem):

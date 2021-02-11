@@ -147,7 +147,6 @@ def display_game_clear(level: Level):
     game_clear_texts.draw(screen, excluded=() if score_display == level.score else (clear_text,))
 
     if game_clear_texts.one_is_clicked():
-        print(game_clear_texts.texts)
         score_display = 0
         score_display_cooldown = fps // 2
         score_display_speed = fps // 10
