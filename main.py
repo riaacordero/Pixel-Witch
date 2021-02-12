@@ -59,7 +59,6 @@ level_one = Level(level_one_data, player)
 
 # Player state
 current_player_state = PlayerState.ALIVE
-player.reset(100, screen_height - 120, level_one)
 
 # Game state
 running = True
@@ -92,7 +91,6 @@ def display_main_menu():
         music_player.stop_and_unload()
         current_location = Location.LEVEL_ONE
         level_one.reset()
-        player.reset(100, screen_height - 130, level_one)
         current_player_state = player.player_state
         select_sfx.play()
 
@@ -110,7 +108,6 @@ def display_pause(level: Level):
     if pause_restart_text.is_clicked():
         music_player.stop_and_unload()
         level.reset()
-        player.reset(100, screen_height - 130, level)
         current_player_state = player.player_state
     if pause_main_text.is_clicked():
         music_player.stop_and_unload()
@@ -127,7 +124,6 @@ def display_game_over(level: Level):
 
     if over_restart_text.is_clicked():
         level.reset()
-        player.reset(100, screen_height - 130, level)
         current_player_state = player.player_state
     elif over_main_text.is_clicked():
         current_location = Location.MAIN_MENU
@@ -158,7 +154,6 @@ def display_game_clear(level: Level):
         pass
     elif clear_retry_text.is_clicked():
         level.reset()
-        player.reset(100, screen_height - 130, level)
         current_player_state = player.player_state
     elif clear_main_text.is_clicked():
         current_location = Location.MAIN_MENU

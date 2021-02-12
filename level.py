@@ -16,7 +16,7 @@ level_one_data = [
     "PP--------E--------P",
     "P------------------P",
     "P------------------P",
-    "P--Y-B-E-KG-R----P-P",
+    "P--0YB-E-KG-R----P-P",
     "P--PPPPPPPPPP------P",
     "P------------------P",
     "P-----------------PP",
@@ -85,7 +85,7 @@ class Level:
     The stage that comprises of the different sprites that can interact with the player.
     """
 
-    def __init__(self, data: list, target: pygame.sprite.Sprite):
+    def __init__(self, data: list, target: Player):
         self.target = target
         self.width, self.height = len(data[0]) * tile_size, len(data) * tile_size
         self.rect = pygame.Rect(0, 0, self.width, self.height)
@@ -111,6 +111,8 @@ class Level:
         for row in data:
             column_count = 0
             for tile in row:
+                if tile == "0":
+                    self.target_x, self.target_y = column_count * tile_size, row_count * tile_size
                 if tile == "P":
                     Platform(column_count * tile_size, row_count * tile_size, self.platforms, self.sprites)
                 elif tile == "E":
@@ -140,6 +142,7 @@ class Level:
         """
         Resets all the sprites in the level, making previously removed consumables and enemies show up again
         """
+        self.target.reset(self.target_x, self.target_y, self)
         self.score = 0
         self.active_sprites.empty()
         self.active_sprites.add(self.background)
