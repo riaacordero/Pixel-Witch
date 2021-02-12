@@ -250,12 +250,14 @@ class Player(pygame.sprite.Sprite):
                 shield_blink_time_past = self.shield_start_blink_time - self.shield_time_left
                 print(shield_blink_time_past)
                 if shield_blink_time_past % (self.shield_blink_duration + self.shield_blink_interval) == 0:
+                    shield_blink_sfx.play()
                     print("BLINK BABY")
                     self.current_level.active_sprites.remove(self.shield)
                     self.shield_blinking = True
                     self.shield_blink_count += 1
                 elif self.shield_blink_interval * (self.shield_blink_count - 1) + \
                       self.shield_blink_duration * self.shield_blink_count - shield_blink_time_past == 0:
+                    shield_blink_sfx.play()
                     print("UNBLINK BABY")
                     self.current_level.active_sprites.add(self.shield)
                     self.shield_blinking = False
@@ -295,6 +297,7 @@ class Player(pygame.sprite.Sprite):
                 player_atk_sfx.play()
                 pass
             elif self.color_state == ColorState.RED and not self.has_shield:
+                activate_shield_sfx.play()
                 self.shield_time_left = fps * 10  # 10 second duration
                 self.has_shield = True
                 self.current_level.active_sprites.add(self.shield)
