@@ -243,7 +243,7 @@ class Player(pygame.sprite.Sprite):
                 self.y_vel = -20
                 jump_sfx.play()
             elif self.color_state == ColorState.YELLOW and self.atk_cooldown == 0 and not self.fireball.attacking \
-                    and self.fireball.rect.x == self.rect.x + 15 and self.fireball.rect.y == self.rect.y + 10:
+                    and self.fireball not in self.current_level.active_sprites:
                 self.atk_cooldown = fps  # 1 second cooldown
                 self.fireball.attacking = True
                 self.fireball.direction = self.direction
