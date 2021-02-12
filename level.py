@@ -17,7 +17,7 @@ level_one_data = np.array([
     "PP--------E--------P",
     "P------------------P",
     "P------------------P",
-    "P--0YB-E-KG-R----P-P",
+    "P--0-B-E-KG-R----P-P",
     "P--PPPPPPPPPP------P",
     "P------------------P",
     "P-----------------PP",
@@ -143,9 +143,9 @@ class Level:
         """
         Resets all the sprites in the level, making previously removed consumables and enemies show up again
         """
-        self.target.reset(self.target_x, self.target_y, self)
         self.score = 0
         self.active_sprites.empty()
         self.active_sprites.add(self.background)
         for sprite in self.sprites:
             self.active_sprites.add(sprite)
+        self.target.reset(self.target_x, self.target_y, self)

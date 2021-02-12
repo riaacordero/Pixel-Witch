@@ -415,4 +415,9 @@ class Player(pygame.sprite.Sprite):
         # ABILITY
         self.jump_cooldown = 0
         self.atk_cooldown = 0
+        self.fireball.attacking = False
         self.has_shield = False
+        self.shield_time_left = 0
+        self.shield_blink_count = 0
+        self.shield_blinking = False
+
