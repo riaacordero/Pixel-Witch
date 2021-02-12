@@ -22,6 +22,7 @@ key_inactive = pygame.transform.scale(pygame.image.load("assets/img/key_mono.png
 door_img = pygame.image.load("assets/img/door.png")
 platform_img = pygame.image.load("assets/img/ground.png")
 fireball_img = pygame.image.load("assets/img/ball-atk.png")
+shield_img = pygame.image.load("assets/img/ball-atk.png")
 
 potion_blue_img = pygame.image.load("assets/img/potion-blue.png")
 potion_red_img = pygame.image.load("assets/img/potion-red.png")
