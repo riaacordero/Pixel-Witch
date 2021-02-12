@@ -3,8 +3,9 @@ Contains Level and Camera classes and data for each level.
 """
 
 from sprite import *
+import numpy as np
 
-level_one_data = [
+level_one_data = np.array([
     "PPPPPPPPPPPPPPPPPPPP",
     "P------------------P",
     "P------------------P",
@@ -25,7 +26,7 @@ level_one_data = [
     "P----YRB---E-------P",
     "PPPPPPPPPPPPPPPPPPPP",
     "PPPPPPPPPPPPPPPPPPPP"
-]
+])
 
 
 class Camera(pygame.sprite.LayeredUpdates):
