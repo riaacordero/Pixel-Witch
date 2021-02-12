@@ -38,8 +38,9 @@ clear_next_text = HoverableText(250, 320, "next", retro_gaming_font, 32, dark_gr
 clear_retry_text = HoverableText(250, 360, "retry", retro_gaming_font, 32, dark_gray, light_gray, gray, pos="center")
 clear_main_text = HoverableText(250, 400, "main menu", retro_gaming_font, 32, dark_gray, light_gray, gray, pos="center")
 
-pause_resume_text = HoverableText(250, 225, "resume", retro_gaming_font, 32, dark_gray, light_gray, gray, pos="center")
-pause_main_text = HoverableText(250, 275, "main menu", retro_gaming_font, 32, dark_gray, light_gray, gray, pos="center")
+pause_resume_text = HoverableText(250, 200, "resume", retro_gaming_font, 32, dark_gray, light_gray, gray, pos="center")
+pause_restart_text = HoverableText(250, 250, "retry", retro_gaming_font, 32, dark_gray, light_gray, gray, pos="center")
+pause_main_text = HoverableText(250, 300, "main menu", retro_gaming_font, 32, dark_gray, light_gray, gray, pos="center")
 
 score_text = Text(100, 10, "0", retro_gaming_font, 28, purple)
 
@@ -48,7 +49,7 @@ main_menu_texts = TextGroup(main_start_text, main_exit_text)
 level_selection_texts = TextGroup(selection_text)
 game_over_texts = TextGroup(over_text, over_restart_text, over_main_text)
 game_clear_texts = TextGroup(clear_text, clear_next_text, clear_retry_text, clear_main_text, clear_score_text)
-pause_texts = TextGroup(pause_resume_text, pause_main_text)
+pause_texts = TextGroup(pause_resume_text, pause_restart_text, pause_main_text)
 
 # Create player
 player = Player()
@@ -96,8 +97,8 @@ def display_main_menu():
         select_sfx.play()
 
 
-def display_pause():
-    global paused, pause_cooldown, current_location
+def display_pause(level: Level):
+    global paused, pause_cooldown, current_location, current_player_state
 
     screen.blit(bg_img, (0, 0))
     pause_texts.update()
@@ -105,12 +106,14 @@ def display_pause():
 
     if pause_texts.one_is_clicked():
         music_player.unpause()
-
-    if pause_resume_text.is_clicked():
         paused = False
+    if pause_restart_text.is_clicked():
+        music_player.stop_and_unload()
+        level.reset()
+        player.reset(100, screen_height - 130, level)
+        current_player_state = player.player_state
     if pause_main_text.is_clicked():
         music_player.stop_and_unload()
-        paused = False
         current_location = Location.MAIN_MENU
 
 
@@ -181,7 +184,7 @@ def display_level(level: Level):
         paused = True
         cancel_sfx.play()
     if paused:
-        display_pause()
+        display_pause(level)
 
     if current_player_state == PlayerState.LOST:
         music_player.stop_and_unload()
