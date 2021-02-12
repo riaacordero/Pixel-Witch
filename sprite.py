@@ -236,7 +236,7 @@ class Player(pygame.sprite.Sprite):
         # Shield
         self.shield.rect.x, self.shield.rect.y = self.rect.topright
 
-        if self.has_shield and (self.shield_time_left == 0 or self.color_state != ColorState.RED):
+        if self.has_shield and (self.shield_time_left <= 0 or self.color_state != ColorState.RED):
             self.shield_blink_count = 0
             self.shield_blinking = False
             self.shield_time_left = 0
@@ -294,7 +294,7 @@ class Player(pygame.sprite.Sprite):
                 self.current_level.active_sprites.add(self.fireball)
                 player_atk_sfx.play()
                 pass
-            elif self.color_state == ColorState.RED:
+            elif self.color_state == ColorState.RED and not self.has_shield:
                 self.shield_time_left = fps * 10  # 10 second duration
                 self.has_shield = True
                 self.current_level.active_sprites.add(self.shield)
