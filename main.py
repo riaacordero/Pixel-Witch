@@ -101,10 +101,6 @@ def display_main_menu():
     if main_exit_text.is_clicked():
         running = False
     elif main_start_text.is_clicked():
-        # current_location = Location.LEVEL_ONE
-        # level_one.reset()
-        # current_player_state = player.player_state
-        # select_sfx.play()
         from_start_or_main = True
         current_location = Location.LEVEL_SELECTION
 
