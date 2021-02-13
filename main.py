@@ -26,7 +26,7 @@ pause_btn = Button(450, 10, pause_img, pause_hov_img)
 main_start_text = HoverableText(25, 335, "start", retro_gaming_font, 40, dark_gray, light_gray, gray)
 main_exit_text = HoverableText(25, 400, "exit", retro_gaming_font, 40, dark_gray, light_gray, gray)
 
-selection_text = Text(150, 150, "LEVEL SELECTION", fff_forward_font, 40, black)
+selection_text = Text(250, 250, "SELECT LEVEL", fff_forward_font, 40, black, pos="center")
 
 over_text = Text(125, 300, "GAME OVER", fff_forward_font, 32, black)
 over_restart_text = HoverableText(190, 385, "restart", retro_gaming_font, 24, dark_gray, light_gray, gray)
@@ -58,6 +58,9 @@ player = Player()
 
 # Create levels
 level_one = Level(level_one_data, player)
+
+# Create level dictionary
+level_dict = {1: level_one}
 
 # Player state
 current_player_state = PlayerState.ALIVE
@@ -95,6 +98,10 @@ def display_main_menu():
         level_one.reset()
         current_player_state = player.player_state
         select_sfx.play()
+
+
+def display_level_select():
+    pass
 
 
 def display_pause(level: Level):
@@ -209,8 +216,10 @@ if __name__ == "__main__":
 
         if current_location == Location.MAIN_MENU:
             display_main_menu()
-        elif current_location == Location.LEVEL_ONE:
-            display_level(level_one)
+        elif current_location == Location.LEVEL_SELECTION:
+            display_level_select()
+        elif current_location > 0:
+            display_level(level_dict[current_location])
 
         pygame.display.update()
     pygame.quit()
