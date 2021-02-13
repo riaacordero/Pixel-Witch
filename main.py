@@ -105,6 +105,8 @@ def display_pause(level: Level):
     if pause_texts.one_is_clicked():
         music_player.unpause()
         paused = False
+        select_sfx.play()
+
     if pause_restart_text.is_clicked():
         music_player.stop_and_unload()
         level.reset()
@@ -121,6 +123,9 @@ def display_game_over(level: Level):
     screen.blit(pygame.transform.scale(death_img, (200, 200)), (150, 50))
     game_over_texts.update()
     game_over_texts.draw(screen)
+
+    if game_over_texts.one_is_clicked():
+        select_sfx.play()
 
     if over_restart_text.is_clicked():
         level.reset()
@@ -149,6 +154,7 @@ def display_game_clear(level: Level):
         score_display = 0
         score_display_cooldown = fps // 2
         score_display_speed = fps // 10
+        select_sfx.play()
 
     if clear_next_text.is_clicked():
         pass
