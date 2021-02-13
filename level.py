@@ -5,6 +5,7 @@ Contains Level and Camera classes and data for each level.
 from sprite import *
 import numpy as np
 
+# 20 columns, 20 rows
 level_one_data = np.array([
     "PPPPPPPPPPPPPPPPPPPP",
     "P------------------P",
@@ -23,6 +24,29 @@ level_one_data = np.array([
     "P-----------------PP",
     "P---------------PPPP",
     "P-------------PPPPPP",
+    "P----YRB---E-------P",
+    "PPPPPPPPPPPPPPPPPPPP",
+    "PPPPPPPPPPPPPPPPPPPP"
+])
+
+level_two_data = np.array([
+    "PPPPPPPPPPPPPPPPPPPP",
+    "P------------------P",
+    "P---D--------------P",
+    "P--PPPP------------P",
+    "P------------------P",
+    "P--------PPP-------P",
+    "P------------------P",
+    "P------------PP----P",
+    "PP--------E--------P",
+    "P------------------P",
+    "P------------------P",
+    "P----B-E-KG-R----P-P",
+    "P--PPPPPPPPPP------P",
+    "P------------------P",
+    "P0---------E------PP",
+    "PP--------------PPPP",
+    "P----------------PPP",
     "P----YRB---E-------P",
     "PPPPPPPPPPPPPPPPPPPP",
     "PPPPPPPPPPPPPPPPPPPP"
@@ -86,11 +110,14 @@ class Level:
     The stage that comprises of the different sprites that can interact with the player.
     """
 
-    def __init__(self, data: list, target: Player):
+    def __init__(self, data: list, target: Player, number):
         self.target = target
         self.width, self.height = len(data[0]) * tile_size, len(data) * tile_size
         self.rect = pygame.Rect(0, 0, self.width, self.height)
         self.background = Background(self.width, self.height)
+
+        self.number = number
+        """Number to represent the level"""
 
         self.score = 0
         """Score gained by the player by getting gems"""

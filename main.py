@@ -28,6 +28,7 @@ start_exit_text = HoverableText(25, 400, "exit", retro_gaming_font, 40, dark_gra
 
 main_back_text = HoverableText(375, 25, "BACK", retro_gaming_font, 28, dark_gray, light_gray, gray)
 main_one_text = HoverableText(75, 125, "1", fff_forward_font, 28, dark_gray, light_gray, gray)
+main_two_text = HoverableText(125, 125, "2", fff_forward_font, 28, dark_gray, light_gray, gray)
 
 over_text = Text(125, 300, "GAME OVER", fff_forward_font, 32, black)
 over_restart_text = HoverableText(190, 385, "restart", retro_gaming_font, 24, dark_gray, light_gray, gray)
@@ -49,7 +50,7 @@ score_text = Text(100, 10, "0", retro_gaming_font, 28, purple)
 
 # Create text groups
 start_screen_texts = TextGroup(start_start_text, start_exit_text)
-main_menu_texts = TextGroup(main_back_text, main_one_text)
+main_menu_texts = TextGroup(main_back_text, main_one_text, main_two_text)
 game_over_texts = TextGroup(over_text, over_restart_text, over_main_text)
 game_clear_texts = TextGroup(clear_text, clear_next_text, clear_restart_text, clear_main_text, clear_score_text)
 pause_texts = TextGroup(pause_resume_text, pause_restart_text, pause_main_text)
@@ -58,11 +59,12 @@ pause_texts = TextGroup(pause_resume_text, pause_restart_text, pause_main_text)
 player = Player()
 
 # Create levels
-level_one = Level(level_one_data, player)
+level_one = Level(level_one_data, player, 1)
+level_two = Level(level_two_data, player, 2)
 
 # Create level dictionary
-level_dict = {1: level_one}
-level_button_dict = {1: main_one_text}
+level_dict = {1: level_one, 2: level_two}
+level_button_dict = {1: main_one_text, 2: main_two_text}
 
 # Player state
 current_player_state = PlayerState.ALIVE
@@ -124,9 +126,9 @@ def display_level_select():
     for level_num in level_button_dict.keys():
         if level_button_dict[level_num].is_clicked():
             music_player.stop_and_unload()
-            current_location = level_num
             level_dict[level_num].reset()
             current_player_state = player.player_state
+            current_location = level_num
             select_sfx.play()
             break
 
@@ -196,7 +198,13 @@ def display_game_clear(level: Level):
         select_sfx.play()
 
     if clear_next_text.is_clicked():
-        pass
+        if level.number >= list(level_dict.keys())[-1]:
+            from_start_or_main = False
+            current_location = Location.MAIN_MENU
+        else:
+            level_dict[level.number + 1].reset()
+            current_player_state = player.player_state
+            current_location += 1
     elif clear_restart_text.is_clicked():
         level.reset()
         current_player_state = player.player_state
