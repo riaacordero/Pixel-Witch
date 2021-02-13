@@ -23,12 +23,12 @@ music_player = MusicPlayer()
 pause_btn = Button(450, 10, pause_img, pause_hov_img)
 
 # Create texts
-start_start_text = HoverableText(25, 335, "start", retro_gaming_font, 40, dark_gray, light_gray, gray)
-start_exit_text = HoverableText(25, 400, "exit", retro_gaming_font, 40, dark_gray, light_gray, gray)
+main_start_text = HoverableText(25, 335, "start", retro_gaming_font, 40, dark_gray, light_gray, gray)
+main_exit_text = HoverableText(25, 400, "exit", retro_gaming_font, 40, dark_gray, light_gray, gray)
 
-main_back_text = HoverableText(375, 25, "BACK", retro_gaming_font, 28, dark_gray, light_gray, gray)
-main_one_text = HoverableText(75, 125, "1", fff_forward_font, 28, dark_gray, light_gray, gray)
-main_two_text = HoverableText(125, 125, "2", fff_forward_font, 28, dark_gray, light_gray, gray)
+selection_back_text = HoverableText(375, 25, "BACK", retro_gaming_font, 28, dark_gray, light_gray, gray)
+selection_one_text = HoverableText(75, 125, "1", fff_forward_font, 28, dark_gray, light_gray, gray)
+selection_two_text = HoverableText(125, 125, "2", fff_forward_font, 28, dark_gray, light_gray, gray)
 
 over_text = Text(125, 300, "GAME OVER", fff_forward_font, 32, black)
 over_restart_text = HoverableText(190, 385, "restart", retro_gaming_font, 24, dark_gray, light_gray, gray)
@@ -49,8 +49,8 @@ pause_main_text = HoverableText(250, 300, "main menu", retro_gaming_font, 32, da
 score_text = Text(100, 10, "0", retro_gaming_font, 28, purple)
 
 # Create text groups
-start_screen_texts = TextGroup(start_start_text, start_exit_text)
-main_menu_texts = TextGroup(main_back_text, main_one_text, main_two_text)
+start_screen_texts = TextGroup(main_start_text, main_exit_text)
+main_menu_texts = TextGroup(selection_back_text, selection_one_text, selection_two_text)
 game_over_texts = TextGroup(over_text, over_restart_text, over_main_text)
 game_clear_texts = TextGroup(clear_text, clear_next_text, clear_restart_text, clear_main_text, clear_score_text)
 pause_texts = TextGroup(pause_resume_text, pause_restart_text, pause_main_text)
@@ -64,7 +64,7 @@ level_two = Level(level_two_data, player, 2)
 
 # Create level dictionary
 level_dict = {1: level_one, 2: level_two}
-level_button_dict = {1: main_one_text, 2: main_two_text}
+level_button_dict = {1: selection_one_text, 2: selection_two_text}
 
 # Player state
 current_player_state = PlayerState.ALIVE
@@ -83,7 +83,7 @@ score_display_speed = fps // 10
 """changes score_display for every 1/score_display_speed seconds"""
 
 # Locations
-current_location = Location.START_SCREEN
+current_location = Location.MAIN_MENU
 """Location currently shown in screen"""
 from_start_or_main = False
 """True if the previous location is either the main menu or level selection screen"""
@@ -98,15 +98,15 @@ def display_main_menu():
     start_screen_texts.update()
     start_screen_texts.draw(screen)
 
-    if start_exit_text.is_clicked():
+    if main_exit_text.is_clicked():
         running = False
-    elif start_start_text.is_clicked():
+    elif main_start_text.is_clicked():
         # current_location = Location.LEVEL_ONE
         # level_one.reset()
         # current_player_state = player.player_state
         # select_sfx.play()
         from_start_or_main = True
-        current_location = Location.MAIN_MENU
+        current_location = Location.LEVEL_SELECTION
 
 
 def display_level_select():
@@ -121,8 +121,8 @@ def display_level_select():
     if main_menu_texts.one_is_clicked():
         from_start_or_main = True
 
-    if main_back_text.is_clicked():
-        current_location = Location.START_SCREEN
+    if selection_back_text.is_clicked():
+        current_location = Location.MAIN_MENU
     for level_num in level_button_dict.keys():
         if level_button_dict[level_num].is_clicked():
             music_player.stop_and_unload()
@@ -253,9 +253,9 @@ if __name__ == "__main__":
             if event.type == QUIT:
                 running = False
 
-        if current_location == Location.START_SCREEN:
+        if current_location == Location.MAIN_MENU:
             display_main_menu()
-        elif current_location == Location.MAIN_MENU:
+        elif current_location == Location.LEVEL_SELECTION:
             display_level_select()
         elif current_location > 0:
             display_level(level_dict[current_location])
