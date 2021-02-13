@@ -49,8 +49,8 @@ pause_main_text = HoverableText(250, 300, "main menu", retro_gaming_font, 32, da
 score_text = Text(100, 10, "0", retro_gaming_font, 28, purple)
 
 # Create text groups
-start_screen_texts = TextGroup(main_start_text, main_exit_text)
-main_menu_texts = TextGroup(selection_back_text, selection_one_text, selection_two_text)
+main_menu_texts = TextGroup(main_start_text, main_exit_text)
+level_selection_texts = TextGroup(selection_back_text, selection_one_text, selection_two_text)
 game_over_texts = TextGroup(over_text, over_restart_text, over_main_text)
 game_clear_texts = TextGroup(clear_text, clear_next_text, clear_restart_text, clear_main_text, clear_score_text)
 pause_texts = TextGroup(pause_resume_text, pause_restart_text, pause_main_text)
@@ -95,8 +95,8 @@ def display_main_menu():
     if not from_start_or_main:
         music_player.load_and_play(bgm_main_location, loops=-1, fade_ms=3000)
     screen.blit(bg_img, (0, 0))
-    start_screen_texts.update()
-    start_screen_texts.draw(screen)
+    main_menu_texts.update()
+    main_menu_texts.draw(screen)
 
     if main_exit_text.is_clicked():
         running = False
@@ -115,10 +115,10 @@ def display_level_select():
     if not from_start_or_main:
         music_player.load_and_play(bgm_main_location, loops=-1, fade_ms=3000)
     screen.blit(bg_img, (0, 0))
-    main_menu_texts.update()
-    main_menu_texts.draw(screen)
+    level_selection_texts.update()
+    level_selection_texts.draw(screen)
 
-    if main_menu_texts.one_is_clicked():
+    if level_selection_texts.one_is_clicked():
         from_start_or_main = True
 
     if selection_back_text.is_clicked():
