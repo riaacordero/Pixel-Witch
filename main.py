@@ -27,7 +27,7 @@ start_start_text = HoverableText(25, 335, "start", retro_gaming_font, 40, dark_g
 start_exit_text = HoverableText(25, 400, "exit", retro_gaming_font, 40, dark_gray, light_gray, gray)
 
 main_back_text = HoverableText(375, 25, "BACK", retro_gaming_font, 28, dark_gray, light_gray, gray)
-selection_one_text = HoverableText(75, 125, "1", fff_forward_font, 28, dark_gray, light_gray, gray)
+main_one_text = HoverableText(75, 125, "1", fff_forward_font, 28, dark_gray, light_gray, gray)
 
 over_text = Text(125, 300, "GAME OVER", fff_forward_font, 32, black)
 over_restart_text = HoverableText(190, 385, "restart", retro_gaming_font, 24, dark_gray, light_gray, gray)
@@ -48,8 +48,8 @@ pause_main_text = HoverableText(250, 300, "main menu", retro_gaming_font, 32, da
 score_text = Text(100, 10, "0", retro_gaming_font, 28, purple)
 
 # Create text groups
-main_menu_texts = TextGroup(start_start_text, start_exit_text)
-level_selection_texts = TextGroup(main_back_text, selection_one_text)
+start_screen_texts = TextGroup(start_start_text, start_exit_text)
+main_menu_texts = TextGroup(main_back_text, main_one_text)
 game_over_texts = TextGroup(over_text, over_restart_text, over_main_text)
 game_clear_texts = TextGroup(clear_text, clear_next_text, clear_restart_text, clear_main_text, clear_score_text)
 pause_texts = TextGroup(pause_resume_text, pause_restart_text, pause_main_text)
@@ -62,7 +62,7 @@ level_one = Level(level_one_data, player)
 
 # Create level dictionary
 level_dict = {1: level_one}
-level_button_dict = {1: selection_one_text}
+level_button_dict = {1: main_one_text}
 
 # Player state
 current_player_state = PlayerState.ALIVE
@@ -83,18 +83,18 @@ score_display_speed = fps // 10
 # Locations
 current_location = Location.START_SCREEN
 """Location currently shown in screen"""
-from_main_or_select = False
+from_start_or_main = False
 """True if the previous location is either the main menu or level selection screen"""
 
 
 def display_main_menu():
-    global running, current_location, from_main_or_select, current_player_state
+    global running, current_location, from_start_or_main, current_player_state
 
-    if not from_main_or_select:
+    if not from_start_or_main:
         music_player.load_and_play(bgm_main_location, loops=-1, fade_ms=3000)
     screen.blit(bg_img, (0, 0))
-    main_menu_texts.update()
-    main_menu_texts.draw(screen)
+    start_screen_texts.update()
+    start_screen_texts.draw(screen)
 
     if start_exit_text.is_clicked():
         running = False
@@ -103,21 +103,21 @@ def display_main_menu():
         # level_one.reset()
         # current_player_state = player.player_state
         # select_sfx.play()
-        from_main_or_select = True
+        from_start_or_main = True
         current_location = Location.MAIN_MENU
 
 
 def display_level_select():
-    global current_location, from_main_or_select, current_player_state
+    global current_location, from_start_or_main, current_player_state
 
-    if not from_main_or_select:
+    if not from_start_or_main:
         music_player.load_and_play(bgm_main_location, loops=-1, fade_ms=3000)
     screen.blit(bg_img, (0, 0))
-    level_selection_texts.update()
-    level_selection_texts.draw(screen)
+    main_menu_texts.update()
+    main_menu_texts.draw(screen)
 
-    if level_selection_texts.one_is_clicked():
-        from_main_or_select = True
+    if main_menu_texts.one_is_clicked():
+        from_start_or_main = True
 
     if main_back_text.is_clicked():
         current_location = Location.START_SCREEN
@@ -132,7 +132,7 @@ def display_level_select():
 
 
 def display_pause(level: Level):
-    global paused, pause_cooldown, current_location, from_main_or_select, current_player_state
+    global paused, pause_cooldown, current_location, from_start_or_main, current_player_state
 
     screen.blit(bg_img, (0, 0))
     pause_texts.update()
@@ -149,12 +149,12 @@ def display_pause(level: Level):
         current_player_state = player.player_state
     if pause_main_text.is_clicked():
         music_player.stop_and_unload()
-        from_main_or_select = False
+        from_start_or_main = False
         current_location = Location.MAIN_MENU
 
 
 def display_game_over(level: Level):
-    global current_player_state, current_location, from_main_or_select
+    global current_player_state, current_location, from_start_or_main
 
     screen.blit(bg_game_over_img, (0, 0))
     screen.blit(pygame.transform.scale(death_img, (200, 200)), (150, 50))
@@ -168,12 +168,12 @@ def display_game_over(level: Level):
         level.reset()
         current_player_state = player.player_state
     elif over_main_text.is_clicked():
-        from_main_or_select = False
+        from_start_or_main = False
         current_location = Location.MAIN_MENU
 
 
 def display_game_clear(level: Level):
-    global current_player_state, current_location, from_main_or_select, \
+    global current_player_state, current_location, from_start_or_main, \
         score_display, score_display_cooldown, score_display_speed
 
     screen.blit(bg_game_clear_img, (0, 0))
@@ -201,7 +201,7 @@ def display_game_clear(level: Level):
         level.reset()
         current_player_state = player.player_state
     elif clear_main_text.is_clicked():
-        from_main_or_select = False
+        from_start_or_main = False
         current_location = Location.MAIN_MENU
 
 
