@@ -35,11 +35,13 @@ over_main_text = HoverableText(175, 420, "main menu", retro_gaming_font, 24, dar
 clear_score_text = Text(250, 125, "0", fff_forward_font, 80, black, pos="center")
 clear_text = Text(250, 210, "GAME CLEARED", fff_forward_font, 24, black, pos="center")
 clear_next_text = HoverableText(250, 320, "next", retro_gaming_font, 32, dark_gray, light_gray, gray, pos="center")
-clear_retry_text = HoverableText(250, 360, "retry", retro_gaming_font, 32, dark_gray, light_gray, gray, pos="center")
+clear_restart_text = HoverableText(250, 360, "restart", retro_gaming_font, 32, dark_gray, light_gray, gray,
+                                   pos="center")
 clear_main_text = HoverableText(250, 400, "main menu", retro_gaming_font, 32, dark_gray, light_gray, gray, pos="center")
 
 pause_resume_text = HoverableText(250, 200, "resume", retro_gaming_font, 32, dark_gray, light_gray, gray, pos="center")
-pause_restart_text = HoverableText(250, 250, "retry", retro_gaming_font, 32, dark_gray, light_gray, gray, pos="center")
+pause_restart_text = HoverableText(250, 250, "restart", retro_gaming_font, 32, dark_gray, light_gray, gray,
+                                   pos="center")
 pause_main_text = HoverableText(250, 300, "main menu", retro_gaming_font, 32, dark_gray, light_gray, gray, pos="center")
 
 score_text = Text(100, 10, "0", retro_gaming_font, 28, purple)
@@ -48,7 +50,7 @@ score_text = Text(100, 10, "0", retro_gaming_font, 28, purple)
 main_menu_texts = TextGroup(main_start_text, main_exit_text)
 level_selection_texts = TextGroup(selection_text)
 game_over_texts = TextGroup(over_text, over_restart_text, over_main_text)
-game_clear_texts = TextGroup(clear_text, clear_next_text, clear_retry_text, clear_main_text, clear_score_text)
+game_clear_texts = TextGroup(clear_text, clear_next_text, clear_restart_text, clear_main_text, clear_score_text)
 pause_texts = TextGroup(pause_resume_text, pause_restart_text, pause_main_text)
 
 # Create player
@@ -158,7 +160,7 @@ def display_game_clear(level: Level):
 
     if clear_next_text.is_clicked():
         pass
-    elif clear_retry_text.is_clicked():
+    elif clear_restart_text.is_clicked():
         level.reset()
         current_player_state = player.player_state
     elif clear_main_text.is_clicked():
