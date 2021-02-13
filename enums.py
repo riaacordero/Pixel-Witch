@@ -40,8 +40,8 @@ class Location(IntEnum):
     """
 
     PAUSE = -2
-    LEVEL_SELECTION = -1
-    MAIN_MENU = 0
+    MAIN_MENU = -1
+    START_SCREEN = 0
     LEVEL_ONE = 1
     LEVEL_TWO = 2
     LEVEL_THREE = 3
