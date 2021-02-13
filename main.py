@@ -126,10 +126,10 @@ def display_level_select():
     for level_num in level_button_dict.keys():
         if level_button_dict[level_num].is_clicked():
             music_player.stop_and_unload()
+            select_sfx.play()
             level_dict[level_num].reset()
             current_player_state = player.player_state
             current_location = level_num
-            select_sfx.play()
             break
 
 
@@ -142,8 +142,8 @@ def display_pause(level: Level):
 
     if pause_texts.one_is_clicked():
         music_player.unpause()
-        paused = False
         select_sfx.play()
+        paused = False
 
     if pause_restart_text.is_clicked():
         music_player.stop_and_unload()
@@ -230,8 +230,8 @@ def display_level(level: Level):
     pause_btn.draw(screen)
     if pause_btn.is_clicked() and not paused:
         music_player.pause()
-        paused = True
         cancel_sfx.play()
+        paused = True
     if paused:
         display_pause(level)
 

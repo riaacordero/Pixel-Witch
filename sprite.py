@@ -138,8 +138,8 @@ class Fireball(LevelSprite):
         # Platform collision
         for platform in level.platforms:
             if platform.rect.colliderect(self.rect) and platform in level.active_sprites:
-                self.attacking = False
                 enemy_hit_sfx.play()
+                self.attacking = False
                 level.active_sprites.remove(self)
                 return
 
@@ -149,8 +149,8 @@ class Fireball(LevelSprite):
                 level.active_sprites.remove(enemy)
                 # Replace enemy with gem
                 Gem(enemy.rect.centerx, enemy.rect.centery, level.consumables, level.active_sprites)
-                self.attacking = False
                 enemy_hit_sfx.play()
+                self.attacking = False
                 level.active_sprites.remove(self)
                 return
 
@@ -284,17 +284,17 @@ class Player(pygame.sprite.Sprite):
             self._display_frame()
         if keypress[pygame.K_SPACE]:
             if self.color_state == ColorState.BLUE and self.on_ground and self.jump_cooldown == 0:
+                jump_sfx.play()
                 self.jump_cooldown = fps // 5  # 0.20 second cooldown
                 self.on_ground = False
                 self.y_vel = -20
-                jump_sfx.play()
             elif self.color_state == ColorState.YELLOW and self.atk_cooldown == 0 and not self.fireball.attacking \
                     and self.fireball not in self.current_level.active_sprites:
+                player_atk_sfx.play()
                 self.atk_cooldown = fps  # 1 second cooldown
                 self.fireball.attacking = True
                 self.fireball.direction = self.direction
                 self.current_level.active_sprites.add(self.fireball)
-                player_atk_sfx.play()
                 pass
             elif self.color_state == ColorState.RED and not self.has_shield:
                 activate_shield_sfx.play()
@@ -346,32 +346,32 @@ class Player(pygame.sprite.Sprite):
         # ENEMY COLLISION
         for enemy in self.current_level.enemies:
             if enemy.rect.colliderect(self.rect) and enemy in self.current_level.active_sprites and not self.has_shield:
-                player_state = PlayerState.LOST
                 game_over_sfx.play()
+                player_state = PlayerState.LOST
 
         # DOOR COLLISION
         if self.current_level.door.rect.colliderect(self.rect) and self.has_key:
-            player_state = PlayerState.WON
             win_sfx.play()
+            player_state = PlayerState.WON
 
         # CONSUMABLE COLLISION
         for consumable in self.current_level.consumables:
             if consumable.rect.colliderect(self.rect) and consumable in self.current_level.active_sprites:
                 if isinstance(consumable, BluePotion):
+                    potion_collect_sfx.play()
                     self.color_state = ColorState.BLUE
-                    potion_collect_sfx.play()
                 if isinstance(consumable, RedPotion):
+                    potion_collect_sfx.play()
                     self.color_state = ColorState.RED
-                    potion_collect_sfx.play()
                 if isinstance(consumable, YellowPotion):
-                    self.color_state = ColorState.YELLOW
                     potion_collect_sfx.play()
+                    self.color_state = ColorState.YELLOW
                 if isinstance(consumable, Gem):
-                    self.current_level.score += 5
                     gem_collect_sfx.play()
+                    self.current_level.score += 5
                 if isinstance(consumable, Key):
-                    self.has_key = True
                     key_collect_sfx.play()
+                    self.has_key = True
                 self.current_level.active_sprites.remove(consumable)
 
         return x_movement, y_movement, player_state
