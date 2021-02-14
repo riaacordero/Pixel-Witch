@@ -176,3 +176,4 @@ class Level:
         for sprite in self.sprites:
             self.active_sprites.add(sprite)
         self.target.reset(self.target_x, self.target_y, self)
+        self.door.reset()
