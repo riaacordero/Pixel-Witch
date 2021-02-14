@@ -18,8 +18,15 @@ class LevelSprite(pygame.sprite.Sprite):
         super().__init__(*groups)
         self.image = pygame.transform.scale(image, (width, height))
         self.rect = self.image.get_rect(topleft=(x, y))
+        self.x = x
+        self.y = y
 
-
+    def change_sprite(self, image, x, y, width, height):
+        self.x = x
+        self.y = y
+        self.image = pygame.transform.scale(image, (width, height))
+        self.rect = self.image.get_rect(topleft=(self.x, self.y))
+        
 class Background(LevelSprite):
     """
     Moving background in a single level.
@@ -110,7 +117,6 @@ class Enemy(LevelSprite):
             self.move_direction *= -1
             self.move_count *= -1
 
-
 class Door(LevelSprite):
     """
     Sprites that finish the level if collided with the player.
@@ -119,6 +125,11 @@ class Door(LevelSprite):
     def __init__(self, x, y, *groups):
         super().__init__(door_img, x, y, 48, 48, *groups)
 
+    def activate(self):
+        self.change_sprite(door_active_img, self.x, self.y, 48, 48)
+
+    def reset(self):
+        self.change_sprite(door_img, self.x, self.y, 48, 48)
 
 class Fireball(LevelSprite):
     """
@@ -244,19 +255,19 @@ class Player(pygame.sprite.Sprite):
             self.current_level.active_sprites.remove(self.shield)
         elif self.shield_time_left > 0:
             self.shield_time_left -= 1
-
             if self.shield_time_left <= self.shield_start_blink_time:
                 shield_blink_time_past = self.shield_start_blink_time - self.shield_time_left
                 if shield_blink_time_past % (self.shield_blink_duration + self.shield_blink_interval) == 0:
-                    shield_blink_sfx.play()
                     self.current_level.active_sprites.remove(self.shield)
                     self.shield_blinking = True
                     self.shield_blink_count += 1
+                    shield_sfx.play()
                 elif self.shield_blink_interval * (self.shield_blink_count - 1) + \
                       self.shield_blink_duration * self.shield_blink_count - shield_blink_time_past == 0:
-                    shield_blink_sfx.play()
                     self.current_level.active_sprites.add(self.shield)
                     self.shield_blinking = False
+                    shield_sfx.play()
+                    
 
     def _move(self):
         """
@@ -293,7 +304,7 @@ class Player(pygame.sprite.Sprite):
                 self.current_level.active_sprites.add(self.fireball)
                 pass
             elif self.color_state == ColorState.RED and not self.has_shield:
-                activate_shield_sfx.play()
+                shield_sfx.play()
                 self.shield_time_left = fps * 10  # 10 second duration
                 self.has_shield = True
                 self.current_level.active_sprites.add(self.shield)
@@ -368,6 +379,7 @@ class Player(pygame.sprite.Sprite):
                 if isinstance(consumable, Key):
                     key_collect_sfx.play()
                     self.has_key = True
+                    self.current_level.door.activate()
                 self.current_level.active_sprites.remove(consumable)
 
         return x_movement, y_movement, player_state
