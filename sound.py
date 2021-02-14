@@ -24,7 +24,7 @@ gem_collect_sfx = pygame.mixer.Sound(r"assets/sound/collect2.wav")
 key_collect_sfx = pygame.mixer.Sound(r"assets/sound/collect3.wav")
 player_atk_sfx = pygame.mixer.Sound(r"assets/sound/attack.wav")
 enemy_hit_sfx = pygame.mixer.Sound(r"assets/sound/hit.wav")
-activate_shield_sfx = pygame.mixer.Sound(r"assets/sound/jump.wav")
+activate_shield_sfx = pygame.mixer.Sound(r"assets/sound/shield.wav")
 shield_blink_sfx = pygame.mixer.Sound(r"assets/sound/select1.wav")
 
 
