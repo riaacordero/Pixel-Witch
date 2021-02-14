@@ -134,13 +134,13 @@ class Fireball(LevelSprite):
     def attack(self, level):
         x_movement = self.direction * self.move_speed
         self.rect.x += x_movement
-        player_atk_sfx.play()
 
         # Platform collision
         for platform in level.platforms:
             if platform.rect.colliderect(self.rect) and platform in level.active_sprites:
                 enemy_hit_sfx.play()
                 self.attacking = False
+                level.active_sprites.remove(self)
                 return
 
         # Enemy collision
@@ -149,10 +149,20 @@ class Fireball(LevelSprite):
                 level.active_sprites.remove(enemy)
                 # Replace enemy with gem
                 Gem(enemy.rect.centerx, enemy.rect.centery, level.consumables, level.active_sprites)
-                self.attacking = False
                 enemy_hit_sfx.play()
+                self.attacking = False
+                level.active_sprites.remove(self)
                 return
 
+
+class Shield(LevelSprite):
+    """
+    Sprite that serves as a visual cue when player is in defensive form, which occurs when user presses SPACE while
+    in red color state.
+    """
+
+    def __init__(self, *groups):
+        super().__init__(shield_img, 0, 0, 15, 15, *groups)
 
 class Player(pygame.sprite.Sprite):
     """
@@ -187,12 +197,18 @@ class Player(pygame.sprite.Sprite):
         self.jump_cooldown = 0
         self.atk_cooldown = 0
         self.fireball = Fireball()
+        self.shield = Shield()
         self.has_shield = False
+        self.shield_time_left = 0
+        self.shield_blink_count = 0
+        self.shield_start_blink_time = fps * 5  # shield will start to blink once there are only 5 seconds left
+        self.shield_blink_duration = fps // 2  # shield will disappear for 0.5 seconds before reappearing
+        self.shield_blink_interval = fps // 2  # 0.5 second interval
+        self.shield_blinking = False
 
     def update(self):
         if self.player_state == PlayerState.ALIVE:
-            self._refresh_cooldown()
-            self._update_fireball()
+            self._apply_abilities()
             x_movement, y_movement = self._move()
             self._animate()
             y_movement = self._gravitate(y_movement)
@@ -202,19 +218,45 @@ class Player(pygame.sprite.Sprite):
             self.rect.x += x_movement
             self.rect.y += y_movement
 
-    def _refresh_cooldown(self):
+    def _apply_abilities(self):
+        # Jump
         if self.on_ground and self.jump_cooldown > 0:
             self.jump_cooldown -= 1
+
+        # Fireball
         if self.atk_cooldown > 0:
             self.atk_cooldown -= 1
 
-    def _update_fireball(self):
         if self.fireball.attacking:
-            self.current_level.active_sprites.add(self.fireball)
             self.fireball.attack(self.current_level)
         else:
-            self.current_level.active_sprites.remove(self.fireball)
             self.fireball.rect.x, self.fireball.rect.y = self.rect.x + 15, self.rect.y + 10
+
+        # Shield
+        self.shield.rect.x, self.shield.rect.y = self.rect.topright
+
+        if self.has_shield and (self.shield_time_left <= 0 or self.color_state != ColorState.RED):
+            self.shield_blink_count = 0
+            self.shield_blinking = False
+            self.shield_time_left = 0
+            self.has_shield = False
+            self.color_state = ColorState.WHITE if self.color_state == ColorState.RED else self.color_state
+            self.current_level.active_sprites.remove(self.shield)
+        elif self.shield_time_left > 0:
+            self.shield_time_left -= 1
+
+            if self.shield_time_left <= self.shield_start_blink_time:
+                shield_blink_time_past = self.shield_start_blink_time - self.shield_time_left
+                if shield_blink_time_past % (self.shield_blink_duration + self.shield_blink_interval) == 0:
+                    shield_blink_sfx.play()
+                    self.current_level.active_sprites.remove(self.shield)
+                    self.shield_blinking = True
+                    self.shield_blink_count += 1
+                elif self.shield_blink_interval * (self.shield_blink_count - 1) + \
+                      self.shield_blink_duration * self.shield_blink_count - shield_blink_time_past == 0:
+                    shield_blink_sfx.play()
+                    self.current_level.active_sprites.add(self.shield)
+                    self.shield_blinking = False
 
     def _move(self):
         """
@@ -238,16 +280,23 @@ class Player(pygame.sprite.Sprite):
             self._display_frame()
         if keypress[pygame.K_SPACE]:
             if self.color_state == ColorState.BLUE and self.on_ground and self.jump_cooldown == 0:
+                jump_sfx.play()
                 self.jump_cooldown = fps // 5  # 0.20 second cooldown
                 self.on_ground = False
                 self.y_vel = -20
-                jump_sfx.play()
             elif self.color_state == ColorState.YELLOW and self.atk_cooldown == 0 and not self.fireball.attacking \
-                    and self.fireball.rect.x == self.rect.x + 15 and self.fireball.rect.y == self.rect.y + 10:
+                    and self.fireball not in self.current_level.active_sprites:
+                player_atk_sfx.play()
                 self.atk_cooldown = fps  # 1 second cooldown
                 self.fireball.attacking = True
                 self.fireball.direction = self.direction
+                self.current_level.active_sprites.add(self.fireball)
                 pass
+            elif self.color_state == ColorState.RED and not self.has_shield:
+                activate_shield_sfx.play()
+                self.shield_time_left = fps * 10  # 10 second duration
+                self.has_shield = True
+                self.current_level.active_sprites.add(self.shield)
 
         return x_movement, y_movement
 
@@ -292,33 +341,33 @@ class Player(pygame.sprite.Sprite):
 
         # ENEMY COLLISION
         for enemy in self.current_level.enemies:
-            if enemy.rect.colliderect(self.rect) and enemy in self.current_level.active_sprites:
-                player_state = PlayerState.LOST
+            if enemy.rect.colliderect(self.rect) and enemy in self.current_level.active_sprites and not self.has_shield:
                 game_over_sfx.play()
+                player_state = PlayerState.LOST
 
         # DOOR COLLISION
         if self.current_level.door.rect.colliderect(self.rect) and self.has_key:
-            player_state = PlayerState.WON
             win_sfx.play()
+            player_state = PlayerState.WON
 
         # CONSUMABLE COLLISION
         for consumable in self.current_level.consumables:
             if consumable.rect.colliderect(self.rect) and consumable in self.current_level.active_sprites:
                 if isinstance(consumable, BluePotion):
+                    potion_collect_sfx.play()
                     self.color_state = ColorState.BLUE
-                    potion_collect_sfx.play()
                 if isinstance(consumable, RedPotion):
+                    potion_collect_sfx.play()
                     self.color_state = ColorState.RED
-                    potion_collect_sfx.play()
                 if isinstance(consumable, YellowPotion):
-                    self.color_state = ColorState.YELLOW
                     potion_collect_sfx.play()
+                    self.color_state = ColorState.YELLOW
                 if isinstance(consumable, Gem):
-                    self.current_level.score += 5
                     gem_collect_sfx.play()
+                    self.current_level.score += 5
                 if isinstance(consumable, Key):
-                    self.has_key = True
                     key_collect_sfx.play()
+                    self.has_key = True
                 self.current_level.active_sprites.remove(consumable)
 
         return x_movement, y_movement, player_state
@@ -365,4 +414,8 @@ class Player(pygame.sprite.Sprite):
         # ABILITY
         self.jump_cooldown = 0
         self.atk_cooldown = 0
+        self.fireball.attacking = False
         self.has_shield = False
+        self.shield_time_left = 0
+        self.shield_blink_count = 0
+        self.shield_blinking = False

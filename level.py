@@ -3,8 +3,10 @@ Contains Level and Camera classes and data for each level.
 """
 
 from sprite import *
+import numpy as np
 
-level_one_data = [
+# 20 columns, 20 rows
+level_one_data = np.array([
     "PPPPPPPPPPPPPPPPPPPP",
     "P------------------P",
     "P------------------P",
@@ -16,7 +18,7 @@ level_one_data = [
     "PP--------E--------P",
     "P------------------P",
     "P------------------P",
-    "P--G-B-E-KG------P-P",
+    "P--0-B-E-KG-R----P-P",
     "P--PPPPPPPPPP------P",
     "P------------------P",
     "P-----------------PP",
@@ -25,7 +27,30 @@ level_one_data = [
     "P----YRB---E-------P",
     "PPPPPPPPPPPPPPPPPPPP",
     "PPPPPPPPPPPPPPPPPPPP"
-]
+])
+
+level_two_data = np.array([
+    "PPPPPPPPPPPPPPPPPPPP",
+    "P------------------P",
+    "P---D--------------P",
+    "P--PPPP------------P",
+    "P------------------P",
+    "P--------PPP-------P",
+    "P------------------P",
+    "P------------PP----P",
+    "PP--------E--------P",
+    "P------------------P",
+    "P------------------P",
+    "P----B-E-KG-R----P-P",
+    "P--PPPPPPPPPP------P",
+    "P------------------P",
+    "P0---------E------PP",
+    "PP--------------PPPP",
+    "P----------------PPP",
+    "P----YRB---E-------P",
+    "PPPPPPPPPPPPPPPPPPPP",
+    "PPPPPPPPPPPPPPPPPPPP"
+])
 
 
 class Camera(pygame.sprite.LayeredUpdates):
@@ -85,11 +110,14 @@ class Level:
     The stage that comprises of the different sprites that can interact with the player.
     """
 
-    def __init__(self, data: list, target: pygame.sprite.Sprite):
+    def __init__(self, data: list, target: Player, number):
         self.target = target
         self.width, self.height = len(data[0]) * tile_size, len(data) * tile_size
         self.rect = pygame.Rect(0, 0, self.width, self.height)
         self.background = Background(self.width, self.height)
+        
+        self.number = number
+        """Number to represent the level"""
 
         self.score = 0
         """Score gained by the player by getting gems"""
@@ -111,6 +139,8 @@ class Level:
         for row in data:
             column_count = 0
             for tile in row:
+                if tile == "0":
+                    self.target_x, self.target_y = column_count * tile_size, row_count * tile_size
                 if tile == "P":
                     Platform(column_count * tile_size, row_count * tile_size, self.platforms, self.sprites)
                 elif tile == "E":
@@ -145,3 +175,4 @@ class Level:
         self.active_sprites.add(self.background)
         for sprite in self.sprites:
             self.active_sprites.add(sprite)
+        self.target.reset(self.target_x, self.target_y, self)

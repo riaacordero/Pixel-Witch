@@ -2,10 +2,10 @@
 This module contains enum classes used to make the code easier to understand.
 """
 
-from enum import Enum
+from enum import IntEnum
 
 
-class PlayerState(Enum):
+class PlayerState(IntEnum):
     """
     Current player state of the game
     """
@@ -18,7 +18,7 @@ class PlayerState(Enum):
     """Player has finished the level by acquiring the key and going to the portal."""
 
 
-class ColorState(Enum):
+class ColorState(IntEnum):
     """
     State of the player based on the Potion they consumed. Except the default value WHITE,
     each ColorState gives the player a unique ability, accessible by pressing SPACE.
@@ -34,7 +34,7 @@ class ColorState(Enum):
     """Player can cast a horizontal projectile attack based on the direction they are facing."""
 
 
-class Location(Enum):
+class Location(IntEnum):
     """
     Used to identify the current menu or place being displayed on the game window.
     """
