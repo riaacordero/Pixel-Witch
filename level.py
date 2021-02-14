@@ -115,7 +115,7 @@ class Level:
         self.width, self.height = len(data[0]) * tile_size, len(data) * tile_size
         self.rect = pygame.Rect(0, 0, self.width, self.height)
         self.background = Background(self.width, self.height)
-
+        
         self.number = number
         """Number to represent the level"""
 

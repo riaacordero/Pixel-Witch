@@ -94,6 +94,7 @@ def display_main_menu():
 
     if not from_start_or_main:
         music_player.load_and_play(bgm_main_location, loops=-1, fade_ms=3000)
+        
     screen.blit(bg_img, (0, 0))
     main_menu_texts.update()
     main_menu_texts.draw(screen)
@@ -230,7 +231,6 @@ def display_level(level: Level):
         paused = True
     if paused:
         display_pause(level)
-
     if current_player_state == PlayerState.LOST:
         music_player.stop_and_unload()
         display_game_over(level)

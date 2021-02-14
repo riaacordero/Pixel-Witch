@@ -164,7 +164,6 @@ class Shield(LevelSprite):
     def __init__(self, *groups):
         super().__init__(shield_img, 0, 0, 15, 15, *groups)
 
-
 class Player(pygame.sprite.Sprite):
     """
     The sprite being controlled by the user.
@@ -420,4 +419,3 @@ class Player(pygame.sprite.Sprite):
         self.shield_time_left = 0
         self.shield_blink_count = 0
         self.shield_blinking = False
-
