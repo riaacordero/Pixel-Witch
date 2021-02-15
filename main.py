@@ -65,16 +65,14 @@ pause_texts = TextGroup(pause_resume_text, pause_restart_text, pause_main_text)
 player = Player()
 
 # Create levels
-level_one = Level(level_one_data, player, 1)
-level_two = Level(level_two_data, player, 2)
-level_three = Level(level_three_data, player, 3)
-level_four = Level(level_four_data, player, 4)
-level_five = Level(level_five_data, player, 5)
+level_one = Level(level_one_data, player, 1, selection_one_text)
+level_two = Level(level_two_data, player, 2, selection_two_text)
+level_three = Level(level_three_data, player, 3, selection_three_text)
+level_four = Level(level_four_data, player, 4, selection_four_text)
+level_five = Level(level_five_data, player, 5, selection_five_text)
 
-# Create level dictionary
-level_dict = {1: level_one, 2: level_two, 3: level_three, 4: level_four, 5: level_five}
-level_button_dict = {1: selection_one_text, 2: selection_two_text, 3: selection_three_text, 4: selection_four_text,
-                     5: selection_five_text}
+# Create level list
+levels = (level_one, level_two, level_three, level_four, level_five)
 
 # Player state
 current_player_state = PlayerState.ALIVE
@@ -132,13 +130,13 @@ def display_level_select():
 
     if selection_back_text.is_clicked():
         current_location = Location.MAIN_MENU
-    for level_num in level_button_dict.keys():
-        if level_button_dict[level_num].is_clicked():
+    for level in levels:
+        if level.button.is_clicked():
             music_player.stop_and_unload()
             select_sfx.play()
-            level_dict[level_num].reset()
+            level.reset()
             current_player_state = player.player_state
-            current_location = level_num
+            current_location = level.number
             break
 
 
@@ -207,11 +205,11 @@ def display_game_clear(level: Level):
         select_sfx.play()
 
     if clear_next_text.is_clicked():
-        if level.number >= list(level_dict.keys())[-1]:
+        if level.number >= len(levels):
             from_start_or_main = False
             current_location = Location.MAIN_MENU
         else:
-            level_dict[level.number + 1].reset()
+            levels[level.number].reset()
             current_player_state = player.player_state
             current_location += 1
     elif clear_restart_text.is_clicked():
@@ -225,6 +223,7 @@ def display_game_clear(level: Level):
 def display_level(level: Level):
     global current_player_state, paused, score_display
 
+    print(level.number)
     music_player.load_and_play(bgm_level_location, loops=-1, fade_ms=3000)
     if not paused:
         level.update()
@@ -266,7 +265,7 @@ if __name__ == "__main__":
         elif current_location == Location.LEVEL_SELECTION:
             display_level_select()
         elif current_location > 0:
-            display_level(level_dict[current_location])
+            display_level(levels[current_location - 1])
 
         pygame.display.update()
     pygame.quit()
