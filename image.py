@@ -5,29 +5,41 @@ This module loads images.
 import pygame.image
 import pygame.transform
 
+# BACKGROUND
 bg_img = pygame.image.load('assets/img/bg_img.png')
 bg_game_over_img = pygame.image.load("assets/img/bg_img.png")
 bg_game_clear_img = pygame.image.load("assets/img/bg_img.png")
 bg_level_img = pygame.image.load("assets/img/bg_img.png")
 
+# MENU
 game_over_img = pygame.image.load("assets/img/game_over.png")
 death_img = pygame.image.load("assets/img/dead.png")
 pause_img = pygame.transform.scale(pygame.image.load("assets/img/pause.png"), (35, 35))
 pause_hov_img = pygame.transform.scale(pygame.image.load("assets/img/pause_hov.png"), (35, 35))
 
-enemy_img = pygame.image.load("assets/img/enemy.png")
+# COLLECTIBLES
 gem_img = pygame.transform.scale(pygame.image.load("assets/img/gem.png"), (35, 35))
 key_img = pygame.transform.scale(pygame.image.load("assets/img/key.png"), (35, 35))
 key_inactive = pygame.transform.scale(pygame.image.load("assets/img/key_mono.png"), (35, 35))
-door_img = pygame.image.load("assets/img/door.png")
-platform_img = pygame.image.load("assets/img/ground.png")
-fireball_img = pygame.image.load("assets/img/ball-atk.png")
-shield_img = pygame.image.load("assets/img/shield.png")
 
+# SPRITES
+enemy_img = pygame.image.load("assets/img/enemy.png")
+door_img = pygame.image.load("assets/img/door1.png")
+door_active_img = pygame.image.load("assets/img/door2.png")
+
+# PLATFORMS
+platform_img = pygame.image.load("assets/img/ground.png")
+
+# CONSUMABLES
 potion_blue_img = pygame.image.load("assets/img/potion-blue.png")
 potion_red_img = pygame.image.load("assets/img/potion-red.png")
 potion_yellow_img = pygame.image.load("assets/img/potion-yellow.png")
 
+# PLAYER ABILITY
+shield_img = pygame.image.load("assets/img/shield.png")
+fireball_img = pygame.image.load("assets/img/ball-atk.png")
+
+# PLAYER DEFAULTS
 player_default_left_images = []
 player_default_right_images = []
 player_atk_left_images = []

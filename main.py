@@ -23,7 +23,9 @@ music_player = MusicPlayer()
 pause_btn = Button(450, 10, pause_img, pause_hov_img)
 
 # Create texts
-main_start_text = HoverableText(25, 335, "start", retro_gaming_font, 40, dark_gray, light_gray, gray)
+main_title_text = Text(25, 120, "TITLE", fff_forward_font, 60, black)
+main_start_text = HoverableText(25, 290, "start", retro_gaming_font, 40, dark_gray, light_gray, gray)
+main_howto_text = HoverableText(25, 345, "how-to", retro_gaming_font, 40, dark_gray, light_gray, gray)
 main_exit_text = HoverableText(25, 400, "exit", retro_gaming_font, 40, dark_gray, light_gray, gray)
 
 selection_back_text = HoverableText(375, 25, "BACK", retro_gaming_font, 28, dark_gray, light_gray, gray)
@@ -49,7 +51,7 @@ pause_main_text = HoverableText(250, 300, "main menu", retro_gaming_font, 32, da
 score_text = Text(100, 10, "0", retro_gaming_font, 28, purple)
 
 # Create text groups
-main_menu_texts = TextGroup(main_start_text, main_exit_text)
+main_menu_texts = TextGroup(main_title_text, main_start_text, main_exit_text, main_howto_text)
 level_selection_texts = TextGroup(selection_back_text, selection_one_text, selection_two_text)
 game_over_texts = TextGroup(over_text, over_restart_text, over_main_text)
 game_clear_texts = TextGroup(clear_text, clear_next_text, clear_restart_text, clear_main_text, clear_score_text)
@@ -101,6 +103,8 @@ def display_main_menu():
 
     if main_exit_text.is_clicked():
         running = False
+    elif main_howto_text.is_clicked():
+        pass
     elif main_start_text.is_clicked():
         from_start_or_main = True
         current_location = Location.LEVEL_SELECTION
