@@ -23,12 +23,17 @@ music_player = MusicPlayer()
 pause_btn = Button(450, 10, pause_img, pause_hov_img)
 
 # Create texts
-main_start_text = HoverableText(25, 335, "start", retro_gaming_font, 40, dark_gray, light_gray, gray)
+main_title_text = Text(25, 120, "TITLE", fff_forward_font, 60, black)
+main_start_text = HoverableText(25, 290, "start", retro_gaming_font, 40, dark_gray, light_gray, gray)
+main_howto_text = HoverableText(25, 345, "how-to", retro_gaming_font, 40, dark_gray, light_gray, gray)
 main_exit_text = HoverableText(25, 400, "exit", retro_gaming_font, 40, dark_gray, light_gray, gray)
 
 selection_back_text = HoverableText(375, 25, "BACK", retro_gaming_font, 28, dark_gray, light_gray, gray)
 selection_one_text = HoverableText(75, 125, "1", fff_forward_font, 28, dark_gray, light_gray, gray)
 selection_two_text = HoverableText(125, 125, "2", fff_forward_font, 28, dark_gray, light_gray, gray)
+selection_three_text = HoverableText(175, 125, "3", fff_forward_font, 28, dark_gray, light_gray, gray)
+selection_four_text = HoverableText(225, 125, "4", fff_forward_font, 28, dark_gray, light_gray, gray)
+selection_five_text = HoverableText(275, 125, "5", fff_forward_font, 28, dark_gray, light_gray, gray)
 
 over_text = Text(125, 300, "GAME OVER", fff_forward_font, 32, black)
 over_restart_text = HoverableText(190, 385, "restart", retro_gaming_font, 24, dark_gray, light_gray, gray)
@@ -49,8 +54,9 @@ pause_main_text = HoverableText(250, 300, "main menu", retro_gaming_font, 32, da
 score_text = Text(100, 10, "0", retro_gaming_font, 28, purple)
 
 # Create text groups
-main_menu_texts = TextGroup(main_start_text, main_exit_text)
-level_selection_texts = TextGroup(selection_back_text, selection_one_text, selection_two_text)
+main_menu_texts = TextGroup(main_title_text, main_start_text, main_exit_text, main_howto_text)
+level_selection_texts = TextGroup(selection_back_text, selection_one_text, selection_two_text, selection_three_text,
+                                  selection_four_text, selection_five_text)
 game_over_texts = TextGroup(over_text, over_restart_text, over_main_text)
 game_clear_texts = TextGroup(clear_text, clear_next_text, clear_restart_text, clear_main_text, clear_score_text)
 pause_texts = TextGroup(pause_resume_text, pause_restart_text, pause_main_text)
@@ -59,12 +65,14 @@ pause_texts = TextGroup(pause_resume_text, pause_restart_text, pause_main_text)
 player = Player()
 
 # Create levels
-level_one = Level(level_one_data, player, 1)
-level_two = Level(level_two_data, player, 2)
+level_one = Level(level_one_data, player, 1, selection_one_text)
+level_two = Level(level_two_data, player, 2, selection_two_text)
+level_three = Level(level_three_data, player, 3, selection_three_text)
+level_four = Level(level_four_data, player, 4, selection_four_text)
+level_five = Level(level_five_data, player, 5, selection_five_text)
 
-# Create level dictionary
-level_dict = {1: level_one, 2: level_two}
-level_button_dict = {1: selection_one_text, 2: selection_two_text}
+# Create level list
+levels = (level_one, level_two, level_three, level_four, level_five)
 
 # Player state
 current_player_state = PlayerState.ALIVE
@@ -101,11 +109,13 @@ def display_main_menu():
 
     if main_exit_text.is_clicked():
         running = False
+    elif main_howto_text.is_clicked():
+        pass
     elif main_start_text.is_clicked():
         from_start_or_main = True
         current_location = Location.LEVEL_SELECTION
-
-
+        
+        
 def display_level_select():
     global current_location, from_start_or_main, current_player_state
 
@@ -120,15 +130,14 @@ def display_level_select():
 
     if selection_back_text.is_clicked():
         current_location = Location.MAIN_MENU
-    for level_num in level_button_dict.keys():
-        if level_button_dict[level_num].is_clicked():
+    for level in levels:
+        if level.button.is_clicked():
             music_player.stop_and_unload()
             select_sfx.play()
-            level_dict[level_num].reset()
+            level.reset()
             current_player_state = player.player_state
-            current_location = level_num
+            current_location = level.number
             break
-
 
 def display_pause(level: Level):
     global paused, pause_cooldown, current_location, from_start_or_main, current_player_state
@@ -195,11 +204,11 @@ def display_game_clear(level: Level):
         select_sfx.play()
 
     if clear_next_text.is_clicked():
-        if level.number >= list(level_dict.keys())[-1]:
+        if level.number >= len(levels):
             from_start_or_main = False
             current_location = Location.MAIN_MENU
         else:
-            level_dict[level.number + 1].reset()
+            levels[level.number].reset()
             current_player_state = player.player_state
             current_location += 1
     elif clear_restart_text.is_clicked():
@@ -213,6 +222,7 @@ def display_game_clear(level: Level):
 def display_level(level: Level):
     global current_player_state, paused, score_display
 
+    print(level.number)
     music_player.load_and_play(bgm_level_location, loops=-1, fade_ms=3000)
     if not paused:
         level.update()
@@ -254,7 +264,6 @@ if __name__ == "__main__":
         elif current_location == Location.LEVEL_SELECTION:
             display_level_select()
         elif current_location > 0:
-            display_level(level_dict[current_location])
-
+            display_level(levels[current_location - 1])
         pygame.display.update()
     pygame.quit()

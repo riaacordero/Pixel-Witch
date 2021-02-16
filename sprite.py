@@ -267,7 +267,6 @@ class Player(pygame.sprite.Sprite):
                     self.current_level.active_sprites.add(self.shield)
                     self.shield_blinking = False
                     shield_sfx.play()
-                    
 
     def _move(self):
         """
