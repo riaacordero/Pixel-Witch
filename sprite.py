@@ -255,7 +255,6 @@ class Player(pygame.sprite.Sprite):
             self.current_level.active_sprites.remove(self.shield)
         elif self.shield_time_left > 0:
             self.shield_time_left -= 1
-
             if self.shield_time_left <= self.shield_start_blink_time:
                 shield_blink_time_past = self.shield_start_blink_time - self.shield_time_left
                 if shield_blink_time_past % (self.shield_blink_duration + self.shield_blink_interval) == 0:

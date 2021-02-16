@@ -114,8 +114,8 @@ def display_main_menu():
     elif main_start_text.is_clicked():
         from_start_or_main = True
         current_location = Location.LEVEL_SELECTION
-
-
+        
+        
 def display_level_select():
     global current_location, from_start_or_main, current_player_state
 
@@ -138,7 +138,6 @@ def display_level_select():
             current_player_state = player.player_state
             current_location = level.number
             break
-
 
 def display_pause(level: Level):
     global paused, pause_cooldown, current_location, from_start_or_main, current_player_state
@@ -266,6 +265,5 @@ if __name__ == "__main__":
             display_level_select()
         elif current_location > 0:
             display_level(levels[current_location - 1])
-
         pygame.display.update()
     pygame.quit()

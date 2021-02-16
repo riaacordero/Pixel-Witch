@@ -186,7 +186,7 @@ class Level:
         
         self.number = number
         """Number to represent the level"""
-
+        
         self.button = button
         """Button to click on level selection screen to go to this level."""
 
