@@ -174,12 +174,13 @@ class Level:
     The stage that comprises of the different sprites that can interact with the player.
     """
 
-    def __init__(self, data: list, target: Player, number, button):
+    def __init__(self, data: list, target: Player, number, background_image, music, button):
         self.target = target
         self.width, self.height = len(data[0]) * tile_size, len(data) * tile_size
         self.rect = pygame.Rect(0, 0, self.width, self.height)
-        self.background = Background(self.width, self.height)
-        
+        self.background = Background(background_image, self.width, self.height)
+        self.music = music
+
         self.number = number
         """Number to represent the level"""
 

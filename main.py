@@ -82,11 +82,11 @@ howto_index = 0
 player = Player()
 
 # Create levels
-level_one = Level(level_one_data, player, 1, selection_one_text)
-level_two = Level(level_two_data, player, 2, selection_two_text)
-level_three = Level(level_three_data, player, 3, selection_three_text)
-level_four = Level(level_four_data, player, 4, selection_four_text)
-level_five = Level(level_five_data, player, 5, selection_five_text)
+level_one = Level(level_one_data, player, 1, bg_sky_img, bgm_level_sky, selection_one_text)
+level_two = Level(level_two_data, player, 2, bg_sky_img, bgm_level_sky, selection_two_text)
+level_three = Level(level_three_data, player, 3, bg_sky_img, bgm_level_sky, selection_three_text)
+level_four = Level(level_four_data, player, 4, bg_sky_img, bgm_level_sky, selection_four_text)
+level_five = Level(level_five_data, player, 5, bg_sky_img, bgm_level_sky, selection_five_text)
 
 # Create level list
 levels = (level_one, level_two, level_three, level_four, level_five)
@@ -118,9 +118,9 @@ def display_main_menu():
     global running, current_location, from_start_or_main, current_player_state
 
     if not from_start_or_main:
-        music_player.load_and_play(bgm_main_location, loops=-1, fade_ms=3000)
+        music_player.load_and_play(bgm_main, loops=-1, fade_ms=3000)
         
-    screen.blit(bg_img, (0, 0))
+    screen.blit(bg_sky_img, (0, 0))
     main_menu_texts.update()
     main_menu_texts.draw(screen)
 
@@ -136,7 +136,7 @@ def display_main_menu():
 def display_how_to():
     global howto_index, running, current_location
 
-    screen.blit(bg_img, (0, 0))
+    screen.blit(bg_sky_img, (0, 0))
     screen.blit(howto_images[howto_index], (0, 75))
     how_to_texts.update()
     how_to_texts.draw(screen)
@@ -153,8 +153,8 @@ def display_level_select():
     global current_location, from_start_or_main, current_player_state
 
     if not from_start_or_main:
-        music_player.load_and_play(bgm_main_location, loops=-1, fade_ms=3000)
-    screen.blit(bg_img, (0, 0))
+        music_player.load_and_play(bgm_main, loops=-1, fade_ms=3000)
+    screen.blit(bg_sky_img, (0, 0))
     level_selection_texts.update()
     level_selection_texts.draw(screen)
 
@@ -176,7 +176,7 @@ def display_level_select():
 def display_pause(level: Level):
     global paused, pause_cooldown, current_location, from_start_or_main, current_player_state
 
-    screen.blit(bg_img, (0, 0))
+    screen.blit(bg_sky_img, (0, 0))
     pause_texts.update()
     pause_texts.draw(screen)
 
@@ -198,7 +198,7 @@ def display_pause(level: Level):
 def display_game_over(level: Level):
     global current_player_state, current_location, from_start_or_main
 
-    screen.blit(bg_game_over_img, (0, 0))
+    screen.blit(bg_sky_img, (0, 0))
     screen.blit(pygame.transform.scale(death_img, (200, 200)), (150, 50))
     game_over_texts.update()
     game_over_texts.draw(screen)
@@ -218,7 +218,7 @@ def display_game_clear(level: Level):
     global current_player_state, current_location, from_start_or_main, \
         score_display, score_display_cooldown, score_display_speed
 
-    screen.blit(bg_game_clear_img, (0, 0))
+    screen.blit(bg_sky_img, (0, 0))
     if score_display_cooldown > 0:
         score_display_cooldown -= 1
     if score_display_speed > 0:
@@ -256,7 +256,7 @@ def display_game_clear(level: Level):
 def display_level(level: Level):
     global current_player_state, paused, score_display
 
-    music_player.load_and_play(bgm_level_location, loops=-1, fade_ms=3000)
+    music_player.load_and_play(level.music, loops=-1, fade_ms=3000)
     if not paused:
         level.update()
         current_player_state = player.player_state

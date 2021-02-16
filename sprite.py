@@ -32,8 +32,8 @@ class Background(LevelSprite):
     Moving background in a single level.
     """
 
-    def __init__(self, width, height, *groups):
-        super().__init__(bg_level_img, 0, 0, width, height, *groups)
+    def __init__(self, image, width, height, *groups):
+        super().__init__(image, 0, 0, width, height, *groups)
 
 
 class Platform(LevelSprite):
