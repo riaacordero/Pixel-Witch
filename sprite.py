@@ -45,6 +45,15 @@ class Platform(LevelSprite):
         super().__init__(platform_img, x, y, tile_size, tile_size, *groups)
 
 
+class LavaPlatform(LevelSprite):
+    """
+    Wall or floor that burns the player if touched, unless the player has an activated shield.
+    """
+
+    def __init__(self, x, y, *groups):
+        super().__init__(lava_img, x, y, tile_size, tile_size, *groups)
+
+
 class Potion(LevelSprite):
     """
     One-time use items which changes the player's ColorState based on its color.
@@ -116,7 +125,7 @@ class Enemy(LevelSprite):
         if self.move_count > 20:
             self.move_direction *= -1
             self.move_count *= -1
-            
+
 
 class Door(LevelSprite):
     """
@@ -131,6 +140,7 @@ class Door(LevelSprite):
 
     def reset(self):
         self.change_sprite(door_img, self.x, self.y, 48, 48)
+
 
 class Fireball(LevelSprite):
     """
@@ -154,6 +164,13 @@ class Fireball(LevelSprite):
                 self.attacking = False
                 level.active_sprites.remove(self)
                 return
+
+        # Lava platform collision
+        for lava_platform in level.lava_platforms:
+            if lava_platform.rect.colliderect(self.rect) and lava_platform in level.active_sprites:
+                enemy_hit_sfx.play()
+                self.attacking = False
+                level.active_sprites.remove(self)
 
         # Enemy collision
         for enemy in level.enemies:
@@ -256,6 +273,7 @@ class Player(pygame.sprite.Sprite):
             self.current_level.active_sprites.remove(self.shield)
         elif self.shield_time_left > 0:
             self.shield_time_left -= 1
+
             if self.shield_time_left <= self.shield_start_blink_time:
                 shield_blink_time_past = self.shield_start_blink_time - self.shield_time_left
                 if shield_blink_time_past % (self.shield_blink_duration + self.shield_blink_interval) == 0:
@@ -349,6 +367,28 @@ class Player(pygame.sprite.Sprite):
                     y_movement = platform.rect.top - self.rect.bottom
                     self.y_vel = 0
                     self.on_ground = True
+
+        # LAVA PLATFORM COLLISION
+        if self.has_shield:
+            for lava_platform in self.current_level.lava_platforms:
+                print("YAYAYAY")
+                # X-DIR. COLLISION
+                if lava_platform.rect.colliderect(self.rect.x + x_movement, self.rect.y, self.width, self.height):
+                    x_movement = 0
+                # Y-DIR. COLLISION
+                if lava_platform.rect.colliderect(self.rect.x, self.rect.y + y_movement, self.width, self.height):
+                    # check if below the ground i.e. jumping
+                    if self.y_vel < 0:
+                        y_movement = lava_platform.rect.bottom - self.rect.top
+                    # check if above the ground i.e. falling
+                    elif self.y_vel >= 0:
+                        y_movement = lava_platform.rect.top - self.rect.bottom
+                        self.y_vel = 0
+                        self.on_ground = True
+        else:
+            if pygame.sprite.spritecollide(self, self.current_level.lava_platforms, False):
+                game_over_sfx.play()
+                player_state = PlayerState.LOST
 
         # ENEMY COLLISION
         for enemy in self.current_level.enemies:

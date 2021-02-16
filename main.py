@@ -87,7 +87,7 @@ score_display = 0
 """score to be displayed, which starts at 0 and ends with the total score"""
 score_display_cooldown = fps // 2
 """waits for score_display_cooldown to be zero before score_display is shown"""
-score_display_speed = fps // 10
+score_display_speed = fps // 15
 """changes score_display for every 1/score_display_speed seconds"""
 
 # Locations
@@ -114,8 +114,6 @@ def display_main_menu():
     elif main_start_text.is_clicked():
         from_start_or_main = True
         current_location = Location.LEVEL_SELECTION
-        
-        
 def display_level_select():
     global current_location, from_start_or_main, current_player_state
 
@@ -138,6 +136,7 @@ def display_level_select():
             current_player_state = player.player_state
             current_location = level.number
             break
+
 
 def display_pause(level: Level):
     global paused, pause_cooldown, current_location, from_start_or_main, current_player_state
@@ -190,7 +189,7 @@ def display_game_clear(level: Level):
     if score_display_speed > 0:
         score_display_speed -= 1
     if score_display_cooldown == 0 and score_display_speed == 0 and score_display != level.score:
-        score_display_speed = fps // 10
+        score_display_speed = fps // 15
         score_display += 1
         select_sfx.play()
     game_clear_texts.update()
@@ -200,7 +199,7 @@ def display_game_clear(level: Level):
     if game_clear_texts.one_is_clicked():
         score_display = 0
         score_display_cooldown = fps // 2
-        score_display_speed = fps // 10
+        score_display_speed = fps // 15
         select_sfx.play()
 
     if clear_next_text.is_clicked():
@@ -222,7 +221,6 @@ def display_game_clear(level: Level):
 def display_level(level: Level):
     global current_player_state, paused, score_display
 
-    print(level.number)
     music_player.load_and_play(bgm_level_location, loops=-1, fade_ms=3000)
     if not paused:
         level.update()
@@ -265,5 +263,6 @@ if __name__ == "__main__":
             display_level_select()
         elif current_location > 0:
             display_level(levels[current_location - 1])
+
         pygame.display.update()
     pygame.quit()
