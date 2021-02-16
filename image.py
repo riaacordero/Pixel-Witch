@@ -17,6 +17,11 @@ death_img = pygame.image.load("assets/img/dead.png")
 pause_img = pygame.transform.scale(pygame.image.load("assets/img/pause.png"), (35, 35))
 pause_hov_img = pygame.transform.scale(pygame.image.load("assets/img/pause_hov.png"), (35, 35))
 
+# HOW TO
+howto_images = []
+for num in range(1, 7):
+    howto_images.append(pygame.image.load(f"assets/img/how-to/{num}.png"))
+
 # COLLECTIBLES
 gem_img = pygame.transform.scale(pygame.image.load("assets/img/gem.png"), (35, 35))
 key_img = pygame.transform.scale(pygame.image.load("assets/img/key.png"), (35, 35))

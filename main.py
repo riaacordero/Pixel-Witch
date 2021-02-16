@@ -28,7 +28,15 @@ main_start_text = HoverableText(25, 290, "start", retro_gaming_font, 40, dark_gr
 main_howto_text = HoverableText(25, 345, "how-to", retro_gaming_font, 40, dark_gray, light_gray, gray)
 main_exit_text = HoverableText(25, 400, "exit", retro_gaming_font, 40, dark_gray, light_gray, gray)
 
-selection_back_text = HoverableText(375, 25, "BACK", retro_gaming_font, 28, dark_gray, light_gray, gray)
+howto_back_text = HoverableText(15, 15, "BACK", retro_gaming_font, 28, dark_gray, light_gray, gray)
+howto_one_text = HoverableText(125, 450, "1", retro_gaming_font, 28, dark_gray, light_gray, gray, pos="center")
+howto_two_text = HoverableText(175, 450, "2", retro_gaming_font, 28, dark_gray, light_gray, gray, pos="center")
+howto_three_text = HoverableText(225, 450, "3", retro_gaming_font, 28, dark_gray, light_gray, gray, pos="center")
+howto_four_text = HoverableText(275, 450, "4", retro_gaming_font, 28, dark_gray, light_gray, gray, pos="center")
+howto_five_text = HoverableText(325, 450, "5", retro_gaming_font, 28, dark_gray, light_gray, gray, pos="center")
+howto_six_text = HoverableText(375, 450, "6", retro_gaming_font, 28, dark_gray, light_gray, gray, pos="center")
+
+selection_back_text = HoverableText(390, 15, "BACK", retro_gaming_font, 28, dark_gray, light_gray, gray)
 selection_one_text = HoverableText(75, 125, "1", fff_forward_font, 28, dark_gray, light_gray, gray)
 selection_two_text = HoverableText(125, 125, "2", fff_forward_font, 28, dark_gray, light_gray, gray)
 selection_three_text = HoverableText(175, 125, "3", fff_forward_font, 28, dark_gray, light_gray, gray)
@@ -53,13 +61,22 @@ pause_main_text = HoverableText(250, 300, "main menu", retro_gaming_font, 32, da
 
 score_text = Text(100, 10, "0", retro_gaming_font, 28, purple)
 
+# Create text subgroups
+howto_number_texts = [howto_one_text, howto_two_text, howto_three_text, howto_four_text, howto_five_text,
+                      howto_six_text]
+
 # Create text groups
 main_menu_texts = TextGroup(main_title_text, main_start_text, main_exit_text, main_howto_text)
+how_to_texts = TextGroup(howto_back_text, howto_one_text, howto_two_text, howto_three_text, howto_four_text,
+                         howto_five_text, howto_six_text)
 level_selection_texts = TextGroup(selection_back_text, selection_one_text, selection_two_text, selection_three_text,
                                   selection_four_text, selection_five_text)
 game_over_texts = TextGroup(over_text, over_restart_text, over_main_text)
 game_clear_texts = TextGroup(clear_text, clear_next_text, clear_restart_text, clear_main_text, clear_score_text)
 pause_texts = TextGroup(pause_resume_text, pause_restart_text, pause_main_text)
+
+# How-to current image
+howto_index = 0
 
 # Create player
 player = Player()
@@ -110,10 +127,28 @@ def display_main_menu():
     if main_exit_text.is_clicked():
         running = False
     elif main_howto_text.is_clicked():
-        pass
+        current_location = Location.HOW_TO
     elif main_start_text.is_clicked():
         from_start_or_main = True
         current_location = Location.LEVEL_SELECTION
+
+
+def display_how_to():
+    global howto_index, running, current_location
+
+    screen.blit(bg_img, (0, 0))
+    screen.blit(howto_images[howto_index], (0, 75))
+    how_to_texts.update()
+    how_to_texts.draw(screen)
+
+    if howto_back_text.is_clicked():
+        current_location = Location.MAIN_MENU
+    for i in range(len(howto_number_texts)):
+        if howto_number_texts[i].is_clicked():
+            howto_index = i
+            break
+
+
 def display_level_select():
     global current_location, from_start_or_main, current_player_state
 
@@ -259,6 +294,8 @@ if __name__ == "__main__":
 
         if current_location == Location.MAIN_MENU:
             display_main_menu()
+        elif current_location == Location.HOW_TO:
+            display_how_to()
         elif current_location == Location.LEVEL_SELECTION:
             display_level_select()
         elif current_location > 0:

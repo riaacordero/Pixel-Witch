@@ -12,7 +12,7 @@ level_one_data = np.array([
     "P---D--------R-KP",
     "PPPPPP-------PLLP",
     "P---------------P",
-    "P---R---E---Y-B-P",
+    "P---R---E---Y-BBP",
     "P---PPPPPPPPPPPPP",
     "P---------------P",
     "PB-E--Y--------LP",
