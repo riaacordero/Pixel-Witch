@@ -23,7 +23,8 @@ music_player = MusicPlayer()
 pause_btn = Button(450, 10, pause_img, pause_hov_img)
 
 # Create texts
-main_title_text = Text(25, 120, "PIXEL WITCH", fff_forward_font, 45, black)
+main_title_text = Text(25, 120, "PIXEL WITCH", fff_forward_font, 45, dark_gray)
+main_subtitle_text = Text(25, 185, "DEVELOPED BY: RIRI & HERNAN",retro_gaming_font, 10, dark_gray)
 main_start_text = HoverableText(25, 290, "start", retro_gaming_font, 40, dark_gray, light_gray, gray)
 main_howto_text = HoverableText(25, 345, "how-to", retro_gaming_font, 40, dark_gray, light_gray, gray)
 main_exit_text = HoverableText(25, 400, "exit", retro_gaming_font, 40, dark_gray, light_gray, gray)
@@ -66,7 +67,7 @@ howto_number_texts = [howto_one_text, howto_two_text, howto_three_text, howto_fo
                       howto_six_text]
 
 # Create text groups
-main_menu_texts = TextGroup(main_title_text, main_start_text, main_exit_text, main_howto_text)
+main_menu_texts = TextGroup(main_title_text, main_subtitle_text, main_start_text, main_exit_text, main_howto_text)
 how_to_texts = TextGroup(howto_back_text, howto_one_text, howto_two_text, howto_three_text, howto_four_text,
                          howto_five_text, howto_six_text)
 level_selection_texts = TextGroup(selection_back_text, selection_one_text, selection_two_text, selection_three_text,
@@ -84,9 +85,9 @@ player = Player()
 # Create levels
 level_one = Level(level_one_data, player, 1, bg_sky_img, bgm_level_sky, selection_one_text)
 level_two = Level(level_two_data, player, 2, bg_sky_img, bgm_level_sky, selection_two_text)
-level_three = Level(level_three_data, player, 3, bg_sky_img, bgm_level_sky, selection_three_text)
-level_four = Level(level_four_data, player, 4, bg_sky_img, bgm_level_sky, selection_four_text)
-level_five = Level(level_five_data, player, 5, bg_sky_img, bgm_level_sky, selection_five_text)
+level_three = Level(level_three_data, player, 3, bg_underground_img, bgm_level_underground, selection_three_text)
+level_four = Level(level_four_data, player, 4, bg_underground_img, bgm_level_underground, selection_four_text)
+level_five = Level(level_five_data, player, 5, bg_underground_img, bgm_level_underground, selection_five_text)
 
 # Create level list
 levels = (level_one, level_two, level_three, level_four, level_five)

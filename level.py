@@ -9,13 +9,13 @@ import numpy as np
 level_one_data = np.array([
     "PPPPPPPPPPPPPPPPP",
     "P---------------P",
-    "P---D--------R-KP",
-    "PPPPPP-------PLLP",
+    "P---D---------K-P",
+    "PPPPPP-------PPPP",
     "P---------------P",
-    "P---R---E---Y-BBP",
+    "P---R---E---Y--BP",
     "P---PPPPPPPPPPPPP",
     "P---------------P",
-    "PB-E--Y--------LP",
+    "PB-E--Y---------P",
     "PPPPPPP---------P",
     "P-----PPPP------P",
     "P---------------P",
@@ -48,6 +48,27 @@ level_two_data = np.array([
 ])
 
 level_three_data = np.array([
+    "PPPPPPPPPPPPPPPPPPPPPPPPPPPP",
+    "P-------------------------PP",
+    "P------------------Y------PP",
+    "P--K--------PPPPPPPPPPP---PP",
+    "PPPPPP--------------------PP",
+    "P----------------------G-PPP",
+    "P----E---------------PPPPPPP",
+    "P----PPPPPP----------PPPPPPP",
+    "P--------------PPPPPPPPPPPPP",
+    "PR-------------------PPPPPPP",
+    "PPPPPPP---G--------Y------PP",
+    "P-----PPPPP-------PPP-----PP",
+    "P------------------------GPP",
+    "P-----------G-PPPP-------PPP",
+    "P-----------PPPPP-------0-PP",
+    "P-------------------------PP",
+    "P--D--E-----B-------------PP",
+    "PPPPPPPPPPPPPPPPPPPPPPPPPPPP"
+])
+
+level_four_data = np.array([
     "PPPPPPPPPPPPPPPPPPPP",
     "P0-----------------P",
     "P----------------D-P",
@@ -70,7 +91,7 @@ level_three_data = np.array([
     "PPPPPPPPPPPPPPPPPPPP"
 ])
 
-level_four_data = np.array([
+level_five_data = np.array([
     "PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP",
     "P-------------------------------P",
     "P----------------------------D--P",
@@ -93,7 +114,7 @@ level_four_data = np.array([
     "PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP"
 ])
 
-level_five_data = np.array([
+level_six_data = np.array([
     "PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP",
     "P--------------------PP-----------P",
     "P-K------------------PP-D-------0-P",
