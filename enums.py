@@ -39,7 +39,7 @@ class Location(IntEnum):
     Used to identify the current menu or place being displayed on the game window.
     """
 
-    PAUSE = -2
+    HOW_TO = -2
     LEVEL_SELECTION = -1
     MAIN_MENU = 0
     LEVEL_ONE = 1

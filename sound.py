@@ -8,8 +8,9 @@ import pygame.mixer
 pygame.mixer.init()
 
 # BGM LOCATIONS
-bgm_main_location = "assets/sound/bgm_main.wav"
-bgm_level_location = "assets/sound/bgm_level.wav"
+bgm_main = "assets/sound/bgm_main.wav"
+bgm_level_sky = "assets/sound/bgm_level.wav"
+bgm_level_underground = "assets/sound/bgm_level.wav"
 
 # Menu SFX
 select_sfx = pygame.mixer.Sound(r"assets/sound/select1.wav")

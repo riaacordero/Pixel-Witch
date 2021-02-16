@@ -28,7 +28,15 @@ main_start_text = HoverableText(25, 290, "start", retro_gaming_font, 40, dark_gr
 main_howto_text = HoverableText(25, 345, "how-to", retro_gaming_font, 40, dark_gray, light_gray, gray)
 main_exit_text = HoverableText(25, 400, "exit", retro_gaming_font, 40, dark_gray, light_gray, gray)
 
-selection_back_text = HoverableText(375, 25, "BACK", retro_gaming_font, 28, dark_gray, light_gray, gray)
+howto_back_text = HoverableText(15, 15, "BACK", retro_gaming_font, 28, dark_gray, light_gray, gray)
+howto_one_text = HoverableText(125, 450, "1", retro_gaming_font, 28, dark_gray, light_gray, gray, pos="center")
+howto_two_text = HoverableText(175, 450, "2", retro_gaming_font, 28, dark_gray, light_gray, gray, pos="center")
+howto_three_text = HoverableText(225, 450, "3", retro_gaming_font, 28, dark_gray, light_gray, gray, pos="center")
+howto_four_text = HoverableText(275, 450, "4", retro_gaming_font, 28, dark_gray, light_gray, gray, pos="center")
+howto_five_text = HoverableText(325, 450, "5", retro_gaming_font, 28, dark_gray, light_gray, gray, pos="center")
+howto_six_text = HoverableText(375, 450, "6", retro_gaming_font, 28, dark_gray, light_gray, gray, pos="center")
+
+selection_back_text = HoverableText(390, 15, "BACK", retro_gaming_font, 28, dark_gray, light_gray, gray)
 selection_one_text = HoverableText(75, 125, "1", fff_forward_font, 28, dark_gray, light_gray, gray)
 selection_two_text = HoverableText(125, 125, "2", fff_forward_font, 28, dark_gray, light_gray, gray)
 selection_three_text = HoverableText(175, 125, "3", fff_forward_font, 28, dark_gray, light_gray, gray)
@@ -53,23 +61,32 @@ pause_main_text = HoverableText(250, 300, "main menu", retro_gaming_font, 32, da
 
 score_text = Text(100, 10, "0", retro_gaming_font, 28, purple)
 
+# Create text subgroups
+howto_number_texts = [howto_one_text, howto_two_text, howto_three_text, howto_four_text, howto_five_text,
+                      howto_six_text]
+
 # Create text groups
 main_menu_texts = TextGroup(main_title_text, main_start_text, main_exit_text, main_howto_text)
+how_to_texts = TextGroup(howto_back_text, howto_one_text, howto_two_text, howto_three_text, howto_four_text,
+                         howto_five_text, howto_six_text)
 level_selection_texts = TextGroup(selection_back_text, selection_one_text, selection_two_text, selection_three_text,
                                   selection_four_text, selection_five_text)
 game_over_texts = TextGroup(over_text, over_restart_text, over_main_text)
 game_clear_texts = TextGroup(clear_text, clear_next_text, clear_restart_text, clear_main_text, clear_score_text)
 pause_texts = TextGroup(pause_resume_text, pause_restart_text, pause_main_text)
 
+# How-to current image
+howto_index = 0
+
 # Create player
 player = Player()
 
 # Create levels
-level_one = Level(level_one_data, player, 1, selection_one_text)
-level_two = Level(level_two_data, player, 2, selection_two_text)
-level_three = Level(level_three_data, player, 3, selection_three_text)
-level_four = Level(level_four_data, player, 4, selection_four_text)
-level_five = Level(level_five_data, player, 5, selection_five_text)
+level_one = Level(level_one_data, player, 1, bg_sky_img, bgm_level_sky, selection_one_text)
+level_two = Level(level_two_data, player, 2, bg_sky_img, bgm_level_sky, selection_two_text)
+level_three = Level(level_three_data, player, 3, bg_sky_img, bgm_level_sky, selection_three_text)
+level_four = Level(level_four_data, player, 4, bg_sky_img, bgm_level_sky, selection_four_text)
+level_five = Level(level_five_data, player, 5, bg_sky_img, bgm_level_sky, selection_five_text)
 
 # Create level list
 levels = (level_one, level_two, level_three, level_four, level_five)
@@ -101,25 +118,43 @@ def display_main_menu():
     global running, current_location, from_start_or_main, current_player_state
 
     if not from_start_or_main:
-        music_player.load_and_play(bgm_main_location, loops=-1, fade_ms=3000)
+        music_player.load_and_play(bgm_main, loops=-1, fade_ms=3000)
         
-    screen.blit(bg_img, (0, 0))
+    screen.blit(bg_sky_img, (0, 0))
     main_menu_texts.update()
     main_menu_texts.draw(screen)
 
     if main_exit_text.is_clicked():
         running = False
     elif main_howto_text.is_clicked():
-        pass
+        current_location = Location.HOW_TO
     elif main_start_text.is_clicked():
         from_start_or_main = True
         current_location = Location.LEVEL_SELECTION
+
+
+def display_how_to():
+    global howto_index, running, current_location
+
+    screen.blit(bg_sky_img, (0, 0))
+    screen.blit(howto_images[howto_index], (0, 75))
+    how_to_texts.update()
+    how_to_texts.draw(screen)
+
+    if howto_back_text.is_clicked():
+        current_location = Location.MAIN_MENU
+    for i in range(len(howto_number_texts)):
+        if howto_number_texts[i].is_clicked():
+            howto_index = i
+            break
+
+
 def display_level_select():
     global current_location, from_start_or_main, current_player_state
 
     if not from_start_or_main:
-        music_player.load_and_play(bgm_main_location, loops=-1, fade_ms=3000)
-    screen.blit(bg_img, (0, 0))
+        music_player.load_and_play(bgm_main, loops=-1, fade_ms=3000)
+    screen.blit(bg_sky_img, (0, 0))
     level_selection_texts.update()
     level_selection_texts.draw(screen)
 
@@ -141,7 +176,7 @@ def display_level_select():
 def display_pause(level: Level):
     global paused, pause_cooldown, current_location, from_start_or_main, current_player_state
 
-    screen.blit(bg_img, (0, 0))
+    screen.blit(bg_sky_img, (0, 0))
     pause_texts.update()
     pause_texts.draw(screen)
 
@@ -163,7 +198,7 @@ def display_pause(level: Level):
 def display_game_over(level: Level):
     global current_player_state, current_location, from_start_or_main
 
-    screen.blit(bg_game_over_img, (0, 0))
+    screen.blit(bg_sky_img, (0, 0))
     screen.blit(pygame.transform.scale(death_img, (200, 200)), (150, 50))
     game_over_texts.update()
     game_over_texts.draw(screen)
@@ -183,7 +218,7 @@ def display_game_clear(level: Level):
     global current_player_state, current_location, from_start_or_main, \
         score_display, score_display_cooldown, score_display_speed
 
-    screen.blit(bg_game_clear_img, (0, 0))
+    screen.blit(bg_sky_img, (0, 0))
     if score_display_cooldown > 0:
         score_display_cooldown -= 1
     if score_display_speed > 0:
@@ -221,7 +256,7 @@ def display_game_clear(level: Level):
 def display_level(level: Level):
     global current_player_state, paused, score_display
 
-    music_player.load_and_play(bgm_level_location, loops=-1, fade_ms=3000)
+    music_player.load_and_play(level.music, loops=-1, fade_ms=3000)
     if not paused:
         level.update()
         current_player_state = player.player_state
@@ -259,6 +294,8 @@ if __name__ == "__main__":
 
         if current_location == Location.MAIN_MENU:
             display_main_menu()
+        elif current_location == Location.HOW_TO:
+            display_how_to()
         elif current_location == Location.LEVEL_SELECTION:
             display_level_select()
         elif current_location > 0:

@@ -6,16 +6,19 @@ import pygame.image
 import pygame.transform
 
 # BACKGROUND
-bg_img = pygame.image.load('assets/img/bg_img.png')
-bg_game_over_img = pygame.image.load("assets/img/bg_img.png")
-bg_game_clear_img = pygame.image.load("assets/img/bg_img.png")
-bg_level_img = pygame.image.load("assets/img/bg_img.png")
+bg_sky_img = pygame.image.load('assets/img/bg_img.png')
+bg_underground_img = pygame.image.load("assets/img/bg_img.png")
 
 # MENU
 game_over_img = pygame.image.load("assets/img/game_over.png")
 death_img = pygame.image.load("assets/img/dead.png")
 pause_img = pygame.transform.scale(pygame.image.load("assets/img/pause.png"), (35, 35))
 pause_hov_img = pygame.transform.scale(pygame.image.load("assets/img/pause_hov.png"), (35, 35))
+
+# HOW TO
+howto_images = []
+for num in range(1, 7):
+    howto_images.append(pygame.image.load(f"assets/img/how-to/{num}.png"))
 
 # COLLECTIBLES
 gem_img = pygame.transform.scale(pygame.image.load("assets/img/gem.png"), (35, 35))
