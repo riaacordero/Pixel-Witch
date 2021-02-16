@@ -244,28 +244,29 @@ class Level:
         for row in data:
             column_count = 0
             for tile in row:
+                x, y = column_count * tile_size, row_count * tile_size
                 if tile == "0":
-                    self.target_x, self.target_y = column_count * tile_size, row_count * tile_size
+                    self.target_x, self.target_y = x, y
                 if tile == "P":
-                    Platform(column_count * tile_size, row_count * tile_size, self.platforms, self.sprites)
+                    Platform(x, y, self.platforms, self.sprites)
                 elif tile == "E":
-                    Enemy(column_count * tile_size, row_count * tile_size - 30, self.enemies, self.sprites)
+                    Enemy(x, y - 30, self.enemies, self.sprites)
                 elif tile == "D":
-                    self.door = Door(column_count * tile_size, row_count * tile_size - (tile_size // 2), self.sprites)
+                    self.door = Door(x, y - (tile_size // 2), self.sprites)
                 elif tile == "B":
-                    BluePotion(column_count * tile_size, row_count * tile_size, self.consumables, self.sprites)
+                    BluePotion(x, y, self.consumables, self.sprites)
                 elif tile == "R":
-                    RedPotion(column_count * tile_size, row_count * tile_size, self.consumables, self.sprites)
+                    RedPotion(x, y, self.consumables, self.sprites)
                 elif tile == "Y":
-                    YellowPotion(column_count * tile_size, row_count * tile_size, self.consumables, self.sprites)
+                    YellowPotion(x, y, self.consumables, self.sprites)
                 elif tile == "G":
-                    Gem(column_count * tile_size, row_count * tile_size, self.consumables, self.sprites)
+                    Gem(x, y, self.consumables, self.sprites)
                 elif tile == "K":
-                    Key(column_count * tile_size, row_count * tile_size, self.consumables, self.sprites)
+                    Key(x, y, self.consumables, self.sprites)
                 elif tile == "L":
-                    LavaPlatform(column_count * tile_size, row_count * tile_size, self.lava_platforms, self.sprites)
+                    LavaPlatform(x, y, self.lava_platforms, self.sprites)
                 elif tile == "T":
-                    Torch(column_count * tile_size, row_count * tile_size, self.consumables, self.sprites)
+                    Torch(x, y, self.consumables, self.sprites)
                 column_count += 1
             row_count += 1
 
