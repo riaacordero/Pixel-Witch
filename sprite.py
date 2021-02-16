@@ -371,7 +371,6 @@ class Player(pygame.sprite.Sprite):
         # LAVA PLATFORM COLLISION
         if self.has_shield:
             for lava_platform in self.current_level.lava_platforms:
-                print("YAYAYAY")
                 # X-DIR. COLLISION
                 if lava_platform.rect.colliderect(self.rect.x + x_movement, self.rect.y, self.width, self.height):
                     x_movement = 0
