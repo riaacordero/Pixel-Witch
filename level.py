@@ -21,7 +21,7 @@ level_one_data = np.array([
     "P---------------P",
     "P-------------GPP",
     "P0---------G-PPPP",
-    "P--Y---E-BPPPPPPP",
+    "P--YT--E-BPPPPPPP",
     "PPPPPPPPPPPPPPPPP",
     "PPPPPPPPPPPPPPPPP"
 ])
@@ -178,7 +178,7 @@ class Camera(pygame.sprite.LayeredUpdates):
         self.lostsprites = []
         for s, old_r in self.spritedict.items():
             new_r = surface.blit(s.image, s.rect.move(self.camera))
-            if old_r:
+            if old_r is False:
                 if new_r.colliderect(old_r):
                     dirty.append(new_r.union(old_r))
                 else:
@@ -188,6 +188,21 @@ class Camera(pygame.sprite.LayeredUpdates):
                 dirty.append(new_r)
             self.spritedict[s] = new_r
         return dirty
+
+
+class Overlay(pygame.sprite.Sprite):
+    """
+    Darkens the surrounding of the level.
+    """
+
+    def __init__(self, x, y, *groups):
+        super().__init__(*groups)
+        self.image = overlay_img
+        self.rect = self.image.get_rect()
+        self.rect.center = x, y
+
+    def draw(self, screen):
+        screen.blit(self.image, self.rect)
 
 
 class Level:
@@ -249,6 +264,8 @@ class Level:
                     Key(column_count * tile_size, row_count * tile_size, self.consumables, self.sprites)
                 elif tile == "L":
                     LavaPlatform(column_count * tile_size, row_count * tile_size, self.lava_platforms, self.sprites)
+                elif tile == "T":
+                    Torch(column_count * tile_size, row_count * tile_size, self.consumables, self.sprites)
                 column_count += 1
             row_count += 1
 
