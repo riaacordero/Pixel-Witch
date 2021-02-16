@@ -29,6 +29,7 @@ door_active_img = pygame.image.load("assets/img/door2.png")
 
 # PLATFORMS
 platform_img = pygame.image.load("assets/img/ground.png")
+lava_img = pygame.image.load("assets/img/lava.png")
 
 # CONSUMABLES
 potion_blue_img = pygame.image.load("assets/img/potion-blue.png")

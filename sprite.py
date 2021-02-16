@@ -117,6 +117,7 @@ class Enemy(LevelSprite):
             self.move_direction *= -1
             self.move_count *= -1
 
+
 class Door(LevelSprite):
     """
     Sprites that finish the level if collided with the player.
