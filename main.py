@@ -221,7 +221,6 @@ def display_game_clear(level: Level):
 def display_level(level: Level):
     global current_player_state, paused, score_display
 
-    print(level.number)
     music_player.load_and_play(bgm_level_location, loops=-1, fade_ms=3000)
     if not paused:
         level.update()

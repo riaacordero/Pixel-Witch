@@ -9,13 +9,13 @@ import numpy as np
 level_one_data = np.array([
     "PPPPPPPPPPPPPPPPP",
     "P---------------P",
-    "P---D---------K-P",
-    "PPPPPP-------PPPP",
+    "P---D--------R-KP",
+    "PPPPPP-------PLLP",
     "P---------------P",
-    "P---R---E---Y--BP",
+    "P---R---E---Y-BBP",
     "P---PPPPPPPPPPPPP",
     "P---------------P",
-    "PB-E--Y---------P",
+    "PB-E--Y--------LP",
     "PPPPPPP---------P",
     "P-----PPPP------P",
     "P---------------P",
@@ -191,6 +191,7 @@ class Level:
 
         # Groups present per level
         self.platforms = pygame.sprite.Group()
+        self.lava_platforms = pygame.sprite.Group()
         self.enemies = pygame.sprite.Group()
         self.consumables = pygame.sprite.Group()
 
@@ -224,6 +225,8 @@ class Level:
                     Gem(column_count * tile_size, row_count * tile_size, self.consumables, self.sprites)
                 elif tile == "K":
                     Key(column_count * tile_size, row_count * tile_size, self.consumables, self.sprites)
+                elif tile == "L":
+                    LavaPlatform(column_count * tile_size, row_count * tile_size, self.lava_platforms, self.sprites)
                 column_count += 1
             row_count += 1
 
