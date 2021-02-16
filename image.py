@@ -7,7 +7,7 @@ import pygame.transform
 
 # BACKGROUND
 bg_sky_img = pygame.image.load('assets/img/bg_img.png')
-bg_underground_img = pygame.image.load("assets/img/bg_img.png")
+bg_underground_img = pygame.image.load("assets/img/bg-under-level.png")
 
 # MENU
 game_over_img = pygame.image.load("assets/img/game_over.png")
