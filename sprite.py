@@ -116,6 +116,7 @@ class Enemy(LevelSprite):
         if self.move_count > 20:
             self.move_direction *= -1
             self.move_count *= -1
+            
 
 class Door(LevelSprite):
     """

@@ -23,7 +23,7 @@ music_player = MusicPlayer()
 pause_btn = Button(450, 10, pause_img, pause_hov_img)
 
 # Create texts
-main_title_text = Text(25, 120, "TITLE", fff_forward_font, 60, black)
+main_title_text = Text(25, 120, "PIXEL WITCH", fff_forward_font, 45, black)
 main_start_text = HoverableText(25, 290, "start", retro_gaming_font, 40, dark_gray, light_gray, gray)
 main_howto_text = HoverableText(25, 345, "how-to", retro_gaming_font, 40, dark_gray, light_gray, gray)
 main_exit_text = HoverableText(25, 400, "exit", retro_gaming_font, 40, dark_gray, light_gray, gray)
