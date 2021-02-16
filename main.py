@@ -87,7 +87,7 @@ score_display = 0
 """score to be displayed, which starts at 0 and ends with the total score"""
 score_display_cooldown = fps // 2
 """waits for score_display_cooldown to be zero before score_display is shown"""
-score_display_speed = fps // 10
+score_display_speed = fps // 15
 """changes score_display for every 1/score_display_speed seconds"""
 
 # Locations
@@ -189,7 +189,7 @@ def display_game_clear(level: Level):
     if score_display_speed > 0:
         score_display_speed -= 1
     if score_display_cooldown == 0 and score_display_speed == 0 and score_display != level.score:
-        score_display_speed = fps // 10
+        score_display_speed = fps // 15
         score_display += 1
         select_sfx.play()
     game_clear_texts.update()
@@ -199,7 +199,7 @@ def display_game_clear(level: Level):
     if game_clear_texts.one_is_clicked():
         score_display = 0
         score_display_cooldown = fps // 2
-        score_display_speed = fps // 10
+        score_display_speed = fps // 15
         select_sfx.play()
 
     if clear_next_text.is_clicked():
