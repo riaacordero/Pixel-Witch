@@ -10,34 +10,6 @@ pygame.font.init()
 fff_forward_font = r"assets/font/FFF Forward.ttf"
 retro_gaming_font = r"assets/font/Retro Gaming.ttf"
 
-# Raw texts
-howto_captions = [
-    "Pixel Witch is a maze platform game developed by Ria Cordero and Hernan Jugar. "
-    "It is developed in Python and is built on top of PyGame.",
-
-    "This is Pixel, our lost character who tries to find her way home. However, to"
-    "unlock the doors in her world, Pixel needs to find a golden key that is guarded"
-    "by different mobs and obstacles. Sometimes, the obstacles are too huge for Pixel"
-    "and so she has to acquire a potion that will make her jump over them. You can"
-    "help Pixel move around using the arrow keys.",
-
-    "The grim reapers are the main mobs of the game. Since Pixel only has one life "
-    "(she is not a cat) she needs to either protect herself with a shield or eliminate "
-    "them with lightballs.",
-
-    "Lavas are not usually in the game, but if they do, the only way for Pixel to pass "
-    "through them is to acquire a shield.",
-
-    "The consumables include three potions of different colors: yellow, blue, and red. "
-    "It is activated using the SPACE BAR. The yellow potion gives Pixel the ability to "
-    "shoot mobs. The blue potion allows Pixel to jump over platforms and obstacles. "
-    "Lastly, the red potion gives Pixel a temporary shield to protect herself from mobs "
-    "and obstacles. However, the potions can only be consumed ONE AT A TIME.",
-
-    "The collectibles are the gems and the golden key. The gems add up to Pixel's score "
-    "per level. Whereas the golden key activates the door to the next world."
-]
-
 
 class Text:
     """

@@ -12,7 +12,7 @@ level_one_data = np.array([
     "P---D--------R-KP",
     "PPPPPP-------PLLP",
     "P---------------P",
-    "P---R---E---Y-B-P",
+    "P---R---E---Y-BBP",
     "P---PPPPPPPPPPPPP",
     "P---------------P",
     "PB-E--Y--------LP",
@@ -217,6 +217,9 @@ level_nine_data = np.array([
     "PPPPPPPPLLLLLLLLLLLLPPPPPPPPLLLLLPP",
     "PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP"
 ])
+
+levels_data = [level_one_data, level_two_data, level_three_data, level_four_data, level_five_data, level_six_data,
+               level_seven_data, level_eight_data, level_nine_data]
 
 class Camera(pygame.sprite.LayeredUpdates):
     """
