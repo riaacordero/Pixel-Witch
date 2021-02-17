@@ -24,25 +24,27 @@ pause_btn = Button(450, 10, pause_img, pause_hov_img)
 
 # Create texts
 main_title_text = Text(25, 120, "PIXEL WITCH", fff_forward_font, 45, dark_gray)
-main_subtitle_text = Text(25, 185, "DEVELOPED BY: RIRI & HERNAN",retro_gaming_font, 10, dark_gray)
+main_subtitle_text = Text(25, 185, "DEVELOPED BY: RIRI & HERNAN", retro_gaming_font, 10, dark_gray)
 main_start_text = HoverableText(25, 290, "start", retro_gaming_font, 40, dark_gray, light_gray, gray)
 main_howto_text = HoverableText(25, 345, "how-to", retro_gaming_font, 40, dark_gray, light_gray, gray)
 main_exit_text = HoverableText(25, 400, "exit", retro_gaming_font, 40, dark_gray, light_gray, gray)
 
 howto_back_text = HoverableText(15, 15, "BACK", retro_gaming_font, 28, dark_gray, light_gray, gray)
-howto_one_text = HoverableText(125, 450, "1", retro_gaming_font, 28, dark_gray, light_gray, gray, pos="center")
-howto_two_text = HoverableText(175, 450, "2", retro_gaming_font, 28, dark_gray, light_gray, gray, pos="center")
-howto_three_text = HoverableText(225, 450, "3", retro_gaming_font, 28, dark_gray, light_gray, gray, pos="center")
-howto_four_text = HoverableText(275, 450, "4", retro_gaming_font, 28, dark_gray, light_gray, gray, pos="center")
-howto_five_text = HoverableText(325, 450, "5", retro_gaming_font, 28, dark_gray, light_gray, gray, pos="center")
-howto_six_text = HoverableText(375, 450, "6", retro_gaming_font, 28, dark_gray, light_gray, gray, pos="center")
+howto_number_texts = []
+for i in range(1, 7):
+    howto_number_texts.append(HoverableText(i * 50 + 75, 450, str(i), retro_gaming_font, 28, dark_gray, light_gray,
+                                            gray, pos="center"))
 
 selection_back_text = HoverableText(390, 15, "BACK", retro_gaming_font, 28, dark_gray, light_gray, gray)
-selection_one_text = HoverableText(75, 125, "1", fff_forward_font, 28, dark_gray, light_gray, gray)
-selection_two_text = HoverableText(125, 125, "2", fff_forward_font, 28, dark_gray, light_gray, gray)
-selection_three_text = HoverableText(175, 125, "3", fff_forward_font, 28, dark_gray, light_gray, gray)
-selection_four_text = HoverableText(225, 125, "4", fff_forward_font, 28, dark_gray, light_gray, gray)
-selection_five_text = HoverableText(275, 125, "5", fff_forward_font, 28, dark_gray, light_gray, gray)
+selection_level_texts = []
+for i in range(len(levels_data)):
+    selection_level_texts.append(HoverableText(i % 3 * 125 + 125, 140 if i < 3 else 265 if i < 6 else 390,
+                                               str(i + 1), fff_forward_font, 40, dark_gray, light_gray, gray,
+                                               pos="center"))
+selection_high_score_texts = []
+for i in range(len(levels_data)):
+    selection_high_score_texts.append(Text(i % 3 * 125 + 125, 180 if i < 3 else 305 if i < 6 else 430,
+                                           str(0), fff_forward_font, 20, gray, pos="center"))
 
 over_text = Text(125, 300, "GAME OVER", fff_forward_font, 32, black)
 over_restart_text = HoverableText(190, 385, "restart", retro_gaming_font, 24, dark_gray, light_gray, gray)
@@ -62,16 +64,10 @@ pause_main_text = HoverableText(250, 300, "main menu", retro_gaming_font, 32, da
 
 score_text = Text(100, 10, "0", retro_gaming_font, 28, purple)
 
-# Create text subgroups
-howto_number_texts = [howto_one_text, howto_two_text, howto_three_text, howto_four_text, howto_five_text,
-                      howto_six_text]
-
 # Create text groups
 main_menu_texts = TextGroup(main_title_text, main_subtitle_text, main_start_text, main_exit_text, main_howto_text)
-how_to_texts = TextGroup(howto_back_text, howto_one_text, howto_two_text, howto_three_text, howto_four_text,
-                         howto_five_text, howto_six_text)
-level_selection_texts = TextGroup(selection_back_text, selection_one_text, selection_two_text, selection_three_text,
-                                  selection_four_text, selection_five_text)
+how_to_texts = TextGroup(howto_back_text, *howto_number_texts)
+level_selection_texts = TextGroup(selection_back_text, *selection_level_texts, *selection_high_score_texts)
 game_over_texts = TextGroup(over_text, over_restart_text, over_main_text)
 game_clear_texts = TextGroup(clear_text, clear_next_text, clear_restart_text, clear_main_text, clear_score_text)
 pause_texts = TextGroup(pause_resume_text, pause_restart_text, pause_main_text)
@@ -83,14 +79,10 @@ howto_index = 0
 player = Player()
 
 # Create levels
-level_one = Level(level_one_data, player, 1, selection_one_text, is_underground=False)
-level_two = Level(level_two_data, player, 2, selection_two_text, is_underground=False)
-level_three = Level(level_three_data, player, 3, selection_three_text, is_underground=True)
-level_four = Level(level_four_data, player, 4, selection_four_text, is_underground=True)
-level_five = Level(level_five_data, player, 5, selection_five_text, is_underground=True)
-
-# Create level list
-levels = (level_one, level_two, level_three, level_four, level_five)
+levels = []
+for i in range(len(levels_data)):
+    levels.append(Level(levels_data[i], player, i + 1, selection_level_texts[i], is_underground=i >= 2,
+                        max_score=levels_max_scores[i]))
 
 # Player state
 current_player_state = PlayerState.ALIVE
@@ -120,7 +112,7 @@ def display_main_menu():
 
     if not from_start_or_main:
         music_player.load_and_play(bgm_main, loops=-1, fade_ms=3000)
-        
+
     screen.blit(bg_sky_img, (0, 0))
     main_menu_texts.update()
     main_menu_texts.draw(screen)
@@ -229,6 +221,7 @@ def display_game_clear(level: Level):
         score_display += 1
         select_sfx.play()
     game_clear_texts.update()
+
     clear_score_text.update(str(score_display), pos="center", new_x=250, new_y=125)
     game_clear_texts.draw(screen, excluded=() if score_display == level.score else (clear_text,))
 
@@ -280,6 +273,15 @@ def display_level(level: Level):
         display_game_over(level)
     elif current_player_state == PlayerState.WON:
         music_player.stop_and_unload()
+        if level.score > level.high_score:
+            level.high_score = level.score
+            index = level.number - 1
+            selection_high_score_texts[index].update(str(level.high_score), pos="center",
+                                                                new_x=index % 3 * 125 + 125,
+                                                                new_y=180 if index < 3 else 305 if index < 6 else 430,
+                                                                new_color=green if level.high_score >= level.max_score
+                                                                else ())
+            selection_high_score_texts[index].update(new_color=green)
         display_game_clear(level)
 
 

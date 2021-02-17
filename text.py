@@ -10,34 +10,6 @@ pygame.font.init()
 fff_forward_font = r"assets/font/FFF Forward.ttf"
 retro_gaming_font = r"assets/font/Retro Gaming.ttf"
 
-# Raw texts
-howto_captions = [
-    "Pixel Witch is a maze platform game developed by Ria Cordero and Hernan Jugar. "
-    "It is developed in Python and is built on top of PyGame.",
-
-    "This is Pixel, our lost character who tries to find her way home. However, to"
-    "unlock the doors in her world, Pixel needs to find a golden key that is guarded"
-    "by different mobs and obstacles. Sometimes, the obstacles are too huge for Pixel"
-    "and so she has to acquire a potion that will make her jump over them. You can"
-    "help Pixel move around using the arrow keys.",
-
-    "The grim reapers are the main mobs of the game. Since Pixel only has one life "
-    "(she is not a cat) she needs to either protect herself with a shield or eliminate "
-    "them with lightballs.",
-
-    "Lavas are not usually in the game, but if they do, the only way for Pixel to pass "
-    "through them is to acquire a shield.",
-
-    "The consumables include three potions of different colors: yellow, blue, and red. "
-    "It is activated using the SPACE BAR. The yellow potion gives Pixel the ability to "
-    "shoot mobs. The blue potion allows Pixel to jump over platforms and obstacles. "
-    "Lastly, the red potion gives Pixel a temporary shield to protect herself from mobs "
-    "and obstacles. However, the potions can only be consumed ONE AT A TIME.",
-
-    "The collectibles are the gems and the golden key. The gems add up to Pixel's score "
-    "per level. Whereas the golden key activates the door to the next world."
-]
-
 
 class Text:
     """
@@ -61,18 +33,18 @@ class Text:
     def draw(self, screen):
         screen.blit(self.default_text, self.rect)
 
-    def update(self, new_text="", pos="", new_x=0, new_y=0):
+    def update(self, new_text="", pos="", new_x=-1, new_y=-1, new_color=()):
         self.hovered = self.is_hovered()
 
+        if not new_color == ():
+            self.default_text_color = new_color
         if not new_text == "":
             self.default_text = self.font.render(new_text, True, self.default_text_color)
             self.rect = self.default_text.get_rect()
             self.width, self.height = self.default_text.get_width(), self.default_text.get_height()
             self.rect.x, self.rect.y = self.x, self.y
 
-            if pos == "" or pos == "topleft":
-                self.rect.x, self.rect.y = self.x, self.y
-            elif pos == "center":
+            if pos == "center":
                 self.rect.center = new_x, new_y
 
     def is_hovered(self):

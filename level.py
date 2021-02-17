@@ -5,14 +5,13 @@ Contains Level and Camera classes and data for each level.
 from sprite import *
 import numpy as np
 
-# 20 columns, 20 rows
 level_one_data = np.array([
     "PPPPPPPPPPPPPPPPP",
     "P---------------P",
-    "P---D---------K-P",
-    "PPPPPP-------PPPP",
+    "P---D--------R-KP",
+    "PPPPPP-------PLLP",
     "P---------------P",
-    "P---R---E---Y-B-P",
+    "P---R---E---Y-BBP",
     "P---PPPPPPPPPPPPP",
     "P---------------P",
     "PB-E--Y--------LP",
@@ -218,6 +217,11 @@ level_nine_data = np.array([
     "PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP"
 ])
 
+levels_data = [level_one_data, level_two_data, level_three_data, level_four_data, level_five_data, level_six_data,
+               level_seven_data, level_eight_data, level_nine_data]
+
+levels_max_scores = [25, 40, 30, 20, 10, 30, 40, 50, 30]
+
 class Camera(pygame.sprite.LayeredUpdates):
     """
     Game camera following the player that acts similarly with a pygame.sprite.Group() object.
@@ -290,7 +294,7 @@ class Level:
     The stage that comprises of the different sprites that can interact with the player.
     """
 
-    def __init__(self, data: list, target: Player, number, button, *, is_underground):
+    def __init__(self, data: list, target: Player, number, button, *, is_underground, max_score):
         self.target = target
         self.width, self.height = len(data[0]) * tile_size, len(data) * tile_size
         self.rect = pygame.Rect(0, 0, self.width, self.height)
@@ -306,6 +310,12 @@ class Level:
 
         self.score = 0
         """Score gained by the player by getting gems"""
+
+        self.high_score = 0
+        """Highest score gained by the player"""
+
+        self.max_score = max_score
+        """Highest possible score to get in the level"""
 
         # Groups present per level
         self.platforms = pygame.sprite.Group()
