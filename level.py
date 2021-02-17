@@ -137,6 +137,28 @@ level_six_data = np.array([
     "PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP"
 ])
 
+level_seven_data = np.array([
+    "PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP",
+    "P--------------------PP-----------P",
+    "P-E------------------PP-E-------K-P",
+    "PPPP-------------G-E-PPPPPPP---PPPP",
+    "P-------G-PPPPPPPPPPPP------------P",
+    "P-----PPPP-----------E---------YG-P",
+    "P--------------------PPP----PPPPPPP",
+    "P---------------------------------P",
+    "PPPPPP-----------------G----------P",
+    "P---------Y---EB----PPPPPPPP----PPP",
+    "P--------PPPPPPP------------------P",
+    "P-T----PPPP-----------R-E------B--P",
+    "PPPP---------------PPPPPPPPP---PPPP",
+    "P----G----------------------------P",
+    "P--PPPPPPPPP--------------------D-P",
+    "P-----------------PPPPPPLLLLLPPPPPP",
+    "P0--------------PPPPPPPPPPPPPPPPPPP",
+    "P-B---------G-PPPPPPPPPPPPPPPPPPPPP",
+    "PPPPLLLPLLLPPPPPPPPPPPPPPPPPPPPPPPP",
+    "PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP"
+])
 
 class Camera(pygame.sprite.LayeredUpdates):
     """

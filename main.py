@@ -85,7 +85,7 @@ player = Player()
 # Create levels
 level_one = Level(level_one_data, player, 1, bg_sky_img, bgm_level_sky, selection_one_text)
 level_two = Level(level_two_data, player, 2, bg_sky_img, bgm_level_sky, selection_two_text)
-level_three = Level(level_three_data, player, 3, bg_underground_img, bgm_level_underground, selection_three_text)
+level_three = Level(level_three_data, player, 3, bg_sky_img, bgm_level_sky, selection_three_text)
 level_four = Level(level_four_data, player, 4, bg_underground_img, bgm_level_underground, selection_four_text)
 level_five = Level(level_five_data, player, 5, bg_underground_img, bgm_level_underground, selection_five_text)
 
