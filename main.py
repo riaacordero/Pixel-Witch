@@ -37,9 +37,14 @@ for i in range(1, 7):
 
 selection_back_text = HoverableText(390, 15, "BACK", retro_gaming_font, 28, dark_gray, light_gray, gray)
 selection_level_texts = []
-for i in range(1, len(levels_data) + 1):
-    selection_level_texts.append(HoverableText(i * 50, 125, str(i), fff_forward_font, 28, dark_gray, light_gray, gray,
+for i in range(len(levels_data)):
+    selection_level_texts.append(HoverableText(i % 3 * 125 + 125, 140 if i < 3 else 265 if i < 6 else 390,
+                                               str(i + 1), fff_forward_font, 40, dark_gray, light_gray, gray,
                                                pos="center"))
+selection_high_score_texts = []
+for i in range(len(levels_data)):
+    selection_high_score_texts.append(Text(i % 3 * 125 + 125, 180 if i < 3 else 305 if i < 6 else 430,
+                                           str(0), fff_forward_font, 20, gray, pos="center"))
 
 over_text = Text(125, 300, "GAME OVER", fff_forward_font, 32, black)
 over_restart_text = HoverableText(190, 385, "restart", retro_gaming_font, 24, dark_gray, light_gray, gray)
@@ -62,7 +67,7 @@ score_text = Text(100, 10, "0", retro_gaming_font, 28, purple)
 # Create text groups
 main_menu_texts = TextGroup(main_title_text, main_subtitle_text, main_start_text, main_exit_text, main_howto_text)
 how_to_texts = TextGroup(howto_back_text, *howto_number_texts)
-level_selection_texts = TextGroup(selection_back_text, *selection_level_texts)
+level_selection_texts = TextGroup(selection_back_text, *selection_level_texts, *selection_high_score_texts)
 game_over_texts = TextGroup(over_text, over_restart_text, over_main_text)
 game_clear_texts = TextGroup(clear_text, clear_next_text, clear_restart_text, clear_main_text, clear_score_text)
 pause_texts = TextGroup(pause_resume_text, pause_restart_text, pause_main_text)
@@ -215,6 +220,7 @@ def display_game_clear(level: Level):
         score_display += 1
         select_sfx.play()
     game_clear_texts.update()
+
     clear_score_text.update(str(score_display), pos="center", new_x=250, new_y=125)
     game_clear_texts.draw(screen, excluded=() if score_display == level.score else (clear_text,))
 
@@ -266,6 +272,12 @@ def display_level(level: Level):
         display_game_over(level)
     elif current_player_state == PlayerState.WON:
         music_player.stop_and_unload()
+        if level.score > level.high_score:
+            level.high_score = level.score
+            index = level.number - 1
+            selection_high_score_texts[index].update(str(level.high_score), pos="center",
+                                                                new_x=index % 3 * 125 + 125,
+                                                                new_y=180 if index < 3 else 305 if index < 6 else 430)
         display_game_clear(level)
 
 

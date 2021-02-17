@@ -33,7 +33,7 @@ class Text:
     def draw(self, screen):
         screen.blit(self.default_text, self.rect)
 
-    def update(self, new_text="", pos="", new_x=0, new_y=0):
+    def update(self, new_text="", pos="", new_x=-1, new_y=-1):
         self.hovered = self.is_hovered()
 
         if not new_text == "":
@@ -42,9 +42,7 @@ class Text:
             self.width, self.height = self.default_text.get_width(), self.default_text.get_height()
             self.rect.x, self.rect.y = self.x, self.y
 
-            if pos == "" or pos == "topleft":
-                self.rect.x, self.rect.y = self.x, self.y
-            elif pos == "center":
+            if pos == "center":
                 self.rect.center = new_x, new_y
 
     def is_hovered(self):

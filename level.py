@@ -310,6 +310,9 @@ class Level:
         self.score = 0
         """Score gained by the player by getting gems"""
 
+        self.high_score = 0
+        """Highest score gained by the player"""
+
         # Groups present per level
         self.platforms = pygame.sprite.Group()
         self.lava_platforms = pygame.sprite.Group()
