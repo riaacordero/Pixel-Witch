@@ -197,7 +197,7 @@ class Fireball(LevelSprite):
                 level.active_sprites.remove(enemy)
                 # Replace enemy with gem
                 Gem(enemy.rect.centerx, enemy.rect.centery, level.consumables, level.active_sprites)
-                if not has_torch:
+                if not has_torch and level.is_underground:
                     level.active_sprites.remove(overlay)
                     level.active_sprites.add(overlay)
                 enemy_hit_sfx.play()
@@ -351,7 +351,7 @@ class Player(pygame.sprite.Sprite):
                 self.fireball.attacking = True
                 self.fireball.direction = self.direction
                 self.current_level.active_sprites.add(self.fireball)
-                if not self.has_torch:
+                if not self.has_torch and self.current_level.is_underground:
                     self.current_level.active_sprites.remove(self.overlay)
                     self.current_level.active_sprites.add(self.overlay)
             elif self.color_state == ColorState.RED and not self.has_shield:
@@ -500,7 +500,8 @@ class Player(pygame.sprite.Sprite):
         self.on_ground = True
 
         # OVERLAY
-        self.current_level.active_sprites.add(self.overlay)
+        if self.current_level.is_underground:
+            self.current_level.active_sprites.add(self.overlay)
         self.has_torch = False
 
         # ABILITY
