@@ -9,6 +9,10 @@ import pygame.transform
 bg_sky_img = pygame.image.load('assets/img/bg_img.png')
 bg_underground_img = pygame.image.load("assets/img/bg-under-level.png")
 
+# OVERLAY
+overlay_img = pygame.image.load("assets/img/overlay.png")
+torch_img = pygame.image.load("assets/img/key_mono.png")
+
 # MENU
 game_over_img = pygame.image.load("assets/img/game_over.png")
 death_img = pygame.image.load("assets/img/dead.png")

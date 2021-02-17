@@ -26,7 +26,8 @@ class LevelSprite(pygame.sprite.Sprite):
         self.y = y
         self.image = pygame.transform.scale(image, (width, height))
         self.rect = self.image.get_rect(topleft=(self.x, self.y))
-        
+
+
 class Background(LevelSprite):
     """
     Moving background in a single level.
@@ -142,6 +143,24 @@ class Door(LevelSprite):
         self.change_sprite(door_img, self.x, self.y, 48, 48)
 
 
+class Overlay(LevelSprite):
+    """
+    Darkens the surroundings of the player.
+    """
+
+    def __init__(self, *groups):
+        super().__init__(overlay_img, 0, 0, 1000, 1000, *groups)
+
+
+class Torch(LevelSprite):
+    """
+    Removes the overlay.
+    """
+
+    def __init__(self, x, y, *groups):
+        super().__init__(torch_img, x, y, tile_size, tile_size, *groups)
+
+
 class Fireball(LevelSprite):
     """
     A fireball attack casted by a player when pressing SPACE while in yellow color state.
@@ -153,7 +172,7 @@ class Fireball(LevelSprite):
         self.move_speed = 8
         self.direction = 0
 
-    def attack(self, level):
+    def attack(self, level, overlay, has_torch):
         x_movement = self.direction * self.move_speed
         self.rect.x += x_movement
 
@@ -178,6 +197,9 @@ class Fireball(LevelSprite):
                 level.active_sprites.remove(enemy)
                 # Replace enemy with gem
                 Gem(enemy.rect.centerx, enemy.rect.centery, level.consumables, level.active_sprites)
+                if not has_torch:
+                    level.active_sprites.remove(overlay)
+                    level.active_sprites.add(overlay)
                 enemy_hit_sfx.play()
                 self.attacking = False
                 level.active_sprites.remove(self)
@@ -192,6 +214,7 @@ class Shield(LevelSprite):
 
     def __init__(self, *groups):
         super().__init__(shield_img, 0, 0, 15, 15, *groups)
+
 
 class Player(pygame.sprite.Sprite):
     """
@@ -222,6 +245,10 @@ class Player(pygame.sprite.Sprite):
         self.direction = 1
         self.on_ground = True
 
+        # OVERLAY
+        self.overlay = Overlay()
+        self.has_torch = False
+
         # ABILITY
         self.jump_cooldown = 0
         self.atk_cooldown = 0
@@ -248,6 +275,10 @@ class Player(pygame.sprite.Sprite):
             self.rect.y += y_movement
 
     def _apply_abilities(self):
+        # Overlay
+        if not self.has_torch:
+            self.overlay.rect.center = self.rect.center
+
         # Jump
         if self.on_ground and self.jump_cooldown > 0:
             self.jump_cooldown -= 1
@@ -257,7 +288,7 @@ class Player(pygame.sprite.Sprite):
             self.atk_cooldown -= 1
 
         if self.fireball.attacking:
-            self.fireball.attack(self.current_level)
+            self.fireball.attack(self.current_level, self.overlay, self.has_torch)
         else:
             self.fireball.rect.x, self.fireball.rect.y = self.rect.x + 15, self.rect.y + 10
 
@@ -320,7 +351,9 @@ class Player(pygame.sprite.Sprite):
                 self.fireball.attacking = True
                 self.fireball.direction = self.direction
                 self.current_level.active_sprites.add(self.fireball)
-                pass
+                if not self.has_torch:
+                    self.current_level.active_sprites.remove(self.overlay)
+                    self.current_level.active_sprites.add(self.overlay)
             elif self.color_state == ColorState.RED and not self.has_shield:
                 shield_sfx.play()
                 self.shield_time_left = fps * 10  # 10 second duration
@@ -419,6 +452,10 @@ class Player(pygame.sprite.Sprite):
                     key_collect_sfx.play()
                     self.has_key = True
                     self.current_level.door.activate()
+                if isinstance(consumable, Torch):
+                    torch_collect_sfx.play()
+                    self.has_torch = True
+                    self.current_level.active_sprites.remove(self.overlay)
                 self.current_level.active_sprites.remove(consumable)
 
         return x_movement, y_movement, player_state
@@ -461,6 +498,10 @@ class Player(pygame.sprite.Sprite):
         self.y_vel = 0
         self.direction = 1
         self.on_ground = True
+
+        # OVERLAY
+        self.current_level.active_sprites.add(self.overlay)
+        self.has_torch = False
 
         # ABILITY
         self.jump_cooldown = 0
