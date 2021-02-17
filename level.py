@@ -9,8 +9,8 @@ import numpy as np
 level_one_data = np.array([
     "PPPPPPPPPPPPPPPPP",
     "P---------------P",
-    "P---D---------K-P",
-    "PPPPPP-------PPPP",
+    "P---D--------R-KP",
+    "PPPPPP-------PLLP",
     "P---------------P",
     "P---R---E---Y-BBP",
     "P---PPPPPPPPPPPPP",
@@ -64,7 +64,7 @@ level_three_data = np.array([
     "P-----------G-PPPP-------PPP",
     "P-----------PPPPP-------0-PP",
     "P-------------------------PP",
-    "P--D--E-----B-------------PP",
+    "P--D--E-----B------T------PP",
     "PPPPPPPPPPPPPPPPPPPPPPPPPPPP"
 ])
 
@@ -232,12 +232,13 @@ class Level:
     The stage that comprises of the different sprites that can interact with the player.
     """
 
-    def __init__(self, data: list, target: Player, number, background_image, music, button):
+    def __init__(self, data: list, target: Player, number, button, *, is_underground):
         self.target = target
         self.width, self.height = len(data[0]) * tile_size, len(data) * tile_size
         self.rect = pygame.Rect(0, 0, self.width, self.height)
-        self.background = Background(background_image, self.width, self.height)
-        self.music = music
+        self.is_underground = is_underground
+        self.background = Background(bg_underground_img if self.is_underground else bg_sky_img, self.width, self.height)
+        self.music = bgm_level_underground if self.is_underground else bgm_level_sky
 
         self.number = number
         """Number to represent the level"""
