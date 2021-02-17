@@ -81,7 +81,8 @@ player = Player()
 # Create levels
 levels = []
 for i in range(len(levels_data)):
-    levels.append(Level(levels_data[i], player, i + 1, selection_level_texts[i], is_underground=i >= 2))
+    levels.append(Level(levels_data[i], player, i + 1, selection_level_texts[i], is_underground=i >= 2,
+                        max_score=levels_max_scores[i]))
 
 # Player state
 current_player_state = PlayerState.ALIVE
@@ -277,7 +278,10 @@ def display_level(level: Level):
             index = level.number - 1
             selection_high_score_texts[index].update(str(level.high_score), pos="center",
                                                                 new_x=index % 3 * 125 + 125,
-                                                                new_y=180 if index < 3 else 305 if index < 6 else 430)
+                                                                new_y=180 if index < 3 else 305 if index < 6 else 430,
+                                                                new_color=green if level.high_score >= level.max_score
+                                                                else ())
+            selection_high_score_texts[index].update(new_color=green)
         display_game_clear(level)
 
 

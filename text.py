@@ -33,9 +33,11 @@ class Text:
     def draw(self, screen):
         screen.blit(self.default_text, self.rect)
 
-    def update(self, new_text="", pos="", new_x=-1, new_y=-1):
+    def update(self, new_text="", pos="", new_x=-1, new_y=-1, new_color=()):
         self.hovered = self.is_hovered()
 
+        if not new_color == ():
+            self.default_text_color = new_color
         if not new_text == "":
             self.default_text = self.font.render(new_text, True, self.default_text_color)
             self.rect = self.default_text.get_rect()
