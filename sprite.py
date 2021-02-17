@@ -149,7 +149,7 @@ class Overlay(LevelSprite):
     """
 
     def __init__(self, *groups):
-        super().__init__(overlay_img, 0, 0, 1000, 1000, *groups)
+        super().__init__(overlay_img, 0, 0, 2000, 2000, *groups)
 
 
 class Torch(LevelSprite):
