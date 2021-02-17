@@ -11,7 +11,7 @@ bg_underground_img = pygame.image.load("assets/img/bg-under-level.png")
 
 # OVERLAY
 overlay_img = pygame.image.load("assets/img/overlay.png")
-torch_img = pygame.image.load("assets/img/key_mono.png")
+torch_img = pygame.image.load("assets/img/torch.png")
 
 # MENU
 game_over_img = pygame.image.load("assets/img/game_over.png")
