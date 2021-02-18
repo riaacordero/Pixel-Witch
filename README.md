@@ -1,6 +1,31 @@
-# About Pixel-Witch
+# About Pixel Witch
 
 Pixel Witch is a maze platformer game built on top of Python’s PyGame module. It is designed & developed by Malayan Colleges Mindanao's 1st-year Computer Science students, Ria Cordero & Hernan Jugar, for a course project. 
+
+---
+
+## Pre-Requisites
+
+To run Pixel Witch, you will be needing [Python](https://www.python.org/) and Python modules: [PyGame](https://www.pygame.org/) and [Numpy](https://numpy.org/) modules.
+
+### Installing PyGame
+Install PyGame using the pip tool:
+
+   ```
+   python3 -m pip install -U pygame --user
+   ```
+    
+You may also download PyGame and check documentations through this [link](https://www.pygame.org/download.shtml).
+
+
+### Installing Numpy
+Install Numpy using the pip tool:
+
+  ```
+  pip install numpy
+  ```
+  
+You may also download Numpy and check documentations through this [link](https://numpy.org/install/).
 
 ---
 
