@@ -190,7 +190,7 @@ level_nine_data = np.array([
     "P-------G-PPPPPPPPPPPP------------P",
     "P-----PPPPP----------E---------G--P",
     "P--------------------PPP----PPPPPPP",
-    "P-------------g-------------------P",
+    "P-------------G-------------------P",
     "PPPPPP----------------------------P",
     "PPPPPPPPPPPPPPPPPPPPPPPPPPPP----PPP",
     "P--------PPPPPPP------------------P",
