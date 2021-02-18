@@ -446,8 +446,11 @@ class Player(pygame.sprite.Sprite):
                     potion_collect_sfx.play()
                     self.color_state = ColorState.YELLOW
                 if isinstance(consumable, Gem):
-                    gem_collect_sfx.play()
                     self.current_level.score += 5
+                    if self.current_level.score >= self.current_level.max_score:
+                        acquired_max_score_sfx.play()
+                    else:
+                        gem_collect_sfx.play()
                 if isinstance(consumable, Key):
                     key_collect_sfx.play()
                     self.has_key = True

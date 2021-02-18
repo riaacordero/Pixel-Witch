@@ -158,6 +158,7 @@ def display_level_select():
         current_location = Location.MAIN_MENU
     for level in levels:
         if level.button.is_clicked():
+            score_text.update(new_text="0", new_color=purple)
             music_player.stop_and_unload()
             select_sfx.play()
             level.reset()
@@ -179,6 +180,7 @@ def display_pause(level: Level):
         paused = False
 
     if pause_restart_text.is_clicked():
+        score_text.update(new_color=purple)
         music_player.stop_and_unload()
         level.reset()
         current_player_state = player.player_state
@@ -200,6 +202,7 @@ def display_game_over(level: Level):
         select_sfx.play()
 
     if over_restart_text.is_clicked():
+        score_text.update(new_text="0", new_color=purple)
         level.reset()
         current_player_state = player.player_state
     elif over_main_text.is_clicked():
@@ -236,10 +239,12 @@ def display_game_clear(level: Level):
             from_start_or_main = False
             current_location = Location.MAIN_MENU
         else:
+            score_text.update(new_text="0", new_color=purple)
             levels[level.number].reset()
             current_player_state = player.player_state
             current_location += 1
     elif clear_restart_text.is_clicked():
+        score_text.update(new_text="0", new_color=purple)
         level.reset()
         current_player_state = player.player_state
     elif clear_main_text.is_clicked():
@@ -258,7 +263,7 @@ def display_level(level: Level):
         screen.blit(key_img if player.has_key else key_inactive, (10, 10))
         screen.blit(gem_img, (55, 10))
         score_text.draw(screen)
-        score_text.update(str(level.score))
+        score_text.update(str(level.score), new_color=light_green if level.score >= level.max_score else ())
 
     pause_btn.update()
     pause_btn.draw(screen)
