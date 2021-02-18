@@ -1,6 +1,6 @@
 # About Pixel Witch
 
-Pixel Witch is a maze platformer game built on top of Python’s PyGame module. It is designed & developed by Malayan Colleges Mindanao's 1st-year Computer Science students, Ria Cordero & Hernan Jugar, for a course project. 
+Pixel Witch is a maze platformer game built on top of Python’s PyGame module. It is designed & developed by Malayan Colleges Mindanao's 1st-year Computer Science students, Ria Cordero & Hernan Jugar, for a course project. To launch the game, access the `main.py` file.
 
 ---
 
