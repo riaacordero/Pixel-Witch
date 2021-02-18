@@ -5,14 +5,19 @@ Pixel Witch is a maze platformer game built on top of Python’s PyGame module. 
 ---
 
 ### Mechanics
-The game players control  **Pixel the Witch** as she travels from one map to another to find her way home. The goal of each level is for Pixel to find the golden key to unlock a door to the next world/level. The world of Pixel Witch consists of two types of map: the sky and the underground; both of which are infested by mobs, the grim reapers, and obstacles such as the lava. The scoring system of the game is based on the gems Pixel may collect within the map or after eliminating the mobs. The game includes consumables that are used to advance Pixel's abilities. Pixel may consume either of the three potions: red, yellow, and blue, which gives her the corresponding abilities/power-ups: shield, attack, and jump. The potions can only be consumed one at a time. The torches may also be consumed by Pixel to permanently light up the dark underground maps.
+The game players control  **Pixel the Witch** as she travels from one map to another to find her way home. The goal of each level is for Pixel to find the golden key to unlock a door to the next world/level. The world of Pixel Witch consists of two types of map: the sky and the underground; both of which are infested by mobs, the grim reapers, and obstacles such as the lava. The scoring system of the game is based on the gems Pixel may collect within the map or after eliminating the mobs. The game includes consumables that are used to advance Pixel's abilities. Torches are made available to permanently light up the dark underground maps.
 
-### Features
-- Consists of 9 levels with easy to hard difficulty.
-- Two map designs: sky and underground.
-- Game color is in mono black and white with color popping objects/collectibles (e.g.: potions, key, etc.).
+### Character Navigation
 - Character navigation through arrow keys **(UP/DOWN, LEFT/RIGHT)**.
 - Ability activation triggered by **SPACE BAR.** 
+
+### Features
+- Minimalist main menu with three buttons only: start, how-to, exit.
+- 'How-to' menu explains the game mechanics.
+- Consists of 9 levels with easy to hard difficulty. The levels can be accessed on the level selection menu.
+- Two map designs: sky and underground. Game color is in mono black and white with color popping objects/collectibles (e.g.: potions, key, etc.).
+- Key collection will unlock the exit and allow the players to proceed to the next level.
+- Dark room vignette limits the vision of the map. To clear, player must collect a torch.
 - Object collection for world/map unlocking.
 - Scoring system based on treasure collection, with maximum high score set.
 
