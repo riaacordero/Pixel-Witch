@@ -8,7 +8,7 @@ Pixel Witch is a maze platformer game built on top of Python’s PyGame module. 
 The game players control  **Pixel the Witch** as she travels from one map to another to find her way home. The goal of each level is for Pixel to find the golden key to unlock a door to the next world/level. The world of Pixel Witch consists of two types of map: the sky and the underground; both of which are infested by mobs, the grim reapers, and obstacles such as the lava. The scoring system of the game is based on the gems Pixel may collect within the map or after eliminating the mobs. The game includes consumables that are used to advance Pixel's abilities. Torches are made available to permanently light up the dark underground maps.
 
 ### Character Navigation
-- Character navigation through arrow keys **(UP/DOWN, LEFT/RIGHT)**.
+- Character navigation through **LEFT/RIGHT** arrow keys.
 - Ability activation triggered by **SPACE BAR.** 
 
 ### Features
