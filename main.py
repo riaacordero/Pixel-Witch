@@ -108,7 +108,7 @@ from_start_or_main = False
 
 
 def display_main_menu():
-    global running, current_location, from_start_or_main, current_player_state
+    global running, current_location, from_start_or_main, current_player_state, howto_index
 
     if not from_start_or_main:
         music_player.load_and_play(bgm_main, loops=-1, fade_ms=3000)
@@ -120,6 +120,7 @@ def display_main_menu():
     if main_exit_text.is_clicked():
         running = False
     elif main_howto_text.is_clicked():
+        howto_index = 0
         current_location = Location.HOW_TO
     elif main_start_text.is_clicked():
         from_start_or_main = True
