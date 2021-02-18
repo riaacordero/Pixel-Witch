@@ -43,8 +43,8 @@ for i in range(len(levels_data)):
                                                pos="center"))
 selection_high_score_texts = []
 for i in range(len(levels_data)):
-    selection_high_score_texts.append(Text(i % 3 * 125 + 125, 180 if i < 3 else 305 if i < 6 else 430,
-                                           str(0), fff_forward_font, 20, gray, pos="center"))
+    selection_high_score_texts.append(Text(i % 3 * 125 + 125, 185 if i < 3 else 310 if i < 6 else 435,
+                                           str(0), fff_forward_font, 16, gray, pos="center"))
 
 over_text = Text(125, 300, "GAME OVER", fff_forward_font, 32, black)
 over_restart_text = HoverableText(190, 385, "restart", retro_gaming_font, 24, dark_gray, light_gray, gray)
@@ -283,7 +283,7 @@ def display_level(level: Level):
             index = level.number - 1
             selection_high_score_texts[index].update(str(level.high_score), pos="center",
                                                                 new_x=index % 3 * 125 + 125,
-                                                                new_y=180 if index < 3 else 305 if index < 6 else 430,
+                                                                new_y=185 if index < 3 else 310 if index < 6 else 435,
                                                                 new_color=green if level.high_score >= level.max_score
                                                                 else ())
             selection_high_score_texts[index].update(new_color=green)
