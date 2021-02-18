@@ -220,7 +220,7 @@ level_nine_data = np.array([
 levels_data = [level_one_data, level_two_data, level_three_data, level_four_data, level_five_data, level_six_data,
                level_seven_data, level_eight_data, level_nine_data]
 
-levels_max_scores = [25, 40, 30, 20, 10, 30, 40, 50, 30]
+levels_max_scores = [25, 40, 30, 20, 20, 30, 40, 60, 30]
 
 class Camera(pygame.sprite.LayeredUpdates):
     """
