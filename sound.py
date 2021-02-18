@@ -28,6 +28,7 @@ player_atk_sfx = pygame.mixer.Sound(r"assets/sound/attack.wav")
 enemy_hit_sfx = pygame.mixer.Sound(r"assets/sound/hit.wav")
 shield_sfx = pygame.mixer.Sound(r"assets/sound/shield.wav")
 shield_blink_sfx = pygame.mixer.Sound(r"assets/sound/select1.wav")
+acquired_max_score_sfx = pygame.mixer.Sound(r"assets/sound/win.wav")
 
 
 class MusicPlayer:
