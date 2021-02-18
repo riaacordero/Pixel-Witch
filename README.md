@@ -12,7 +12,7 @@ To run Pixel Witch, you will be needing [Python](https://www.python.org/) and Py
 Install PyGame using the pip tool:
 
    ```
-   python3 -m pip install -U pygame --user
+   python -m pip install -U pygame --user
    ```
     
 You may also download PyGame and check documentations through this [link](https://www.pygame.org/download.shtml).
@@ -66,7 +66,10 @@ TBA.
 - **Hernan Rey Jugar**
   - Contributions include: game logic and front/back-end development.
   - A backend enthusiast, full-time student, and aspiring software developer. Access his portfolio via [LinkedIn](https://www.linkedin.com/in/hernanjugar/) and [GitHub](https://github.com/hrjugar).
-  
+
+
+For minor changes, pull requests are welcome. Major changes shall be discussed through the [issues](https://github.com/riaacordero/Pixel-Witch/issues) panel.
+
 ---
   
 © 2021 [Riri](https://github.com/riaacordero) & [Hernan](https://github.com/hrjugar).
