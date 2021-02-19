@@ -6,7 +6,7 @@ Pixel Witch is a maze platformer game built on top of Python’s PyGame module. 
 
 ## Pre-Requisites
 
-To run Pixel Witch, you will be needing [Python](https://www.python.org/) and Python modules: [PyGame](https://www.pygame.org/) and [Numpy](https://numpy.org/) modules.
+To run Pixel Witch, you will be needing [Python](https://www.python.org/) and Python modules: [PyGame](https://www.pygame.org/) and [Numpy](https://numpy.org/).
 
 ### Installing PyGame
 Install PyGame using the pip tool:
