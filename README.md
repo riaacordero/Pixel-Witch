@@ -56,7 +56,7 @@ TBA.
 
 ### Assets
 - Sound effects from [Youtube Audio Library](https://studio.youtube.com/channel/UCDJfE_mJSOztzsQwczVL1_g/music), and [ZapSplat](https://www.zapsplat.com/). Modified via Adobe Audition and Audacity.
-- Visual assets designed via [PixilArt](https://www.pixilart.com/draw).
+- Visual assets designed via [PixilArt](https://www.pixilart.com/draw) and Adobe Photoshop.
 
 ### Contributors
 - **Ria Cordero**
